@@ -17,7 +17,7 @@ yrm100_context_t *yrm100_init(const char *port_name)
         }
         device_context->serial_port = yrm100_serial_open(port_name);
 #ifdef _WIN32
-        if (device_context->serial_port == NULL)
+        if (device_context->serial_port == INVALID_HANDLE_VALUE)
 #else
         if (device_context->serial_port < 0)
 #endif
