@@ -30,6 +30,8 @@ const char *yrm100_error_code_to_string(int error_code)
         return "Multi poll is not running";
     case YRM100_ERROR_READ_TIMEOUT:
         return "Read timeout";
+    case YRM100_ERROR_READING_FROM_SERIAL_PORT_FAILED:
+        return "Reading from serial port failed";
     case YRM100_ERROR_INVALID_COMMAND:
         return "Command byte sequence invalid";
     case YRM100_ERROR_INVALID_DEVICE_HANDLE:

@@ -73,7 +73,7 @@ ssize_t yrm100_command_read_response(yrm100_context_t *device_context)
         response_len = serial_read(device_context->serial_port, buf, buf_size - cursor);
         if (response_len < 0)
         {
-            return yrm100_set_last_error_code(device_context, response_len);
+            return yrm100_set_last_error_code(device_context, YRM100_ERROR_READING_FROM_SERIAL_PORT_FAILED);
         }
         if (response_len == 0)
         {
@@ -100,6 +100,10 @@ ssize_t yrm100_command_read_response(yrm100_context_t *device_context)
     printf("\n");
 #endif
 
+    if (total_read > 0 && device_context->command_response_buf[total_read - 1] != YRM100_FRAME_END_BYTE)
+    {
+        return yrm100_set_last_error_code(device_context, YRM100_ERROR_PARSE_ERROR);
+    }
     yrm100_set_last_error_code(device_context, YRM100_STATUS_OK);
     return (ssize_t)total_read;
 }

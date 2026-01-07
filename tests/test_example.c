@@ -2,6 +2,7 @@
 #include <string.h>
 #include "yrm100/yrm100_command.h"
 #include "yrm100/yrm100_error.h"
+#include "yrm100/yrm100_frame.h"
 #include "yrm100/yrm100_types.h"
 
 ssize_t yrm100_command_read_response(yrm100_context_t *device_context);
@@ -58,11 +59,37 @@ static int test_overflow_read(void)
     return expect_equal_int("overflow read error", (int)read_len, YRM100_ERROR_SERIAL_INPUT_OVERFLOW);
 }
 
+static int test_partial_read_without_end_byte(void)
+{
+    yrm100_context_t ctx;
+    memset(&ctx, 0, sizeof(ctx));
+    ctx.serial_port_name = "mock";
+    ctx.serial_port = (serial_port_t)1;
+    ctx.is_initialized = true;
+
+    unsigned char response[] = {0xBB, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00};
+    size_t chunks[] = {sizeof(response)};
+    test_serial_set_read_data(response, sizeof(response), chunks, 1);
+
+    ssize_t read_len = yrm100_command_read_response(&ctx);
+    return expect_equal_int("partial read missing end byte", (int)read_len, YRM100_ERROR_PARSE_ERROR);
+}
+
+static int test_invalid_end_byte_checksum_validation(void)
+{
+    unsigned char response[] = {0xBB, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00};
+    response[6] = (unsigned char)yrm100_frame_calculate_checksum(response, sizeof(response));
+    response[7] = 0x00;
+    return expect_equal_int("invalid end byte", yrm100_frame_is_valid_response(response, sizeof(response)), 0);
+}
+
 int main(void)
 {
     int failures = 0;
     failures += test_fragmented_read();
     failures += test_overflow_read();
+    failures += test_partial_read_without_end_byte();
+    failures += test_invalid_end_byte_checksum_validation();
     if (failures == 0)
     {
         printf("OK\n");

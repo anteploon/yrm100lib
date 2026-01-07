@@ -64,6 +64,10 @@ bool yrm100_frame_is_valid_command(unsigned char *buf, size_t buf_size)
     {
         return false;
     }
+    if (buf[buf_size - 1] != YRM100_FRAME_END_BYTE)
+    {
+        return false;
+    }
     if (buf[buf_size - 2] != yrm100_frame_calculate_checksum(buf, buf_size))
     {
         return false;
@@ -78,6 +82,10 @@ bool yrm100_frame_is_valid_response(unsigned char *buf, size_t buf_size)
         return false;
     }
     if (yrm100_frame_is_response(buf, buf_size) == false)
+    {
+        return false;
+    }
+    if (buf[buf_size - 1] != YRM100_FRAME_END_BYTE)
     {
         return false;
     }
