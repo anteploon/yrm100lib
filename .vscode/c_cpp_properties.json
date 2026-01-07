@@ -1,6 +1,12 @@
 {
     "configurations": [
         {
+            "name": "Windows",
+            "compilerPath": "C:/mingw64/bin/gcc.exe",
+            "defines": [],
+            "intelliSenseMode": "windows-gcc-x64"
+        },
+        {
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**"
