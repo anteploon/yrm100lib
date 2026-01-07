@@ -14,7 +14,7 @@ void yrm100_print_tag_info(rfid_tag_t *tag)
     printf("%s\n", buf);
 }
 
-void yrm100_print_module_info(rfid_uhf_context_t *device_context)
+void yrm100_print_module_info(yrm100_context_t *device_context)
 {
     char buf[YRM100_MODULE_INFO_STRING_LENGTH];
 

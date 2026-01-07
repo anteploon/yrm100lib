@@ -3,7 +3,7 @@
 #include "yrm100.h"
 #include "yrm100_error.h"
 
-yrm100_context_t *rfid_uhf_init(const char *port_name)
+yrm100_context_t *yrm100_init(const char *port_name)
 {
     yrm100_context_t *device_context = calloc(1, sizeof(*device_context));
     if (device_context != NULL)
@@ -41,7 +41,7 @@ yrm100_context_t *rfid_uhf_init(const char *port_name)
     return device_context;
 }
 
-int yrm100_deinit(rfid_uhf_context_t *device_context)
+int yrm100_deinit(yrm100_context_t *device_context)
 {
     if (device_context != NULL)
     {
@@ -55,7 +55,7 @@ int yrm100_deinit(rfid_uhf_context_t *device_context)
     return YRM100_STATUS_OK;
 }
 
-bool yrm100_is_device_context_valid(rfid_uhf_context_t *device_context)
+bool yrm100_is_device_context_valid(yrm100_context_t *device_context)
 {
     if (device_context != NULL &&
         device_context->serial_port_name != NULL &&

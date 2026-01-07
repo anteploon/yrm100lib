@@ -8,7 +8,7 @@
 #include "yrm100_command.h"
 #include "yrm100_error.h"
 
-int yrm100_set_last_error_code(rfid_uhf_context_t *device_context, ssize_t error_code)
+int yrm100_set_last_error_code(yrm100_context_t *device_context, ssize_t error_code)
 {
     if (device_context != NULL)
     {
@@ -17,7 +17,7 @@ int yrm100_set_last_error_code(rfid_uhf_context_t *device_context, ssize_t error
     return (int)error_code;
 }
 
-static int yrm100_command_send(rfid_uhf_context_t *device_context, unsigned char *cmd, size_t cmd_size)
+static int yrm100_command_send(yrm100_context_t *device_context, unsigned char *cmd, size_t cmd_size)
 {
     if (yrm100_is_device_context_valid(device_context) == false)
     {
@@ -50,7 +50,7 @@ static int yrm100_command_send(rfid_uhf_context_t *device_context, unsigned char
     return yrm100_set_last_error_code(device_context, YRM100_STATUS_OK);
 }
 
-ssize_t yrm100_command_read_response(rfid_uhf_context_t *device_context)
+ssize_t yrm100_command_read_response(yrm100_context_t *device_context)
 {
     if (yrm100_is_device_context_valid(device_context) == false)
     {
@@ -99,7 +99,7 @@ unsigned char yrm100_pack_select_parameters(rfid_select_parameters_t *data)
     return (unsigned char)((data->target & 0x07) | ((data->action & 0x07) << 3) | ((data->membank & 0x03) << 6));
 }
 
-int yrm100_command_get_module_manufacturer(rfid_uhf_context_t *device_context, char *string_buf, size_t string_buf_size)
+int yrm100_command_get_module_manufacturer(yrm100_context_t *device_context, char *string_buf, size_t string_buf_size)
 {
     unsigned char bytes[] = {0xBB, 0x00, 0x03, 0x00, 0x01, 0x02, 0x06, 0x7E};
 
@@ -137,7 +137,7 @@ int yrm100_command_get_module_manufacturer(rfid_uhf_context_t *device_context, c
     return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
 }
 
-int yrm100_command_get_module_hardware_version(rfid_uhf_context_t *device_context, char *string_buf, size_t string_buf_size)
+int yrm100_command_get_module_hardware_version(yrm100_context_t *device_context, char *string_buf, size_t string_buf_size)
 {
     unsigned char bytes[] = {0xBB, 0x00, 0x03, 0x00, 0x01, 0x00, 0x04, 0x7E};
 
@@ -175,7 +175,7 @@ int yrm100_command_get_module_hardware_version(rfid_uhf_context_t *device_contex
     return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
 }
 
-int yrm100_command_get_module_software_version(rfid_uhf_context_t *device_context, char *string_buf, size_t string_buf_size)
+int yrm100_command_get_module_software_version(yrm100_context_t *device_context, char *string_buf, size_t string_buf_size)
 {
     unsigned char bytes[] = {0xBB, 0x00, 0x03, 0x00, 0x01, 0x01, 0x05, 0x7E};
 
@@ -216,7 +216,7 @@ int yrm100_command_get_module_software_version(rfid_uhf_context_t *device_contex
     return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
 }
 
-int yrm100_command_single_poll(rfid_uhf_context_t *device_context, rfid_tag_t *tags, unsigned short maximum_tag_count)
+int yrm100_command_single_poll(yrm100_context_t *device_context, rfid_tag_t *tags, unsigned short maximum_tag_count)
 {
     unsigned char bytes[] = {0xBB, 0x00, 0x22, 0x00, 0x00, 0x22, 0x7E};
 
@@ -255,7 +255,7 @@ int yrm100_command_single_poll(rfid_uhf_context_t *device_context, rfid_tag_t *t
 }
 
 /*
-int yrm100_command_multi_poll_start(rfid_uhf_context_t *device_context, rfid_tag_t *tags, unsigned short maximum_tag_count)
+int yrm100_command_multi_poll_start(yrm100_context_t *device_context, rfid_tag_t *tags, unsigned short maximum_tag_count)
 {
     unsigned char bytes[] = {0xBB, 0x00, 0x27, 0x00, 0x03, 0x22, 0x27, 0x10, 0x83, 0x7E};
 
@@ -301,7 +301,7 @@ int yrm100_command_multi_poll_start(rfid_uhf_context_t *device_context, rfid_tag
     return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
 }
 
-int yrm100_command_multi_poll_continue(rfid_uhf_context_t *device_context)
+int yrm100_command_multi_poll_continue(yrm100_context_t *device_context)
 {
     if (yrm100_is_device_context_valid(device_context) == false)
     {
@@ -343,7 +343,7 @@ int yrm100_command_multi_poll_continue(rfid_uhf_context_t *device_context)
     return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
 }
 
-int yrm100_command_multi_poll_stop(rfid_uhf_context_t *device_context)
+int yrm100_command_multi_poll_stop(yrm100_context_t *device_context)
 {
     unsigned char bytes[] = {0xBB, 0x00, 0x28, 0x00, 0x00, 0x28, 0x7E};
 
@@ -379,20 +379,20 @@ int yrm100_command_multi_poll_stop(rfid_uhf_context_t *device_context)
 }
 */
 /*
-int yrm100_command_set_select_parameters(rfid_uhf_context_t *device_context)
+int yrm100_command_set_select_parameters(yrm100_context_t *device_context)
 {
     unsigned char bytes[] = {0xBB, 0x00, 0x0C, 0x00, 0x13, 0x01, 0x00, 0x00, 0x00, 0x20, 0x60, 0x00, 0x30, 0x75, 0x1F, 0xEB, 0x70, 0x5C, 0x59, 0x04, 0xE3, 0xD5, 0x0D, 0x70, 0xAD, 0x7E};
     return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
 }
 
-int yrm100_command_get_select_parameters(rfid_uhf_context_t *device_context)
+int yrm100_command_get_select_parameters(yrm100_context_t *device_context)
 {
     unsigned char bytes[] = {0xBB, 0x00, 0x0B, 0x00, 0x00, 0x0B, 0x7E};
     return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
 }
 */
 
-int yrm100_command_set_select_mode(rfid_uhf_context_t *device_context, unsigned char select_mode)
+int yrm100_command_set_select_mode(yrm100_context_t *device_context, unsigned char select_mode)
 {
     unsigned char bytes[] = {0xBB, 0x00, 0x12, 0x00, 0x01, 0x01, 0x14, 0x7E};
 
@@ -431,7 +431,7 @@ int yrm100_command_set_select_mode(rfid_uhf_context_t *device_context, unsigned 
     return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
 }
 
-int yrm100_command_set_idle_sleep_time(rfid_uhf_context_t *device_context, unsigned char minutes)
+int yrm100_command_set_idle_sleep_time(yrm100_context_t *device_context, unsigned char minutes)
 {
     unsigned char bytes[] = {0xBB, 0x00, 0x1D, 0x00, 0x01, 0x02, 0x20, 0x7E};
 
@@ -462,12 +462,12 @@ int yrm100_command_set_idle_sleep_time(rfid_uhf_context_t *device_context, unsig
     return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
 }
 
-int yrm100_command_disable_idle_sleep(rfid_uhf_context_t *device_context)
+int yrm100_command_disable_idle_sleep(yrm100_context_t *device_context)
 {
     return yrm100_command_set_idle_sleep_time(device_context, 0);
 }
 
-int yrm100_command_set_operating_region(rfid_uhf_context_t *device_context, unsigned char region)
+int yrm100_command_set_operating_region(yrm100_context_t *device_context, unsigned char region)
 {
     unsigned char bytes[] = {0xBB, 0x00, 0x07, 0x00, 0x01, 0x01, 0x09, 0x7E};
 
@@ -504,14 +504,14 @@ int yrm100_command_set_operating_region(rfid_uhf_context_t *device_context, unsi
         }
         if (yrm100_frame_is_error_response(device_context->command_response_buf, (size_t)response_len))
         {
-            return yrm100_set_last_error_code(device_context, rfid_uhf_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
+            return yrm100_set_last_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
         }
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_COMMAND_FAILED);
     }
     return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
 }
 
-int yrm100_command_get_operating_region(rfid_uhf_context_t *device_context)
+int yrm100_command_get_operating_region(yrm100_context_t *device_context)
 {
     unsigned char bytes[] = {0xBB, 0x00, 0x08, 0x00, 0x00, 0x08, 0x7E};
 
@@ -542,7 +542,7 @@ int yrm100_command_get_operating_region(rfid_uhf_context_t *device_context)
     return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
 }
 
-int yrm100_command_set_tx_power(rfid_uhf_context_t *device_context, unsigned short power)
+int yrm100_command_set_tx_power(yrm100_context_t *device_context, unsigned short power)
 {
     unsigned char bytes[] = {0xBB, 0x00, 0xB6, 0x00, 0x02, 0x07, 0xD0, 0x8F, 0x7E};
 
@@ -579,14 +579,14 @@ int yrm100_command_set_tx_power(rfid_uhf_context_t *device_context, unsigned sho
         }
         if (yrm100_frame_is_error_response(device_context->command_response_buf, (size_t)response_len))
         {
-            return yrm100_set_last_error_code(device_context, rfid_uhf_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
+            return yrm100_set_last_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
         }
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_COMMAND_FAILED);
     }
     return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
 }
 
-int yrm100_command_get_tx_power(rfid_uhf_context_t *device_context)
+int yrm100_command_get_tx_power(yrm100_context_t *device_context)
 {
     unsigned char bytes[] = {0xBB, 0x00, 0xB7, 0x00, 0x00, 0xB7, 0x7E};
 
@@ -617,7 +617,7 @@ int yrm100_command_get_tx_power(rfid_uhf_context_t *device_context)
     return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
 }
 
-int yrm100_command_set_continous_wave(rfid_uhf_context_t *device_context, unsigned char on_or_off)
+int yrm100_command_set_continous_wave(yrm100_context_t *device_context, unsigned char on_or_off)
 {
     unsigned char bytes[] = {0xBB, 0x00, 0xB0, 0x00, 0x01, 0xFF, 0xB0, 0x7E};
 
@@ -645,24 +645,24 @@ int yrm100_command_set_continous_wave(rfid_uhf_context_t *device_context, unsign
         }
         if (yrm100_frame_is_error_response(device_context->command_response_buf, (size_t)response_len))
         {
-            return yrm100_set_last_error_code(device_context, rfid_uhf_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
+            return yrm100_set_last_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
         }
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_COMMAND_FAILED);
     }
     return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
 }
 
-int yrm100_command_enable_continous_wave(rfid_uhf_context_t *device_context)
+int yrm100_command_enable_continous_wave(yrm100_context_t *device_context)
 {
     return yrm100_command_set_continous_wave(device_context, YRM100_PARAM_CONTINOUS_WAVE_ON);
 }
 
-int yrm100_command_disable_continous_wave(rfid_uhf_context_t *device_context)
+int yrm100_command_disable_continous_wave(yrm100_context_t *device_context)
 {
     return yrm100_command_set_continous_wave(device_context, YRM100_PARAM_CONTINOUS_WAVE_OFF);
 }
 
-char *yrm100_command_get_tx_power_string(rfid_uhf_context_t *device_context, char string_buf[YRM100_PARAM_TX_POWER_STRING_LENGTH])
+char *yrm100_command_get_tx_power_string(yrm100_context_t *device_context, char string_buf[YRM100_PARAM_TX_POWER_STRING_LENGTH])
 {
     yrm100_zero_buf(string_buf, YRM100_PARAM_TX_POWER_STRING_LENGTH);
     int result = yrm100_command_get_tx_power(device_context);
@@ -673,7 +673,7 @@ char *yrm100_command_get_tx_power_string(rfid_uhf_context_t *device_context, cha
     return yrm100_convert_to_tx_power_string((unsigned int)result, string_buf);
 }
 
-char *yrm100_command_get_module_info_string(rfid_uhf_context_t *device_context, char string_buf[YRM100_MODULE_INFO_STRING_LENGTH])
+char *yrm100_command_get_module_info_string(yrm100_context_t *device_context, char string_buf[YRM100_MODULE_INFO_STRING_LENGTH])
 {
     char manufacturer_buf[50];
     char software_version_buf[50];
