@@ -1,20 +1,25 @@
 {
-    "configurations": [
-        {
-            "name": "Windows",
-            "compilerPath": "C:/mingw64/bin/gcc.exe",
-            "defines": [],
-            "intelliSenseMode": "windows-gcc-x64"
-        },
-        {
-            "name": "Linux",
-            "includePath": [
-                "${workspaceFolder}/**"
-            ],
-            "defines": [],
-            "compilerPath": "/usr/bin/gcc",
-            "intelliSenseMode": "linux-gcc-arm64"
-        }
-    ],
-    "version": 4
+  "version": 4,
+  "configurations": [
+    {
+      "name": "Linux",
+      "compilerPath": "/usr/bin/gcc",
+      "intelliSenseMode": "linux-gcc-arm64",
+      "cStandard": "c17",
+      "cppStandard": "c++20",
+      "includePath": [
+        "${workspaceFolder}/**"
+      ]
+    },
+    {
+      "name": "Windows (MinGW)",
+      "compilerPath": "C:/mingw64/bin/gcc.exe",
+      "intelliSenseMode": "windows-gcc-x64",
+      "cStandard": "c17",
+      "cppStandard": "c++20",
+      "includePath": [
+        "${workspaceFolder}/**"
+      ]
+    }
+  ]
 }
