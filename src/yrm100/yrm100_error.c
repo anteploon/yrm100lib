@@ -6,6 +6,8 @@ const char *yrm100_error_code_to_string(int error_code)
     {
     case YRM100_STATUS_OK:
         return "OK";
+    case YRM100_ERROR_COMMAND_FAILED:
+        return "Command failed";
     case YRM100_ERROR_INITIALIZATION_FAILED:
         return "Device initialization failed";
     case YRM100_ERROR_NOT_INITIALIZED:
@@ -22,6 +24,8 @@ const char *yrm100_error_code_to_string(int error_code)
         return "Parse error";
     case YRM100_ERROR_BUFFER_OVERFLOW:
         return "Buffer overflow";
+    case YRM100_ERROR_CHECKSUM_CALCULATION_FAILURE:
+        return "Checksum calculation failure";
     case YRM100_ERROR_UNKNOWN_REGION:
         return "Unknown region value specified";
     case YRM100_ERROR_UNKNOWN_SELECT_MODE:
@@ -31,7 +35,7 @@ const char *yrm100_error_code_to_string(int error_code)
     case YRM100_ERROR_READ_TIMEOUT:
         return "Read timeout";
     case YRM100_ERROR_READING_FROM_SERIAL_PORT_FAILED:
-        return "Reading from serial port failed";
+        return "Reading from serial port failed";        
     case YRM100_ERROR_INVALID_COMMAND:
         return "Command byte sequence invalid";
     case YRM100_ERROR_INVALID_DEVICE_HANDLE:
