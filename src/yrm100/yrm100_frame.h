@@ -61,7 +61,7 @@ bool yrm100_frame_is_notice(unsigned char *buf, size_t buf_size);
 bool yrm100_frame_is_valid_command(unsigned char *buf, size_t buf_size);
 
 /**
- * @brief 
+ * @brief Checks if the RFID UHF frame looks like a valid response frame (also verifies the frame checksum)
  * @param buf Buffer
  * @param buf_size Buffer size
  * @return True if the frame is a valid response frame
@@ -69,7 +69,7 @@ bool yrm100_frame_is_valid_command(unsigned char *buf, size_t buf_size);
 bool yrm100_frame_is_valid_response(unsigned char *buf, size_t buf_size);
 
 /**
- * @brief 
+ * @brief Checks if the RFID UHF frame looks like an error response frame
  * @param buf Buffer
  * @param buf_size Buffer size
  * @return True if the frame is a error response
@@ -77,7 +77,7 @@ bool yrm100_frame_is_valid_response(unsigned char *buf, size_t buf_size);
 bool yrm100_frame_is_error_response(unsigned char *buf, size_t buf_size);
 
 /**
- * @brief 
+ * @brief Checks if the RFID UHF frame looks like a valid non-error response frame
  * @param buf Buffer
  * @param buf_size Buffer size
  * @return True if the frame is a non-error response frame
