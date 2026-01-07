@@ -16,7 +16,7 @@ serial_port_t yrm100_serial_open(const char *port_name)
     if (hSerial == INVALID_HANDLE_VALUE)
     {
         perror("Error opening serial port");
-        return INVALID_HANDLE_VALUE;
+        return YRM100_ERROR_SERIAL_PORT_OPEN_FAILED;
     }
     return hSerial;
 }
@@ -108,7 +108,7 @@ serial_port_t yrm100_serial_open(const char *port_name)
     if (fd < 0)
     {
         perror("Error opening serial port");
-        return -1;
+        return YRM100_ERROR_SERIAL_PORT_OPEN_FAILED;
     }
     return fd;
 }
@@ -119,8 +119,8 @@ ssize_t yrm100_serial_configure(serial_port_t port)
 
     if (tcgetattr(port, &tty) != 0)
     {
-        perror("Error from tcgetattr");
-        return -1;
+        perror("Error from tcgetattr()");
+        return YRM100_ERROR_SERIAL_TCGETATTR_FAILED;
     }
 
     cfsetospeed(&tty, B115200);
@@ -143,8 +143,8 @@ ssize_t yrm100_serial_configure(serial_port_t port)
 
     if (tcsetattr(port, TCSANOW, &tty) != 0)
     {
-        perror("Error from tcsetattr");
-        return -1;
+        perror("Error from tcsetattr()");
+        return YRM100_ERROR_SERIAL_TCSETATTR_FAILED;
     }
 
     return 0;

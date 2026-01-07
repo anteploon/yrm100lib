@@ -2,6 +2,7 @@
 #define YRM100_SERIAL_H
 
 #include <sys/types.h>
+#include "yrm100_error.h"
 
 #ifdef _WIN32
 #include <windows.h>

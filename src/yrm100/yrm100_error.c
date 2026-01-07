@@ -35,11 +35,17 @@ const char *yrm100_error_code_to_string(int error_code)
     case YRM100_ERROR_READ_TIMEOUT:
         return "Read timeout";
     case YRM100_ERROR_READING_FROM_SERIAL_PORT_FAILED:
-        return "Reading from serial port failed";        
+        return "Reading from serial port failed";
+    case YRM100_ERROR_SERIAL_PORT_OPEN_FAILED:
+        return "Serial port open failed";
     case YRM100_ERROR_INVALID_COMMAND:
         return "Command byte sequence invalid";
     case YRM100_ERROR_INVALID_DEVICE_HANDLE:
         return "Invalid device handle";
+    case YRM100_ERROR_SERIAL_TCGETATTR_FAILED:
+        return "Serial port call to tcgetattr() failed";
+    case YRM100_ERROR_SERIAL_TCSETATTR_FAILED:
+        return "Serial port call to tcsetattr() failed";
     default:
         return "Unknown error";
     }
