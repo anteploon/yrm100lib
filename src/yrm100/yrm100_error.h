@@ -39,14 +39,14 @@
 
 /**
  * @brief Converts the error code to human readable string
- * @param error_code 
+ * @param error_code Numeric error code
  * @return Error message string
  */
 const char *yrm100_error_code_to_string(int error_code);
 
 /**
  * @brief Converts the error code to human readable string
- * @param error_code 
+ * @param error_code Numeric error code
  * @return Error message string
  */
 const char *yrm100_module_error_code_to_string(int error_code);
