@@ -88,7 +88,7 @@ bool yrm100_frame_is_ok_response(unsigned char *buf, size_t buf_size);
  * @brief Calculates the checksum of the frame
  * @param buf Buffer
  * @param buf_size Buffer size
- * @return Checksum or a negative value on error
+ * @return Checksum or a negative value on error (buf_size must be at least 2)
  */
 int yrm100_frame_calculate_checksum(unsigned char *buf, size_t buf_size);
 

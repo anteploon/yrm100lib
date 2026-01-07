@@ -29,6 +29,7 @@ yrm100_context_t *yrm100_init(const char *port_name)
         if (serial_configure(device_context->serial_port) != YRM100_STATUS_OK)
         {
             serial_close(device_context->serial_port);
+            free(device_context->serial_port_name);
             free(device_context);
             return NULL;
         }

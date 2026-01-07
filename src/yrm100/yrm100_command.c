@@ -60,22 +60,32 @@ ssize_t yrm100_command_read_response(yrm100_context_t *device_context)
     unsigned char *buf = device_context->command_response_buf;
     size_t buf_size = sizeof(device_context->command_response_buf);
     unsigned short cursor = 0;
+    size_t total_read = 0;
     ssize_t response_len;
 
     while (true)
     {
+        if (cursor >= buf_size)
+        {
+            return yrm100_set_last_error_code(device_context, YRM100_ERROR_SERIAL_INPUT_OVERFLOW);
+        }
         buf = &device_context->command_response_buf[cursor];
-        response_len = serial_read(device_context->serial_port, buf, buf_size);
+        response_len = serial_read(device_context->serial_port, buf, buf_size - cursor);
         if (response_len < 0)
         {
             return yrm100_set_last_error_code(device_context, response_len);
         }
         if (response_len == 0)
         {
+            if (total_read == 0)
+            {
+                return yrm100_set_last_error_code(device_context, YRM100_ERROR_READ_TIMEOUT);
+            }
             break;
         }
         cursor += (unsigned short)response_len;
-        if (buf[cursor - 1] == YRM100_FRAME_END_BYTE)
+        total_read += (size_t)response_len;
+        if (device_context->command_response_buf[cursor - 1] == YRM100_FRAME_END_BYTE)
         {
             break;
         }
@@ -83,7 +93,7 @@ ssize_t yrm100_command_read_response(yrm100_context_t *device_context)
 
 #ifdef YRM100_COMM_DEBUG
     printf("RX: ");
-    for (ssize_t i = 0; i < response_len; i++)
+    for (size_t i = 0; i < total_read; i++)
     {
         printf("%02X ", device_context->command_response_buf[i]);
     }
@@ -91,7 +101,7 @@ ssize_t yrm100_command_read_response(yrm100_context_t *device_context)
 #endif
 
     yrm100_set_last_error_code(device_context, YRM100_STATUS_OK);
-    return response_len;
+    return (ssize_t)total_read;
 }
 
 unsigned char yrm100_pack_select_parameters(rfid_select_parameters_t *data)
@@ -158,19 +168,28 @@ int yrm100_command_get_module_hardware_version(yrm100_context_t *device_context,
     if (yrm100_command_send(device_context, bytes, sizeof(bytes)) == YRM100_STATUS_OK)
     {
         ssize_t result = yrm100_command_read_response(device_context);
-        if (result > 0)
+        if (result < 0)
         {
-            if (yrm100_frame_is_ok_response(device_context->command_response_buf, (size_t)result))
-            {
-                int parse_result = yrm100_parse_ascii_response(device_context->command_response_buf, (size_t)result, string_buf, string_buf_size);
-                if (parse_result != YRM100_STATUS_OK)
-                {
-                    return yrm100_set_last_error_code(device_context, parse_result);
-                }
-                return yrm100_set_last_error_code(device_context, YRM100_STATUS_OK);
-            }
+            return yrm100_set_last_error_code(device_context, result);
         }
-        return yrm100_set_last_error_code(device_context, result);
+        if (result == 0)
+        {
+            return yrm100_set_last_error_code(device_context, YRM100_ERROR_READ_TIMEOUT);
+        }
+        if (yrm100_frame_is_ok_response(device_context->command_response_buf, (size_t)result))
+        {
+            int parse_result = yrm100_parse_ascii_response(device_context->command_response_buf, (size_t)result, string_buf, string_buf_size);
+            if (parse_result != YRM100_STATUS_OK)
+            {
+                return yrm100_set_last_error_code(device_context, parse_result);
+            }
+            return yrm100_set_last_error_code(device_context, YRM100_STATUS_OK);
+        }
+        if (yrm100_frame_is_error_response(device_context->command_response_buf, (size_t)result))
+        {
+            return yrm100_set_last_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)result));
+        }
+        return yrm100_set_last_error_code(device_context, YRM100_ERROR_COMMAND_FAILED);
     }
     return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
 }
@@ -200,17 +219,22 @@ int yrm100_command_get_module_software_version(yrm100_context_t *device_context,
         {
             return yrm100_set_last_error_code(device_context, result);
         }
-        if (result > 0)
+        if (result == 0)
         {
-            if (yrm100_frame_is_valid_response(device_context->command_response_buf, (size_t)result))
+            return yrm100_set_last_error_code(device_context, YRM100_ERROR_READ_TIMEOUT);
+        }
+        if (yrm100_frame_is_ok_response(device_context->command_response_buf, (size_t)result))
+        {
+            int parse_result = yrm100_parse_ascii_response(device_context->command_response_buf, (size_t)result, string_buf, string_buf_size);
+            if (parse_result != YRM100_STATUS_OK)
             {
-                int parse_result = yrm100_parse_ascii_response(device_context->command_response_buf, (size_t)result, string_buf, string_buf_size);
-                if (parse_result != YRM100_STATUS_OK)
-                {
-                    return yrm100_set_last_error_code(device_context, parse_result);
-                }
-                return yrm100_set_last_error_code(device_context, YRM100_STATUS_OK);
+                return yrm100_set_last_error_code(device_context, parse_result);
             }
+            return yrm100_set_last_error_code(device_context, YRM100_STATUS_OK);
+        }
+        if (yrm100_frame_is_error_response(device_context->command_response_buf, (size_t)result))
+        {
+            return yrm100_set_last_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)result));
         }
     }
     return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);

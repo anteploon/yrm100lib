@@ -131,6 +131,10 @@ int yrm100_frame_calculate_checksum(unsigned char *buf, size_t buf_size)
     {
         return YRM100_ERROR_BUFFER_NULL;
     }
+    if (buf_size < 2)
+    {
+        return YRM100_ERROR_PARSE_ERROR;
+    }
 
     // buf is command frame? lets also check the size then
     if (buf[YRM100_FRAME_BYTE_POSITION_HEADER] == YRM100_FRAME_HEADER_BYTE &&

@@ -16,11 +16,11 @@ SRCS = example.c \
 
 OBJS = $(SRCS:.c=.o)
 TEST_SRCS = ../tests/test_example.c \
+	../tests/test_serial.c \
 	yrm100/yrm100_command.c \
 	yrm100/yrm100_error.c \
 	yrm100/yrm100_frame.c \
 	yrm100/yrm100_parse.c \
-	yrm100/yrm100_serial.c \
 	yrm100/yrm100_string.c \
 	yrm100/yrm100_util.c \
 	yrm100/yrm100_print.c \

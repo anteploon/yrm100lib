@@ -32,6 +32,10 @@ void yrm100_clear_tag_data(rfid_tag_t *tags, unsigned short tag_count)
 
 bool yrm100_is_empty_tag(rfid_tag_t *tag)
 {
+    if (tag == NULL)
+    {
+        return true;
+    }
     if (tag->rssi == 0 && tag->pc == 0 && tag->crc == 0)
     {
         return true;

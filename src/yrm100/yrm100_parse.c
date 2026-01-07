@@ -54,6 +54,10 @@ int yrm100_parse_poll_response(unsigned char *response, size_t response_len, rfi
 {
     size_t pos = 0;
 
+    if (response == NULL || tags == NULL)
+    {
+        return YRM100_ERROR_BUFFER_NULL;
+    }
     if (response_len>(USHRT_MAX/YRM100_FRAME_POLL_NOTICE_SIZE)) {
         return YRM100_ERROR_BUFFER_OVERFLOW;
     }

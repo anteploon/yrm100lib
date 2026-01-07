@@ -10,7 +10,7 @@ typedef HANDLE serial_port_t;
 typedef int serial_port_t;
 #endif
 
-#ifdef _cplusplus
+#ifdef __cplusplus
 extern "C"
 {
 #endif
@@ -49,7 +49,7 @@ extern "C"
      */
     void serial_close(serial_port_t port);
 
-#ifdef _cplusplus
+#ifdef __cplusplus
 }
 #endif
 

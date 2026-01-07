@@ -22,7 +22,7 @@ void yrm100_clear_tag_data(rfid_tag_t *tags, unsigned short tag_count);
 /**
  * @brief Checks if specified RFID tag structure is zeroed out
  * @param tag 
- * @return True, if the tag is zeroed out
+ * @return True if the tag is NULL or zeroed out
  */
 bool yrm100_is_empty_tag(rfid_tag_t *tag);
 

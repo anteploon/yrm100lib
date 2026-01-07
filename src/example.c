@@ -6,6 +6,7 @@
 #include "yrm100/yrm100_command.h"
 #include "yrm100/yrm100_util.h"
 #include "yrm100/yrm100_print.h"
+#include "yrm100/yrm100_error.h"
 
 int main()
 {
@@ -17,7 +18,43 @@ int main()
 
     printf("Serial port: %s \n", port_name);
     yrm100_context_t *device = yrm100_init(port_name);
-    yrm100_print_module_info(device);
+    if (device == NULL)
+    {
+        printf("yrm100_init failed\n");
+        return 1;
+    }
+
+    char manufacturer_buf[50];
+    char software_version_buf[50];
+    char hardware_version_buf[50];
+
+    yrm100_zero_buf(manufacturer_buf, sizeof(manufacturer_buf));
+    yrm100_zero_buf(hardware_version_buf, sizeof(hardware_version_buf));
+    yrm100_zero_buf(software_version_buf, sizeof(software_version_buf));
+
+    int result = yrm100_command_get_module_manufacturer(device, manufacturer_buf, sizeof(manufacturer_buf));
+    if (result < 0)
+    {
+        printf("get module manufacturer failed: %s (%d)\n", yrm100_error_code_to_string(result), result);
+    }
+
+    result = yrm100_command_get_module_hardware_version(device, hardware_version_buf, sizeof(hardware_version_buf));
+    if (result < 0)
+    {
+        printf("get module hardware version failed: %s (%d)\n", yrm100_error_code_to_string(result), result);
+    }
+
+    result = yrm100_command_get_module_software_version(device, software_version_buf, sizeof(software_version_buf));
+    if (result < 0)
+    {
+        printf("get module software version failed: %s (%d)\n", yrm100_error_code_to_string(result), result);
+    }
+
+    if (manufacturer_buf[0] != '\0' && hardware_version_buf[0] != '\0' && software_version_buf[0] != '\0')
+    {
+        printf("%s %s / FW: %s\n", manufacturer_buf, hardware_version_buf, software_version_buf);
+    }
+
     yrm100_command_disable_idle_sleep(device);
 
     //    yrm100_command_enable_continous_wave(device);
@@ -31,8 +68,25 @@ int main()
     //    yrm100_command_get_operating_region(port);
 
     char tx[YRM100_PARAM_TX_POWER_STRING_LENGTH];
-    printf("TX power: %s\n", yrm100_command_get_tx_power_string(device, tx));
-    printf("Region: %s\n", yrm100_convert_to_region_string((unsigned int)yrm100_command_get_operating_region(device)));
+    result = yrm100_command_get_tx_power(device);
+    if (result < 0)
+    {
+        printf("get TX power failed: %s (%d)\n", yrm100_error_code_to_string(result), result);
+    }
+    else
+    {
+        printf("TX power: %s\n", yrm100_convert_to_tx_power_string((unsigned int)result, tx));
+    }
+
+    result = yrm100_command_get_operating_region(device);
+    if (result < 0)
+    {
+        printf("get operating region failed: %s (%d)\n", yrm100_error_code_to_string(result), result);
+    }
+    else
+    {
+        printf("Region: %s\n", yrm100_convert_to_region_string((unsigned int)result));
+    }
 
     /*
         char power[YRM100_PARAM_TX_POWER_STRING_LENGTH];
@@ -50,7 +104,11 @@ int main()
     */
 
     rfid_tag_t tag[5];
-    yrm100_command_single_poll(device, tag, 5);
+    result = yrm100_command_single_poll(device, tag, 5);
+    if (result < 0)
+    {
+        printf("single poll failed: %s (%d)\n", yrm100_error_code_to_string(result), result);
+    }
     for (int i = 0; i < 5; i++)
     {
         yrm100_print_tag_info(&tag[i]);

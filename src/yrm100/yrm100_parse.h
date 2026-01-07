@@ -19,7 +19,7 @@ int yrm100_parse_ascii_response(unsigned char *response, size_t response_len, ch
  * @param response_len 
  * @param tags 
  * @param maximum_tag_count 
- * @return 
+ * @return Value 0 or positive on success, otherwise error code
  */
 int yrm100_parse_poll_response(unsigned char *response, size_t response_len, rfid_tag_t *tags, unsigned short maximum_tag_count);
 
