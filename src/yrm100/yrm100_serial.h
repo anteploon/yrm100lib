@@ -23,31 +23,31 @@ extern "C"
      *   - Linux:  "/dev/ttyUSB0"
      *   - Windows: "COM3"
      */
-    serial_port_t serial_open(const char *port_name);
+serial_port_t yrm100_serial_open(const char *port_name);
 
     /**
      * @brief Configures a serial port for 115200 8N1, no flow control
      * @param port Serial port
      * @return On success 0
      */
-    ssize_t serial_configure(serial_port_t port);
+ssize_t yrm100_serial_configure(serial_port_t port);
 
     /**
      * Reads up to `size` bytes into `buffer`.
      * Returns number of bytes read, 0 on timeout, or -1 on error.
      */
-    ssize_t serial_read(serial_port_t port, void *buffer, size_t size);
+ssize_t yrm100_serial_read(serial_port_t port, void *buffer, size_t size);
 
     /**
      * Writes `size` bytes from `buffer` to the serial port.
      * Returns number of bytes written or -1 on error.
      */
-    ssize_t serial_write(serial_port_t port, const void *buffer, size_t size);
+ssize_t yrm100_serial_write(serial_port_t port, const void *buffer, size_t size);
 
     /**
      * Closes the serial port.
      */
-    void serial_close(serial_port_t port);
+void yrm100_serial_close(serial_port_t port);
 
 #ifdef __cplusplus
 }

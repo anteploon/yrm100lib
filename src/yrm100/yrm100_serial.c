@@ -6,7 +6,7 @@
 #ifdef _WIN32
 // ==================== WINDOWS IMPLEMENTATION ====================
 
-serial_port_t serial_open(const char *port_name)
+serial_port_t yrm100_serial_open(const char *port_name)
 {
     char full_name[64];
     snprintf(full_name, sizeof(full_name), "\\\\.\\%s", port_name);
@@ -21,7 +21,7 @@ serial_port_t serial_open(const char *port_name)
     return hSerial;
 }
 
-ssize_t serial_configure(serial_port_t hSerial)
+ssize_t yrm100_serial_configure(serial_port_t hSerial)
 {
     DCB dcbSerialParams = {0};
     COMMTIMEOUTS timeouts = {0};
@@ -65,7 +65,7 @@ ssize_t serial_configure(serial_port_t hSerial)
     return 0;
 }
 
-ssize_t serial_read(serial_port_t hSerial, void *buffer, size_t size)
+ssize_t yrm100_serial_read(serial_port_t hSerial, void *buffer, size_t size)
 {
     DWORD bytesRead = 0;
     if (!ReadFile(hSerial, buffer, (DWORD)size, &bytesRead, NULL))
@@ -76,7 +76,7 @@ ssize_t serial_read(serial_port_t hSerial, void *buffer, size_t size)
     return (int)bytesRead;
 }
 
-ssize_t serial_write(serial_port_t hSerial, const void *buffer, size_t size)
+ssize_t yrm100_serial_write(serial_port_t hSerial, const void *buffer, size_t size)
 {
     DWORD bytesWritten = 0;
     if (!WriteFile(hSerial, buffer, (DWORD)size, &bytesWritten, NULL))
@@ -87,7 +87,7 @@ ssize_t serial_write(serial_port_t hSerial, const void *buffer, size_t size)
     return (int)bytesWritten;
 }
 
-void serial_close(serial_port_t hSerial)
+void yrm100_serial_close(serial_port_t hSerial)
 {
     CloseHandle(hSerial);
 }
@@ -102,7 +102,7 @@ void serial_close(serial_port_t hSerial)
 #include <errno.h>
 #include <stddef.h>
 
-serial_port_t serial_open(const char *port_name)
+serial_port_t yrm100_serial_open(const char *port_name)
 {
     int fd = open(port_name, O_RDWR | O_NOCTTY | O_SYNC);
     if (fd < 0)
@@ -113,7 +113,7 @@ serial_port_t serial_open(const char *port_name)
     return fd;
 }
 
-ssize_t serial_configure(serial_port_t port)
+ssize_t yrm100_serial_configure(serial_port_t port)
 {
     struct termios tty;
 
@@ -150,7 +150,7 @@ ssize_t serial_configure(serial_port_t port)
     return 0;
 }
 
-ssize_t serial_read(serial_port_t port, void *buffer, size_t size)
+ssize_t yrm100_serial_read(serial_port_t port, void *buffer, size_t size)
 {
     ssize_t n = read(port, buffer, size);
     if (n < 0)
@@ -158,7 +158,7 @@ ssize_t serial_read(serial_port_t port, void *buffer, size_t size)
     return n;
 }
 
-ssize_t serial_write(serial_port_t port, const void *buffer, size_t size)
+ssize_t yrm100_serial_write(serial_port_t port, const void *buffer, size_t size)
 {
     tcflush(port, TCIOFLUSH);
     ssize_t n = write(port, buffer, size);
@@ -167,7 +167,7 @@ ssize_t serial_write(serial_port_t port, const void *buffer, size_t size)
     return n;
 }
 
-void serial_close(serial_port_t port)
+void yrm100_serial_close(serial_port_t port)
 {
     close(port);
 }

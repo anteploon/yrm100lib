@@ -31,19 +31,19 @@ void test_serial_set_read_data(const unsigned char *data, size_t len, const size
     test_serial_chunk_index = 0;
 }
 
-serial_port_t serial_open(const char *port_name)
+serial_port_t yrm100_serial_open(const char *port_name)
 {
     (void)port_name;
     return (serial_port_t)1;
 }
 
-ssize_t serial_configure(serial_port_t port)
+ssize_t yrm100_serial_configure(serial_port_t port)
 {
     (void)port;
     return 0;
 }
 
-ssize_t serial_read(serial_port_t port, void *buffer, size_t size)
+ssize_t yrm100_serial_read(serial_port_t port, void *buffer, size_t size)
 {
     (void)port;
     if (test_serial_read_offset >= test_serial_read_len)
@@ -72,14 +72,14 @@ ssize_t serial_read(serial_port_t port, void *buffer, size_t size)
     return (ssize_t)to_read;
 }
 
-ssize_t serial_write(serial_port_t port, const void *buffer, size_t size)
+ssize_t yrm100_serial_write(serial_port_t port, const void *buffer, size_t size)
 {
     (void)port;
     (void)buffer;
     return (ssize_t)size;
 }
 
-void serial_close(serial_port_t port)
+void yrm100_serial_close(serial_port_t port)
 {
     (void)port;
 }

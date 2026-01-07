@@ -35,7 +35,7 @@ static int yrm100_command_send(yrm100_context_t *device_context, unsigned char *
 
     if (yrm100_frame_is_valid_command(cmd, cmd_size))
     {
-        ssize_t n = serial_write(device_context->serial_port, cmd, cmd_size);
+        ssize_t n = yrm100_serial_write(device_context->serial_port, cmd, cmd_size);
         if (n < 0)
         {
             perror("Error writing to serial port");
@@ -70,7 +70,7 @@ ssize_t yrm100_command_read_response(yrm100_context_t *device_context)
             return yrm100_set_last_error_code(device_context, YRM100_ERROR_SERIAL_INPUT_OVERFLOW);
         }
         buf = &device_context->command_response_buf[cursor];
-        response_len = serial_read(device_context->serial_port, buf, buf_size - cursor);
+        response_len = yrm100_serial_read(device_context->serial_port, buf, buf_size - cursor);
         if (response_len < 0)
         {
             return yrm100_set_last_error_code(device_context, YRM100_ERROR_READING_FROM_SERIAL_PORT_FAILED);

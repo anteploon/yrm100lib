@@ -15,7 +15,7 @@ yrm100_context_t *yrm100_init(const char *port_name)
             free(device_context);
             return NULL;
         }
-        device_context->serial_port = serial_open(port_name);
+        device_context->serial_port = yrm100_serial_open(port_name);
 #ifdef _WIN32
         if (device_context->serial_port == NULL)
 #else
@@ -26,9 +26,9 @@ yrm100_context_t *yrm100_init(const char *port_name)
             free(device_context);
             return NULL;
         }
-        if (serial_configure(device_context->serial_port) != YRM100_STATUS_OK)
+        if (yrm100_serial_configure(device_context->serial_port) != YRM100_STATUS_OK)
         {
-            serial_close(device_context->serial_port);
+            yrm100_serial_close(device_context->serial_port);
             free(device_context->serial_port_name);
             free(device_context);
             return NULL;
@@ -48,7 +48,7 @@ int yrm100_deinit(yrm100_context_t *device_context)
     {
         if (device_context->is_initialized)
         {
-            serial_close(device_context->serial_port);
+            yrm100_serial_close(device_context->serial_port);
         }
         free(device_context->serial_port_name);
         free(device_context);
