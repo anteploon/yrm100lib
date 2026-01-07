@@ -16,7 +16,7 @@ serial_port_t yrm100_serial_open(const char *port_name)
     if (hSerial == INVALID_HANDLE_VALUE)
     {
         perror("Error opening serial port");
-        return YRM100_ERROR_SERIAL_PORT_OPEN_FAILED;
+        // return YRM100_ERROR_SERIAL_PORT_OPEN_FAILED;
     }
     return hSerial;
 }
@@ -29,8 +29,8 @@ ssize_t yrm100_serial_configure(serial_port_t hSerial)
     dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
     if (!GetCommState(hSerial, &dcbSerialParams))
     {
-        perror("Error getting state");
-        return -1;
+        perror("Error getting serial port state");
+        return YRM100_ERROR_SERIAL_GETCOMMSTATE_FAILED;
     }
 
     dcbSerialParams.BaudRate = CBR_115200;
@@ -46,8 +46,8 @@ ssize_t yrm100_serial_configure(serial_port_t hSerial)
 
     if (!SetCommState(hSerial, &dcbSerialParams))
     {
-        perror("Error setting serial params");
-        return -1;
+        perror("Error setting serial port params");
+        return YRM100_ERROR_SERIAL_SETCOMMSTATE_FAILED;
     }
 
     timeouts.ReadIntervalTimeout = 50;
@@ -58,11 +58,11 @@ ssize_t yrm100_serial_configure(serial_port_t hSerial)
 
     if (!SetCommTimeouts(hSerial, &timeouts))
     {
-        perror("Error setting timeouts");
-        return -1;
+        perror("Error setting serial port timeouts");
+        return YRM100_ERROR_SERIAL_SETCOMMTIMEOUTS_FAILED;
     }
 
-    return 0;
+    return YRM100_STATUS_OK;
 }
 
 ssize_t yrm100_serial_read(serial_port_t hSerial, void *buffer, size_t size)
@@ -71,9 +71,9 @@ ssize_t yrm100_serial_read(serial_port_t hSerial, void *buffer, size_t size)
     if (!ReadFile(hSerial, buffer, (DWORD)size, &bytesRead, NULL))
     {
         perror("Error reading serial port");
-        return -1;
+        return YRM100_ERROR_READING_FROM_SERIAL_PORT_FAILED;
     }
-    return (int)bytesRead;
+    return (ssize_t)bytesRead;
 }
 
 ssize_t yrm100_serial_write(serial_port_t hSerial, const void *buffer, size_t size)
@@ -82,9 +82,9 @@ ssize_t yrm100_serial_write(serial_port_t hSerial, const void *buffer, size_t si
     if (!WriteFile(hSerial, buffer, (DWORD)size, &bytesWritten, NULL))
     {
         perror("Error writing to serial port");
-        return -1;
+        return YRM100_ERROR_WRITING_TO_SERIAL_PORT_FAILED;
     }
-    return (int)bytesWritten;
+    return (ssize_t)bytesWritten;
 }
 
 void yrm100_serial_close(serial_port_t hSerial)
