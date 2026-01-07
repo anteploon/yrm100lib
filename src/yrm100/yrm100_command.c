@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <unistd.h>
 #include "yrm100.h"
 #include "yrm100_util.h"
 #include "yrm100_frame.h"
@@ -35,13 +34,22 @@ static int yrm100_command_send(yrm100_context_t *device_context, unsigned char *
 
     if (yrm100_frame_is_valid_command(cmd, cmd_size))
     {
-        ssize_t n = yrm100_serial_write(device_context->serial_port, cmd, cmd_size);
-        if (n < 0)
+        size_t total_written = 0;
+        while (total_written < cmd_size)
         {
-            perror("Error writing to serial port");
-            return yrm100_set_last_error_code(device_context, YRM100_ERROR_WRITING_TO_SERIAL_PORT_FAILED);
+            ssize_t n = yrm100_serial_write(device_context->serial_port, &cmd[total_written], cmd_size - total_written);
+            if (n < 0)
+            {
+                perror("Error writing to serial port");
+                return yrm100_set_last_error_code(device_context, YRM100_ERROR_WRITING_TO_SERIAL_PORT_FAILED);
+            }
+            if (n == 0)
+            {
+                return yrm100_set_last_error_code(device_context, YRM100_ERROR_WRITING_TO_SERIAL_PORT_FAILED);
+            }
+            total_written += (size_t)n;
         }
-        usleep(YRM100_COMMAND_RESPONSE_DELAY_USEC);
+        yrm100_sleep_usec(YRM100_COMMAND_RESPONSE_DELAY_USEC);
     }
     else
     {
@@ -147,6 +155,11 @@ int yrm100_command_get_module_manufacturer(yrm100_context_t *device_context, cha
             }
             return yrm100_set_last_error_code(device_context, YRM100_STATUS_OK);
         }
+        if (yrm100_frame_is_error_response(device_context->command_response_buf, (size_t)response_len))
+        {
+            return yrm100_set_last_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
+        }
+        return yrm100_set_last_error_code(device_context, YRM100_ERROR_COMMAND_FAILED);
     }
     return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
 }
@@ -240,6 +253,7 @@ int yrm100_command_get_module_software_version(yrm100_context_t *device_context,
         {
             return yrm100_set_last_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)result));
         }
+        return yrm100_set_last_error_code(device_context, YRM100_ERROR_COMMAND_FAILED);
     }
     return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
 }
@@ -564,6 +578,10 @@ int yrm100_command_get_operating_region(yrm100_context_t *device_context)
         {
             yrm100_set_last_error_code(device_context, YRM100_STATUS_OK);
             return device_context->command_response_buf[5];
+        }
+        if (yrm100_frame_is_error_response(device_context->command_response_buf, (size_t)response_len))
+        {
+            return yrm100_set_last_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
         }
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_COMMAND_FAILED);
     }

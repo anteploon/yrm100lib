@@ -1,4 +1,9 @@
 #include <stdio.h>
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
 #include "yrm100_command.h"
 #include "yrm100_util.h"
 #include "yrm100_string.h"
@@ -41,4 +46,18 @@ bool yrm100_is_empty_tag(rfid_tag_t *tag)
         return true;
     }
     return false;
+}
+
+void yrm100_sleep_usec(unsigned int usec)
+{
+    if (usec == 0)
+    {
+        return;
+    }
+#ifdef _WIN32
+    DWORD msec = (DWORD)((usec + 999U) / 1000U);
+    Sleep(msec);
+#else
+    usleep(usec);
+#endif
 }

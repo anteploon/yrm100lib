@@ -1,5 +1,9 @@
 CC = gcc
-CFLAGS = -pedantic -fsanitize=undefined,signed-integer-overflow -Wconversion -Wall -Wextra -Werror -fmax-errors=3 -O0
+SANITIZE_FLAGS = -fsanitize=undefined,signed-integer-overflow
+ifeq ($(OS),Windows_NT)
+SANITIZE_FLAGS =
+endif
+CFLAGS = -pedantic $(SANITIZE_FLAGS) -Wconversion -Wall -Wextra -Werror -fmax-errors=3 -O0
 INCLUDES = -I.
 TARGET = example
 TEST_TARGET = test_example
@@ -36,7 +40,11 @@ $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 clean:
+ifeq ($(OS),Windows_NT)
+	-del /q $(OBJS) $(TEST_OBJS) $(TARGET).exe $(TEST_TARGET).exe 2>NUL
+else
 	rm -f $(OBJS) $(TEST_OBJS) $(TARGET) $(TEST_TARGET)
+endif
 
 test: $(TEST_TARGET)
 	@./$(TEST_TARGET)

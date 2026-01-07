@@ -86,10 +86,13 @@ int main()
     }
 
     rfid_tag_t tag[5];
+    yrm100_clear_tag_data(tag, 5);
     result = yrm100_command_single_poll(device, tag, 5);
     if (result < 0)
     {
         printf("single poll failed: %s (%d)\n", yrm100_error_code_to_string(result), result);
+        yrm100_deinit(device);
+        return 1;
     }
     for (int i = 0; i < 5; i++)
     {

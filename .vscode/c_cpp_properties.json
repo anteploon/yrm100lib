@@ -12,7 +12,7 @@
       ]
     },
     {
-      "name": "Windows (MinGW)",
+      "name": "Win32",
       "compilerPath": "C:/mingw64/bin/gcc.exe",
       "intelliSenseMode": "windows-gcc-x64",
       "cStandard": "c17",

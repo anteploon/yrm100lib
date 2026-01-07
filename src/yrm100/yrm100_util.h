@@ -26,4 +26,10 @@ void yrm100_clear_tag_data(rfid_tag_t *tags, unsigned short tag_count);
  */
 bool yrm100_is_empty_tag(rfid_tag_t *tag);
 
+/**
+ * @brief Sleeps for the specified number of microseconds
+ * @param usec Microseconds to sleep
+ */
+void yrm100_sleep_usec(unsigned int usec);
+
 #endif

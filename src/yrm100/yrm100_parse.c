@@ -35,6 +35,11 @@ int yrm100_parse_ascii_response(unsigned char *response, size_t response_len, ch
     {
         return YRM100_ERROR_PARSE_ERROR;
     }
+    if (response_str_len <= 1)
+    {
+        string_buf[0] = '\0';
+        return YRM100_STATUS_OK;
+    }
     if (response_str_len > 1)
     {
         response_str_len = response_str_len - 1;
