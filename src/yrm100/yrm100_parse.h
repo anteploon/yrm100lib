@@ -2,6 +2,7 @@
 #define YRM100_PARSE_H
 
 #include <stdlib.h>
+#include "yrm100_types.h"
 
 /**
  * @brief Extracts the ASCII string from RFID UHF response frame

@@ -83,6 +83,43 @@ static int test_invalid_end_byte_checksum_validation(void)
     return expect_equal_int("invalid end byte", yrm100_frame_is_valid_response(response, sizeof(response)), 0);
 }
 
+static int test_single_poll_error_response(void)
+{
+    yrm100_context_t ctx;
+    memset(&ctx, 0, sizeof(ctx));
+    ctx.serial_port_name = "mock";
+    ctx.serial_port = (serial_port_t)1;
+    ctx.is_initialized = true;
+
+    unsigned char response[] = {0xBB, 0x01, 0xFF, 0x00, 0x01, YRM100_MODULE_ERROR_READ_FAIL, 0x00, 0x7E};
+    response[6] = (unsigned char)yrm100_frame_calculate_checksum(response, sizeof(response));
+    size_t chunks[] = {sizeof(response)};
+    test_serial_set_read_data(response, sizeof(response), chunks, 1);
+
+    rfid_tag_t tags[1];
+    memset(tags, 0, sizeof(tags));
+
+    int result = yrm100_command_single_poll(&ctx, tags, 1);
+    return expect_equal_int("single poll error response", result, YRM100_MODULE_ERROR_READ_FAIL);
+}
+
+static int test_get_tx_power_error_response(void)
+{
+    yrm100_context_t ctx;
+    memset(&ctx, 0, sizeof(ctx));
+    ctx.serial_port_name = "mock";
+    ctx.serial_port = (serial_port_t)1;
+    ctx.is_initialized = true;
+
+    unsigned char response[] = {0xBB, 0x01, 0xFF, 0x00, 0x01, YRM100_MODULE_ERROR_READ_FAIL, 0x00, 0x7E};
+    response[6] = (unsigned char)yrm100_frame_calculate_checksum(response, sizeof(response));
+    size_t chunks[] = {sizeof(response)};
+    test_serial_set_read_data(response, sizeof(response), chunks, 1);
+
+    int result = yrm100_command_get_tx_power(&ctx);
+    return expect_equal_int("get tx power error response", result, YRM100_MODULE_ERROR_READ_FAIL);
+}
+
 int main(void)
 {
     int failures = 0;
@@ -90,6 +127,8 @@ int main(void)
     failures += test_overflow_read();
     failures += test_partial_read_without_end_byte();
     failures += test_invalid_end_byte_checksum_validation();
+    failures += test_single_poll_error_response();
+    failures += test_get_tx_power_error_response();
     if (failures == 0)
     {
         printf("OK\n");

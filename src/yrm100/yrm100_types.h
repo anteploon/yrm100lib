@@ -1,6 +1,7 @@
 #ifndef YRM100_TYPES_H
 #define YRM100_TYPES_H
 
+#include <stdbool.h>
 #include "yrm100_serial.h"
 
 #define YRM100_COMMAND_RESPONSE_BUFFER_SIZE 1024

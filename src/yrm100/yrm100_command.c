@@ -279,6 +279,10 @@ int yrm100_command_single_poll(yrm100_context_t *device_context, rfid_tag_t *tag
         {
             return yrm100_set_last_error_code(device_context, response_len);
         }
+        if (yrm100_frame_is_error_response(device_context->command_response_buf, (size_t)response_len))
+        {
+            return yrm100_set_last_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
+        }
         if (response_len > 1)
         {
             int parse_result = yrm100_parse_poll_response(device_context->command_response_buf, (size_t)response_len, tags, maximum_tag_count);
@@ -657,6 +661,10 @@ int yrm100_command_get_tx_power(yrm100_context_t *device_context)
         {
             yrm100_set_last_error_code(device_context, YRM100_STATUS_OK);
             return (device_context->command_response_buf[5] << 8) | (unsigned short)device_context->command_response_buf[6];
+        }
+        if (yrm100_frame_is_error_response(device_context->command_response_buf, (size_t)response_len))
+        {
+            return yrm100_set_last_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
         }
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_COMMAND_FAILED);
     }
