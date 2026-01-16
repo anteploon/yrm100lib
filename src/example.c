@@ -61,6 +61,29 @@ int main()
 
     yrm100_command_set_operating_region(device, YRM100_PARAM_REGION_CHINA_900);
 
+    rfid_select_parameters_t select_params;
+    yrm100_zero_buf(&select_params, sizeof(select_params));
+    select_params.target = 0x00;
+    select_params.action = 0x00;
+    select_params.membank = YRM100_PARAM_MEMBANK_EPC;
+    select_params.pointer = 0x20;
+    select_params.length = 0x60;
+    select_params.truncate = 0x00;
+    select_params.mask[0] = 0x30;
+    select_params.mask[1] = 0x75;
+    select_params.mask[2] = 0x1F;
+    select_params.mask[3] = 0xEB;
+    select_params.mask[4] = 0x70;
+    select_params.mask[5] = 0x5C;
+    select_params.mask[6] = 0x59;
+    select_params.mask[7] = 0x04;
+    select_params.mask[8] = 0xE3;
+    select_params.mask[9] = 0xD5;
+    select_params.mask[10] = 0x0D;
+    select_params.mask[11] = 0x70;
+    int set_select_params_result = yrm100_command_set_select_parameters(device, &select_params);
+    printf("yrm100_command_set_select_parameters() -> %i\n", set_select_params_result);
+
     int set_select_mode_result = yrm100_command_set_select_mode(device, YRM100_PARAM_SELECT_MODE_DONT_SEND_BEFORE_ANY_OPERATIONS);
     printf("yrm100_command_set_select_mode(%i) -> %i\n", YRM100_PARAM_SELECT_MODE_DONT_SEND_BEFORE_ANY_OPERATIONS, set_select_mode_result);
 

@@ -424,19 +424,72 @@ int yrm100_command_multi_poll_stop(yrm100_context_t *device_context)
     return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
 }
 */
-/*
-int yrm100_command_set_select_parameters(yrm100_context_t *device_context)
+int yrm100_command_set_select_parameters(yrm100_context_t *device_context, rfid_select_parameters_t *select_parameters)
 {
-    unsigned char bytes[] = {0xBB, 0x00, 0x0C, 0x00, 0x13, 0x01, 0x00, 0x00, 0x00, 0x20, 0x60, 0x00, 0x30, 0x75, 0x1F, 0xEB, 0x70, 0x5C, 0x59, 0x04, 0xE3, 0xD5, 0x0D, 0x70, 0xAD, 0x7E};
-    return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
-}
+    unsigned char bytes[7 + 1 + 4 + 1 + 1 + YRM100_TAG_EPC_BYTE_COUNT];
 
-int yrm100_command_get_select_parameters(yrm100_context_t *device_context)
-{
-    unsigned char bytes[] = {0xBB, 0x00, 0x0B, 0x00, 0x00, 0x0B, 0x7E};
+    if (yrm100_is_device_context_valid(device_context) == false)
+    {
+        return yrm100_set_last_error_code(device_context, YRM100_ERROR_INVALID_DEVICE_HANDLE);
+    }
+    if (select_parameters == NULL)
+    {
+        return yrm100_set_last_error_code(device_context, YRM100_ERROR_BUFFER_NULL);
+    }
+    if (select_parameters->length > (YRM100_TAG_EPC_BYTE_COUNT * 8))
+    {
+        return yrm100_set_last_error_code(device_context, YRM100_ERROR_BUFFER_OVERFLOW);
+    }
+
+    unsigned char mask_byte_count = (unsigned char)((select_parameters->length + 7) / 8);
+    size_t payload_len = (size_t)(1 + 4 + 1 + 1 + mask_byte_count);
+    size_t frame_len = payload_len + 7;
+
+    yrm100_zero_buf(bytes, sizeof(bytes));
+    bytes[0] = 0xBB;
+    bytes[1] = 0x00;
+    bytes[2] = 0x0C;
+    bytes[3] = (unsigned char)(payload_len >> 8);
+    bytes[4] = (unsigned char)(payload_len & 0xFF);
+    bytes[5] = yrm100_pack_select_parameters(select_parameters);
+    bytes[6] = (unsigned char)((select_parameters->pointer >> 24) & 0xFF);
+    bytes[7] = (unsigned char)((select_parameters->pointer >> 16) & 0xFF);
+    bytes[8] = (unsigned char)((select_parameters->pointer >> 8) & 0xFF);
+    bytes[9] = (unsigned char)(select_parameters->pointer & 0xFF);
+    bytes[10] = select_parameters->length;
+    bytes[11] = select_parameters->truncate;
+    if (mask_byte_count > 0)
+    {
+        memcpy(&bytes[12], select_parameters->mask, mask_byte_count);
+    }
+    bytes[frame_len - 1] = 0x7E;
+
+    int checksum = yrm100_frame_calculate_checksum(bytes, frame_len);
+    if (checksum < 0)
+    {
+        return yrm100_set_last_error_code(device_context, YRM100_ERROR_CHECKSUM_CALCULATION_FAILURE);
+    }
+    bytes[frame_len - 2] = (unsigned char)checksum;
+
+    if (yrm100_command_send(device_context, bytes, frame_len) == YRM100_STATUS_OK)
+    {
+        ssize_t response_len = yrm100_command_read_response(device_context);
+        if (response_len < 0)
+        {
+            return yrm100_set_last_error_code(device_context, response_len);
+        }
+        if (yrm100_frame_is_ok_response(device_context->command_response_buf, (size_t)response_len))
+        {
+            return yrm100_set_last_error_code(device_context, YRM100_STATUS_OK);
+        }
+        if (yrm100_frame_is_error_response(device_context->command_response_buf, (size_t)response_len))
+        {
+            return yrm100_set_last_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
+        }
+        return yrm100_set_last_error_code(device_context, YRM100_ERROR_COMMAND_FAILED);
+    }
     return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
 }
-*/
 
 int yrm100_command_set_select_mode(yrm100_context_t *device_context, unsigned char select_mode)
 {

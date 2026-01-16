@@ -76,6 +76,14 @@ int yrm100_command_single_poll(yrm100_context_t *device_context, rfid_tag_t *tag
 int yrm100_command_set_idle_sleep_time(yrm100_context_t *device_context, unsigned char minutes);
 
 /**
+ * @brief Sets select parameters on the RFID module
+ * @param device_context Handle to the RFID UHF device
+ * @param select_parameters Pointer to select parameters
+ * @return Value 0 on success otherwise error code
+ */
+int yrm100_command_set_select_parameters(yrm100_context_t *device_context, rfid_select_parameters_t *select_parameters);
+
+/**
  * @brief Sets select mode on the RFID module
  * @param device_context Handle to the RFID UHF device
  * @param select_mode One of the values from @ref yrm100_select_mode

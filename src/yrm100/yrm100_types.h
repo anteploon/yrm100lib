@@ -44,8 +44,8 @@ typedef struct rfid_select_parameters_t
     unsigned char target;   // 3 bits
     unsigned char action;   // 3 bits
     unsigned char membank;  // 2 bits
-    unsigned short pointer;
-    unsigned short length;    
+    unsigned int pointer;   // 32-bit bit pointer
+    unsigned char length;   // Mask length in bits
     unsigned char mask[YRM100_TAG_EPC_BYTE_COUNT];
     unsigned char truncate;    
 } rfid_select_parameters_t;
