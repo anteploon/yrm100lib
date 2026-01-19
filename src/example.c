@@ -63,6 +63,17 @@ int main()
 
     rfid_select_parameters_t select_params;
     yrm100_zero_buf(&select_params, sizeof(select_params));
+
+    yrm100_command_get_select_parameters(device, &select_params);
+
+    printf("Select parameters:\n");
+    printf(" Target: %u\n", select_params.target);
+    printf(" Action: %u\n", select_params.action);
+    printf(" Membank: %u\n", select_params.membank);
+    printf(" Pointer: %u\n", select_params.pointer);
+    printf(" Length: %u\n", select_params.length);
+
+  /*
     select_params.target = 0x00;
     select_params.action = 0x00;
     select_params.membank = YRM100_PARAM_MEMBANK_EPC;
@@ -83,7 +94,7 @@ int main()
     select_params.mask[11] = 0x70;
     int set_select_params_result = yrm100_command_set_select_parameters(device, &select_params);
     printf("yrm100_command_set_select_parameters() -> %i\n", set_select_params_result);
-
+*/
     int set_select_mode_result = yrm100_command_set_select_mode(device, YRM100_PARAM_SELECT_MODE_DONT_SEND_BEFORE_ANY_OPERATIONS);
     printf("yrm100_command_set_select_mode(%i) -> %i\n", YRM100_PARAM_SELECT_MODE_DONT_SEND_BEFORE_ANY_OPERATIONS, set_select_mode_result);
 

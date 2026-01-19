@@ -5,7 +5,7 @@
 #include "yrm100_serial.h"
 #include "yrm100_string.h"
 
-// #define YRM100_COMM_DEBUG
+#define YRM100_COMM_DEBUG
 #define YRM100_COMMAND_RESPONSE_DELAY_USEC 75000
 
 /**
@@ -74,6 +74,14 @@ int yrm100_command_single_poll(yrm100_context_t *device_context, rfid_tag_t *tag
  * @return Value 0 on success otherwise error code
  */
 int yrm100_command_set_idle_sleep_time(yrm100_context_t *device_context, unsigned char minutes);
+
+/**
+ * @brief Gets select parameters from the RFID module
+ * @param device_context Handle to the RFID UHF device
+ * @param select_parameters Pointer to where to store the select parameters
+ * @return Value 0 on success otherwise error code
+ */
+int yrm100_command_get_select_parameters(yrm100_context_t *device_context, rfid_select_parameters_t *select_parameters);
 
 /**
  * @brief Sets select parameters on the RFID module
