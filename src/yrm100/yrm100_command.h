@@ -81,7 +81,7 @@ int yrm100_command_set_idle_sleep_time(yrm100_context_t *device_context, unsigne
  * @param select_parameters Pointer to where to store the select parameters
  * @return Value 0 on success otherwise error code
  */
-int yrm100_command_get_select_parameters(yrm100_context_t *device_context, rfid_select_parameters_t *select_parameters);
+int yrm100_command_get_select_parameters(yrm100_context_t *device_context, yrm100_select_parameters_t *select_parameters);
 
 /**
  * @brief Sets select parameters on the RFID module
@@ -89,7 +89,7 @@ int yrm100_command_get_select_parameters(yrm100_context_t *device_context, rfid_
  * @param select_parameters Pointer to select parameters
  * @return Value 0 on success otherwise error code
  */
-int yrm100_command_set_select_parameters(yrm100_context_t *device_context, rfid_select_parameters_t *select_parameters);
+int yrm100_command_set_select_parameters(yrm100_context_t *device_context, yrm100_select_parameters_t *select_parameters);
 
 /**
  * @brief Sets select mode on the RFID module
@@ -98,6 +98,8 @@ int yrm100_command_set_select_parameters(yrm100_context_t *device_context, rfid_
  * @return Value 0 on success otherwise error code
  */
 int yrm100_command_set_select_mode(yrm100_context_t *device_context, unsigned char select_mode);
+
+int yrm100_command_get_query_parameters(yrm100_context_t *device_context, yrm100_query_parameters_t *query_parameters);
 
 /**
  * @brief Disables idle sleep on RFID module

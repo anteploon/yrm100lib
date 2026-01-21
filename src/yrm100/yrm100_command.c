@@ -116,9 +116,39 @@ ssize_t yrm100_command_read_response(yrm100_context_t *device_context)
     return (ssize_t)total_read;
 }
 
-unsigned char yrm100_pack_select_parameters(rfid_select_parameters_t *data)
+unsigned char yrm100_pack_select_parameters(yrm100_select_parameters_t *data)
 {
     return (unsigned char)((data->target & 0x07) | ((data->action & 0x07) << 3) | ((data->membank & 0x03) << 6));
+}
+
+unsigned short yrm100_pack_query_parameters(yrm100_query_parameters_t *data)
+{
+    if (data == NULL)
+    {
+        return 0;
+    }
+    return (unsigned short)((data->dr & 0x01) |
+                            ((data->m & 0x03) << 1) |
+                            ((data->trext & 0x01) << 3) |
+                            ((data->sel & 0x03) << 4) |
+                            ((data->session & 0x03) << 6) |
+                            ((data->target & 0x01) << 8) |
+                            ((data->q & 0x0F) << 9));
+}
+
+void unpack_query_parameters(unsigned short packed, yrm100_query_parameters_t *data)
+{
+    if (data == NULL)
+    {
+        return;
+    }
+    data->dr = (unsigned char)(packed & 0x01);
+    data->m = (unsigned char)((packed >> 1) & 0x03);
+    data->trext = (unsigned char)((packed >> 3) & 0x01);
+    data->sel = (unsigned char)((packed >> 4) & 0x03);
+    data->session = (unsigned char)((packed >> 6) & 0x03);
+    data->target = (unsigned char)((packed >> 8) & 0x01);
+    data->q = (unsigned char)((packed >> 9) & 0x0F);
 }
 
 int yrm100_command_get_module_manufacturer(yrm100_context_t *device_context, char *string_buf, size_t string_buf_size)
@@ -300,9 +330,9 @@ int yrm100_command_single_poll(yrm100_context_t *device_context, rfid_tag_t *tag
     return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
 }
 
-int yrm100_command_get_select_parameters(yrm100_context_t *device_context, rfid_select_parameters_t *select_parameters)
+int yrm100_command_get_select_parameters(yrm100_context_t *device_context, yrm100_select_parameters_t *select_parameters)
 {
-    unsigned char bytes[]={0xBB,0x00,0x0B,0x00,0x00,0x0B,0x7E};
+    unsigned char bytes[] = {0xBB, 0x00, 0x0B, 0x00, 0x00, 0x0B, 0x7E};
 
     if (yrm100_is_device_context_valid(device_context) == false)
     {
@@ -318,7 +348,8 @@ int yrm100_command_get_select_parameters(yrm100_context_t *device_context, rfid_
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_CHECKSUM_CALCULATION_FAILURE);
     }
     bytes[sizeof(bytes) - 2] = (unsigned char)checksum;
-    if (yrm100_command_send(device_context, bytes, sizeof(bytes)) == YRM100_STATUS_OK) {
+    if (yrm100_command_send(device_context, bytes, sizeof(bytes)) == YRM100_STATUS_OK)
+    {
         ssize_t response_len = yrm100_command_read_response(device_context);
         if (response_len < 0)
         {
@@ -328,25 +359,25 @@ int yrm100_command_get_select_parameters(yrm100_context_t *device_context, rfid_
         {
             // byte 5 -> SelParam
             // byte 6, 7, 8, 9 -> Pointer
-            // byte 10 -> Length            
+            // byte 10 -> Length
             select_parameters->target = device_context->command_response_buf[5] & 0x07;
             select_parameters->action = (device_context->command_response_buf[5] >> 3) & 0x07;
             select_parameters->membank = (device_context->command_response_buf[5] >> 6) & 0x03;
             select_parameters->length = device_context->command_response_buf[10];
-            select_parameters->pointer = (unsigned int)(
-                ((unsigned int)device_context->command_response_buf[6] << 24) |
-                ((unsigned int)device_context->command_response_buf[7] << 16) |
-                ((unsigned int)device_context->command_response_buf[8] << 8) |
-                ((unsigned int)device_context->command_response_buf[9]));
-            
+            select_parameters->pointer = (unsigned int)(((unsigned int)device_context->command_response_buf[6] << 24) |
+                                                        ((unsigned int)device_context->command_response_buf[7] << 16) |
+                                                        ((unsigned int)device_context->command_response_buf[8] << 8) |
+                                                        ((unsigned int)device_context->command_response_buf[9]));
+
             return yrm100_set_last_error_code(device_context, YRM100_STATUS_OK);
         }
     }
     return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
 }
 
-int yrm100_command_set_select_parameters(yrm100_context_t *device_context, rfid_select_parameters_t *select_parameters) {
-    unsigned char bytes[]={0xBB,0x00,0x0C,0x00,0x13,0x01,0x00,0x00,0x00,0x20,0x60,0x00,0x30,0x75,0x1F,0xEB,0x70,0x5C,0x59,0x04,0xE3,0xD5,0x0D,0x70,0xAD,0x7E};
+int yrm100_command_set_select_parameters(yrm100_context_t *device_context, yrm100_select_parameters_t *select_parameters)
+{
+    unsigned char bytes[] = {0xBB, 0x00, 0x0C, 0x00, 0x13, 0x01, 0x00, 0x00, 0x00, 0x20, 0x60, 0x00, 0x30, 0x75, 0x1F, 0xEB, 0x70, 0x5C, 0x59, 0x04, 0xE3, 0xD5, 0x0D, 0x70, 0xAD, 0x7E};
 
     if (yrm100_is_device_context_valid(device_context) == false)
     {
@@ -366,7 +397,8 @@ int yrm100_command_set_select_parameters(yrm100_context_t *device_context, rfid_
 
     // TODO: Set mask bytes
 
-    if (yrm100_command_send(device_context, bytes, sizeof(bytes)) == YRM100_STATUS_OK) {
+    if (yrm100_command_send(device_context, bytes, sizeof(bytes)) == YRM100_STATUS_OK)
+    {
         ssize_t response_len = yrm100_command_read_response(device_context);
         if (response_len < 0)
         {
@@ -413,6 +445,42 @@ int yrm100_command_set_select_mode(yrm100_context_t *device_context, unsigned ch
         }
         if (yrm100_frame_is_ok_response(device_context->command_response_buf, (size_t)response_len))
         {
+            return yrm100_set_last_error_code(device_context, YRM100_STATUS_OK);
+        }
+    }
+    return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
+}
+
+int yrm100_command_get_query_parameters(yrm100_context_t *device_context, yrm100_query_parameters_t *query_parameters)
+{
+    unsigned char bytes[] = {0xBB, 0x00, 0x0D, 0x00, 0x0D, 0x7E};
+
+    if (yrm100_is_device_context_valid(device_context) == false)
+    {
+        return yrm100_set_last_error_code(device_context, YRM100_ERROR_INVALID_DEVICE_HANDLE);
+    }
+    if (query_parameters == NULL)
+    {
+        return yrm100_set_last_error_code(device_context, YRM100_ERROR_BUFFER_NULL);
+    }
+    int checksum = yrm100_frame_calculate_checksum(bytes, sizeof(bytes));
+    if (checksum < 0)
+    {
+        return yrm100_set_last_error_code(device_context, YRM100_ERROR_CHECKSUM_CALCULATION_FAILURE);
+    }
+    bytes[sizeof(bytes) - 2] = (unsigned char)checksum;
+    if (yrm100_command_send(device_context, bytes, sizeof(bytes)) == YRM100_STATUS_OK)
+    {
+        ssize_t response_len = yrm100_command_read_response(device_context);
+        if (response_len < 0)
+        {
+            return yrm100_set_last_error_code(device_context, response_len);
+        }
+        if (yrm100_frame_is_ok_response(device_context->command_response_buf, (size_t)response_len))
+        {
+            unsigned short packed_query_params = (unsigned short)(((unsigned short)device_context->command_response_buf[5] << 8) |
+                                                                  ((unsigned short)device_context->command_response_buf[6]));
+            unpack_query_parameters(packed_query_params, query_parameters);
             return yrm100_set_last_error_code(device_context, YRM100_STATUS_OK);
         }
     }
