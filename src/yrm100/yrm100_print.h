@@ -15,4 +15,10 @@ void yrm100_print_tag_info(rfid_tag_t *tag);
  */
 void yrm100_print_module_info(yrm100_context_t *device_context);
 
+/**
+ * @brief Prints query parameters
+ * @param query_parameters Query parameters
+ */
+void yrm100_print_query_parameters(yrm100_query_parameters_t *query_parameters);
+
 #endif
