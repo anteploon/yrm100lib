@@ -11,7 +11,7 @@ void yrm100_print_tag_info(rfid_tag_t *tag);
 
 /**
  * @brief Prints RFID module info
- * @param device_context
+ * @param device_context Handle to the RFID UHF device
  */
 void yrm100_print_module_info(yrm100_context_t *device_context);
 

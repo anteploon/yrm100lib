@@ -99,6 +99,12 @@ int yrm100_command_set_select_parameters(yrm100_context_t *device_context, yrm10
  */
 int yrm100_command_set_select_mode(yrm100_context_t *device_context, unsigned char select_mode);
 
+/**
+ * @brief Gets query parameters from the RFID module
+ * @param device_context Handle to the RFID UHF device
+ * @param query_parameters Pointer to where to store the query parameters
+ * @return Value 0 on success otherwise error code
+ */
 int yrm100_command_get_query_parameters(yrm100_context_t *device_context, yrm100_query_parameters_t *query_parameters);
 
 /**
@@ -161,7 +167,7 @@ int yrm100_command_enable_continous_wave(yrm100_context_t *device_context);
 int yrm100_command_disable_continous_wave(yrm100_context_t *device_context);
 
 /**
- * @brief
+ * @brief Formats the current TX power setting as a string
  * @param device_context Handle to the RFID UHF device
  * @param string_buf Pointer to string buffer
  * @return Value 0 on success otherwise error code

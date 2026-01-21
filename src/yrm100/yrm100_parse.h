@@ -6,20 +6,20 @@
 
 /**
  * @brief Extracts the ASCII string from RFID UHF response frame
- * @param response 
- * @param response_len 
- * @param string_buf 
- * @param string_buf_len 
- * @return 
+ * @param response Response frame buffer
+ * @param response_len Response buffer size
+ * @param string_buf Output string buffer
+ * @param string_buf_len Output string buffer size
+ * @return Value 0 on success otherwise error code
  */
 int yrm100_parse_ascii_response(unsigned char *response, size_t response_len, char *string_buf, size_t string_buf_len);
 
 /**
  * @brief Extracts the RFID UHF tag information from the notice frame
- * @param response 
- * @param response_len 
- * @param tags 
- * @param maximum_tag_count 
+ * @param response Notice frame buffer
+ * @param response_len Response buffer size
+ * @param tags Pointer to tag array
+ * @param maximum_tag_count Maximum number of tags to parse
  * @return Value 0 or positive on success, otherwise error code
  */
 int yrm100_parse_poll_response(unsigned char *response, size_t response_len, rfid_tag_t *tags, unsigned short maximum_tag_count);

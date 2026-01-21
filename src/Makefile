@@ -31,6 +31,14 @@ TEST_SRCS = ../tests/test_example.c \
 	yrm100/yrm100.c
 TEST_OBJS = $(TEST_SRCS:.c=.o)
 
+ifeq ($(OS),Windows_NT)
+WIN_OBJS = $(subst /,\,$(OBJS))
+WIN_TEST_OBJS = $(subst /,\,$(TEST_OBJS))
+WIN_CLEAN = $(sort $(WIN_OBJS) $(WIN_TEST_OBJS) $(TARGET).exe $(TEST_TARGET).exe)
+else
+CLEAN = $(sort $(OBJS) $(TEST_OBJS) $(TARGET) $(TEST_TARGET))
+endif
+
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
@@ -41,9 +49,9 @@ $(TARGET): $(OBJS)
 
 clean:
 ifeq ($(OS),Windows_NT)
-	-del /q $(OBJS) $(TEST_OBJS) $(TARGET).exe $(TEST_TARGET).exe 2>NUL
+	-cmd /c "del /q $(WIN_CLEAN) 2>NUL & exit /b 0"
 else
-	rm -f $(OBJS) $(TEST_OBJS) $(TARGET) $(TEST_TARGET)
+	rm -f $(CLEAN)
 endif
 
 test: $(TEST_TARGET)

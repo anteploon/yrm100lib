@@ -63,6 +63,9 @@ typedef struct yrm100_select_parameters_t
     unsigned char truncate;
 } yrm100_select_parameters_t;
 
+/**
+ * @brief RFID UHF query parameters.
+ */
 typedef struct yrm100_query_parameters_t
 {
     unsigned char dr;      // 1 bit

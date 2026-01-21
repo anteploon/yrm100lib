@@ -70,12 +70,53 @@ char *yrm100_convert_to_tx_power_string(unsigned int power, char string_buf[YRM1
  */
 const char *yrm100_convert_to_region_string(unsigned int region_code);
 
+/**
+ * @brief Converts a divide ratio value to a human-readable string
+ * @param dr Divide ratio value
+ * @return Pointer to a divide ratio string
+ */
 const char *yrm100_convert_to_divide_ratio_string(unsigned char dr);
+
+/**
+ * @brief Converts a backscatter encoding value to a human-readable string
+ * @param m Backscatter encoding value
+ * @return Pointer to a backscatter encoding string
+ */
 const char *yrm100_convert_to_backscatter_encoding_string(unsigned char m);
+
+/**
+ * @brief Converts a TREXT value to a human-readable string
+ * @param trext TREXT value
+ * @return Pointer to a TREXT string
+ */
 const char *yrm100_convert_to_trext_string(unsigned char trext);
+
+/**
+ * @brief Converts a SEL value to a human-readable string
+ * @param sel SEL value
+ * @return Pointer to a SEL string
+ */
 const char *yrm100_convert_to_sel_string(unsigned char sel);
+
+/**
+ * @brief Converts a session value to a human-readable string
+ * @param session Session value
+ * @return Pointer to a session string
+ */
 const char *yrm100_convert_to_session_string(unsigned char session);
+
+/**
+ * @brief Converts a target value to a human-readable string
+ * @param target Target value
+ * @return Pointer to a target string
+ */
 const char *yrm100_convert_to_target_string(unsigned char target);
+
+/**
+ * @brief Converts a Q value to a human-readable string
+ * @param q Q value
+ * @return Pointer to a Q string
+ */
 const char *yrm100_convert_to_q_string(unsigned char q);
 
 #endif
