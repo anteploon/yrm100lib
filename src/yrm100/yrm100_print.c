@@ -29,12 +29,15 @@ void yrm100_print_query_parameters(yrm100_query_parameters_t *query_parameters)
     {
         return;
     }
-    printf("Query Parameters:\n");
-    printf(" DR: %u\n", query_parameters->dr);
-    printf(" M: %u\n", query_parameters->m);
-    printf(" TReXt: %u\n", query_parameters->trext);
-    printf(" Sel: %u\n", query_parameters->sel);
-    printf(" Session: %u\n", query_parameters->session);
-    printf(" Target: %u\n", query_parameters->target);
-    printf(" Q: %u\n", query_parameters->q);
+    printf("------------------------------------------------\n");
+    printf("                                Query Parameters\n");
+    printf("------------------------------------------------\n");
+    printf("             Divide Ratio (DR): %s\n", yrm100_convert_to_divide_ratio_string(query_parameters->dr));
+    printf("      Backscatter Encoding (M): %s\n", yrm100_convert_to_backscatter_encoding_string(query_parameters->m));
+    printf("Tag Response Extension (TReXt): %s\n", yrm100_convert_to_trext_string(query_parameters->trext));
+    printf("           Tag Selection (Sel): %s\n", yrm100_convert_to_sel_string(query_parameters->sel));
+    printf("                       Session: %s\n", yrm100_convert_to_session_string(query_parameters->session));
+    printf("                        Target: %s\n", yrm100_convert_to_target_string(query_parameters->target));
+    printf("                Slot Count (Q): %s\n", yrm100_convert_to_q_string(query_parameters->q));
+    printf("------------------------------------------------\n");
 }

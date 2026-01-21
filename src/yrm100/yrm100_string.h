@@ -70,4 +70,12 @@ char *yrm100_convert_to_tx_power_string(unsigned int power, char string_buf[YRM1
  */
 const char *yrm100_convert_to_region_string(unsigned int region_code);
 
+const char *yrm100_convert_to_divide_ratio_string(unsigned char dr);
+const char *yrm100_convert_to_backscatter_encoding_string(unsigned char m);
+const char *yrm100_convert_to_trext_string(unsigned char trext);
+const char *yrm100_convert_to_sel_string(unsigned char sel);
+const char *yrm100_convert_to_session_string(unsigned char session);
+const char *yrm100_convert_to_target_string(unsigned char target);
+const char *yrm100_convert_to_q_string(unsigned char q);
+
 #endif

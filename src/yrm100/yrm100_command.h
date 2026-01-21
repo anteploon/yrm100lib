@@ -5,7 +5,7 @@
 #include "yrm100_serial.h"
 #include "yrm100_string.h"
 
-#define YRM100_COMM_DEBUG
+// #define YRM100_COMM_DEBUG
 #define YRM100_COMMAND_RESPONSE_DELAY_USEC 75000
 
 /**

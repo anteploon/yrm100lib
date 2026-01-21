@@ -92,3 +92,102 @@ const char *yrm100_convert_to_region_string(unsigned int region_code)
     }
     return "Unknown region";
 }
+
+const char *yrm100_convert_to_divide_ratio_string(unsigned char dr)
+{
+    switch (dr)
+    {
+    case 0:
+        return "8";
+    case 1:
+        return "64/3";
+    }
+    return "-";
+}
+
+const char *yrm100_convert_to_backscatter_encoding_string(unsigned char m)
+{
+    switch (m)
+    {
+    case 0:
+        return "1 (FM0)";
+    case 1:
+        return "2";
+    case 2:
+        return "4";
+    case 3:
+        return "8";
+    }
+    return "-";
+}
+
+const char *yrm100_convert_to_trext_string(unsigned char trext)
+{
+    switch (trext)
+    {
+    case 0:
+        return "No pilot tone";
+    case 1:
+        return "Pilot tone present";
+    }
+    return "-";
+}
+
+const char *yrm100_convert_to_sel_string(unsigned char sel)
+{
+    switch (sel)
+    {
+    case 0:
+    case 1:
+        return "All";
+    case 2:
+        return "Non-selected";
+    case 3:
+        return "Selected";
+    }
+    return "-";
+}
+
+const char *yrm100_convert_to_session_string(unsigned char session)
+{
+    switch (session)
+    {
+    case 0:
+        return "S0";
+    case 1:
+        return "S1";
+    case 2:
+        return "S2";
+    case 3:
+        return "S3";
+    }
+    return "-";
+}
+
+const char *yrm100_convert_to_target_string(unsigned char target)
+{
+    switch (target)
+    {
+    case 0:
+        return "A";
+    case 1:
+        return "B";
+    }
+    return "-";
+}
+
+const char *yrm100_convert_to_q_string(unsigned char q)
+{
+    // TODO in reality the integer should be calculated as 2^q
+    switch(q) {
+        case 0:
+            return "1 slot";
+        case 1:
+            return "2 slots";
+        case 4:
+            return "16 slots";
+        case 15:
+            return "32768 slots";
+    }
+    return "-";
+}
