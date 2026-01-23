@@ -124,7 +124,8 @@ Slots = 2^Q
 ### What it does
 - Defines how many time slots tags randomly choose from
 - Reduces collisions
-- Practical impact
+
+### Practical impact
 - Low tag count → small Q
 - High tag density → large Q
 
