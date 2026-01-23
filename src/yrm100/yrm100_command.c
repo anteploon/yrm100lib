@@ -397,6 +397,12 @@ int yrm100_command_set_select_parameters(yrm100_context_t *device_context, yrm10
 
     // TODO: Set mask bytes
 
+    int checksum = yrm100_frame_calculate_checksum(bytes, sizeof(bytes));
+    if (checksum < 0)
+    {
+        return yrm100_set_last_error_code(device_context, YRM100_ERROR_CHECKSUM_CALCULATION_FAILURE);
+    }
+    bytes[sizeof(bytes) - 2] = (unsigned char)checksum;
     if (yrm100_command_send(device_context, bytes, sizeof(bytes)) == YRM100_STATUS_OK)
     {
         ssize_t response_len = yrm100_command_read_response(device_context);
@@ -744,6 +750,9 @@ char *yrm100_command_get_module_info_string(yrm100_context_t *device_context, ch
     char hardware_version_buf[50];
 
     yrm100_zero_buf(string_buf, YRM100_MODULE_INFO_STRING_LENGTH);
+    yrm100_zero_buf(manufacturer_buf, sizeof(manufacturer_buf));
+    yrm100_zero_buf(software_version_buf, sizeof(software_version_buf));
+    yrm100_zero_buf(hardware_version_buf, sizeof(hardware_version_buf));
 
     yrm100_command_get_module_manufacturer(device_context, manufacturer_buf, sizeof(manufacturer_buf));
     yrm100_command_get_module_hardware_version(device_context, hardware_version_buf, sizeof(hardware_version_buf));
