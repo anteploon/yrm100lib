@@ -748,7 +748,6 @@ char *yrm100_command_get_module_info_string(yrm100_context_t *device_context, ch
     char manufacturer_buf[50];
     char software_version_buf[50];
     char hardware_version_buf[50];
-    int status;
 
     yrm100_zero_buf(string_buf, YRM100_MODULE_INFO_STRING_LENGTH);
     yrm100_zero_buf(manufacturer_buf, sizeof(manufacturer_buf));
