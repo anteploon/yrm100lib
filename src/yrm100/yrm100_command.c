@@ -748,15 +748,25 @@ char *yrm100_command_get_module_info_string(yrm100_context_t *device_context, ch
     char manufacturer_buf[50];
     char software_version_buf[50];
     char hardware_version_buf[50];
+    int status;
 
     yrm100_zero_buf(string_buf, YRM100_MODULE_INFO_STRING_LENGTH);
     yrm100_zero_buf(manufacturer_buf, sizeof(manufacturer_buf));
     yrm100_zero_buf(software_version_buf, sizeof(software_version_buf));
     yrm100_zero_buf(hardware_version_buf, sizeof(hardware_version_buf));
 
-    yrm100_command_get_module_manufacturer(device_context, manufacturer_buf, sizeof(manufacturer_buf));
-    yrm100_command_get_module_hardware_version(device_context, hardware_version_buf, sizeof(hardware_version_buf));
-    yrm100_command_get_module_software_version(device_context, software_version_buf, sizeof(software_version_buf));
+    if (yrm100_command_get_module_manufacturer(device_context, manufacturer_buf, sizeof(manufacturer_buf)) != YRM100_STATUS_OK)
+    {
+        return string_buf;
+    }
+    if (yrm100_command_get_module_hardware_version(device_context, hardware_version_buf, sizeof(hardware_version_buf)) != YRM100_STATUS_OK)
+    {
+        return string_buf;
+    }
+    if (yrm100_command_get_module_software_version(device_context, software_version_buf, sizeof(software_version_buf)) != YRM100_STATUS_OK)
+    {
+        return string_buf;
+    }
 
     snprintf(string_buf, YRM100_MODULE_INFO_STRING_LENGTH, "%s %s / FW: %s", manufacturer_buf, hardware_version_buf, software_version_buf);
 
