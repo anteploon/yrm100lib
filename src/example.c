@@ -24,85 +24,80 @@ int main()
         return 1;
     }
 
-    char manufacturer_buf[50];
-    char software_version_buf[50];
-    char hardware_version_buf[50];
+    yrm100_print_module_info(device);
 
-    yrm100_zero_buf(manufacturer_buf, sizeof(manufacturer_buf));
-    yrm100_zero_buf(hardware_version_buf, sizeof(hardware_version_buf));
-    yrm100_zero_buf(software_version_buf, sizeof(software_version_buf));
-
-    int result = yrm100_command_get_module_manufacturer(device, manufacturer_buf, sizeof(manufacturer_buf));
-    if (result < 0)
+    if (yrm100_command_disable_idle_sleep(device) == YRM100_STATUS_OK)
     {
-        printf("get module manufacturer failed: %s (%d)\n", yrm100_error_code_to_string(result), result);
+        printf("%s Disabled idle sleep timer\n", EMOJI_PASS);
+    }
+    else
+    {
+        printf("%s Failed to disable idle sleep timer\n", EMOJI_FAIL);
     }
 
-    result = yrm100_command_get_module_hardware_version(device, hardware_version_buf, sizeof(hardware_version_buf));
-    if (result < 0)
+    if (yrm100_command_enable_continous_wave(device) == YRM100_STATUS_OK)
     {
-        printf("get module hardware version failed: %s (%d)\n", yrm100_error_code_to_string(result), result);
+        printf("%s Enabled continuous wave\n", EMOJI_PASS);
+    }
+    else
+    {
+        printf("%s Failed to enable continuous wave\n", EMOJI_FAIL);
     }
 
-    result = yrm100_command_get_module_software_version(device, software_version_buf, sizeof(software_version_buf));
-    if (result < 0)
+    unsigned char region = YRM100_PARAM_REGION_CHINA_900;
+    if (yrm100_command_set_operating_region(device, region) == YRM100_STATUS_OK)
     {
-        printf("get module software version failed: %s (%d)\n", yrm100_error_code_to_string(result), result);
+        printf("%s Set operating region to %s\n", EMOJI_PASS, yrm100_convert_to_region_string(region));
     }
-
-    if (manufacturer_buf[0] != '\0' && hardware_version_buf[0] != '\0' && software_version_buf[0] != '\0')
+    else
     {
-        printf("%s %s / FW: %s\n", manufacturer_buf, hardware_version_buf, software_version_buf);
+        printf("%s Failed to set operating region to %s\n", EMOJI_FAIL, yrm100_convert_to_region_string(region));
     }
-
-    yrm100_command_disable_idle_sleep(device);
-
-    yrm100_command_disable_continous_wave(device);
-
-    yrm100_command_set_operating_region(device, YRM100_PARAM_REGION_CHINA_900);
 
     yrm100_query_parameters_t query_params;
     yrm100_zero_buf(&query_params, sizeof(query_params));
     yrm100_command_get_query_parameters(device, &query_params);
     yrm100_print_query_parameters(&query_params);
-        /*
-            yrm100_select_parameters_t select_params;
-            yrm100_zero_buf(&select_params, sizeof(select_params));
-            yrm100_command_get_select_parameters(device, &select_params);
-            printf("Select parameters:\n");
-            printf(" Target: %u\n", select_params.target);
-            printf(" Action: %u\n", select_params.action);
-            printf(" Membank: %u\n", select_params.membank);
-            printf(" Pointer: %u\n", select_params.pointer);
-            printf(" Length: %u\n", select_params.length);
-        */
-        /*
-          select_params.target = 0x00;
-          select_params.action = 0x00;
-          select_params.membank = YRM100_PARAM_MEMBANK_EPC;
-          select_params.pointer = 0x20;
-          select_params.length = 0x60;
-          select_params.truncate = 0x00;
-          select_params.mask[0] = 0x30;
-          select_params.mask[1] = 0x75;
-          select_params.mask[2] = 0x1F;
-          select_params.mask[3] = 0xEB;
-          select_params.mask[4] = 0x70;
-          select_params.mask[5] = 0x5C;
-          select_params.mask[6] = 0x59;
-          select_params.mask[7] = 0x04;
-          select_params.mask[8] = 0xE3;
-          select_params.mask[9] = 0xD5;
-          select_params.mask[10] = 0x0D;
-          select_params.mask[11] = 0x70;
-          int set_select_params_result = yrm100_command_set_select_parameters(device, &select_params);
-          printf("yrm100_command_set_select_parameters() -> %i\n", set_select_params_result);
-      */
-//        int set_select_mode_result = yrm100_command_set_select_mode(device, YRM100_PARAM_SELECT_MODE_DONT_SEND_BEFORE_ANY_OPERATIONS);
-//    printf("yrm100_command_set_select_mode(%i) -> %i\n", YRM100_PARAM_SELECT_MODE_DONT_SEND_BEFORE_ANY_OPERATIONS, set_select_mode_result);
 
+    /*
+        yrm100_select_parameters_t select_params;
+        yrm100_zero_buf(&select_params, sizeof(select_params));
+        yrm100_command_get_select_parameters(device, &select_params);
+        printf("Select parameters:\n");
+        printf(" Target: %u\n", select_params.target);
+        printf(" Action: %u\n", select_params.action);
+        printf(" Membank: %u\n", select_params.membank);
+        printf(" Pointer: %u\n", select_params.pointer);
+        printf(" Length: %u\n", select_params.length);
+    */
+    /*
+      select_params.target = 0x00;
+      select_params.action = 0x00;
+      select_params.membank = YRM100_PARAM_MEMBANK_EPC;
+      select_params.pointer = 0x20;
+      select_params.length = 0x60;
+      select_params.truncate = 0x00;
+      select_params.mask[0] = 0x30;
+      select_params.mask[1] = 0x75;
+      select_params.mask[2] = 0x1F;
+      select_params.mask[3] = 0xEB;
+      select_params.mask[4] = 0x70;
+      select_params.mask[5] = 0x5C;
+      select_params.mask[6] = 0x59;
+      select_params.mask[7] = 0x04;
+      select_params.mask[8] = 0xE3;
+      select_params.mask[9] = 0xD5;
+      select_params.mask[10] = 0x0D;
+      select_params.mask[11] = 0x70;
+      int set_select_params_result = yrm100_command_set_select_parameters(device, &select_params);
+      printf("yrm100_command_set_select_parameters() -> %i\n", set_select_params_result);
+  */
+    //        int set_select_mode_result = yrm100_command_set_select_mode(device, YRM100_PARAM_SELECT_MODE_DONT_SEND_BEFORE_ANY_OPERATIONS);
+    //    printf("yrm100_command_set_select_mode(%i) -> %i\n", YRM100_PARAM_SELECT_MODE_DONT_SEND_BEFORE_ANY_OPERATIONS, set_select_mode_result);
+
+    /*
     char tx[YRM100_PARAM_TX_POWER_STRING_LENGTH];
-    result = yrm100_command_get_tx_power(device);
+    int result = yrm100_command_get_tx_power(device);
     if (result < 0)
     {
         printf("get TX power failed: %s (%d)\n", yrm100_error_code_to_string(result), result);
@@ -121,10 +116,11 @@ int main()
     {
         printf("Region: %s\n", yrm100_convert_to_region_string((unsigned int)result));
     }
+*/
 
     yrm100_rfid_tag_t tag[5];
     yrm100_clear_tag_data(tag, 5);
-    result = yrm100_command_single_poll(device, tag, 5);
+    int result = yrm100_command_single_poll(device, tag, 5);
     if (result < 0)
     {
         printf("single poll failed: %s (%d)\n", yrm100_error_code_to_string(result), result);

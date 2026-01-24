@@ -15,6 +15,9 @@
 #define YRM100_TAG_EPC_STRING_LENGTH 25
 #define YRM100_MODULE_REGION_STRING_LENGTH 100
 
+#define EMOJI_FAIL "✗"
+#define EMOJI_PASS "✓"
+
 /**
  * @brief Formats the PC part of the RFID tag as a hexadecimal string
  * @param tag Pointer to RFID tag

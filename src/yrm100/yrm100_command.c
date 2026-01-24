@@ -459,8 +459,7 @@ int yrm100_command_set_select_mode(yrm100_context_t *device_context, unsigned ch
 
 int yrm100_command_get_query_parameters(yrm100_context_t *device_context, yrm100_query_parameters_t *query_parameters)
 {
-    unsigned char bytes[] = {0xBB, 0x00, 0x0D, 0x00, 0x0D, 0x7E};
-
+    unsigned char bytes[] = {0xBB, 0x00, 0x0D, 0x00, 0x00, 0x0D, 0x7E};
     if (yrm100_is_device_context_valid(device_context) == false)
     {
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_INVALID_DEVICE_HANDLE);
