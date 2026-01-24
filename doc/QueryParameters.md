@@ -1,6 +1,6 @@
 # Query Parameters
 
-See yrm100_query_parameters_t in yrm100_types.h
+See **yrm100_query_parameters_t** in **yrm100_types.h**
 
 The QUERY command answers three questions:
 - Who should talk? → Sel, Session, Target
