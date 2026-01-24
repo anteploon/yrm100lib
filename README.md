@@ -32,3 +32,29 @@ Multi poll and setting the select parameters are **not yet implemented**
 - [ ] Read tag memory area
 - [ ] Write tag memory area
 - [ ] Enable automatic frequency hopping
+
+# Example application
+
+The following is the output from the example.c:
+
+    Serial port: /dev/ttyUSB0
+    MagicRf M100 26dBm V1.0 / FW: V2.3.5
+    ✓ Disabled idle sleep timer
+    ✓ Enabled continuous wave
+    ✓ Set operating region to China 900MHz
+    ------------------------------------------------
+                                    Query Parameters
+    ------------------------------------------------
+                 Divide Ratio (DR): 8
+          Backscatter Encoding (M): 1 (FM0)
+    Tag Response Extension (TReXt): No pilot tone
+               Tag Selection (Sel): Non-selected
+                           Session: S0
+                            Target: A
+                    Slot Count (Q): -
+    ------------------------------------------------
+    EPC: E28011700000021AC6B3A1F9, PC: 3400, RSSI:  -52dBm, CRC: 9C5E
+    EPC: 000000000000000000000000, PC: 0000, RSSI:    0dBm, CRC: 0000
+    EPC: 000000000000000000000000, PC: 0000, RSSI:    0dBm, CRC: 0000
+    EPC: 000000000000000000000000, PC: 0000, RSSI:    0dBm, CRC: 0000
+    EPC: 000000000000000000000000, PC: 0000, RSSI:    0dBm, CRC: 0000
