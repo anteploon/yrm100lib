@@ -1,9 +1,12 @@
 # yrm100lib
 
 RFID UHF library supporting YRM100 series modules (same as MagicRF M100 http://www.magicrf.com/product_en.htm)
-Tested with YRM1005 and YRM1001
 
-Multi poll and setting the select parameters is not yet implemented
+Tested with Invelion products YRM1005 and YRM1001
+
+There exists a variation of the protocol, where the **end byte** and  the **cheksum byte** are swapped. The plan is that once I get my hands on one of these devices, there will be a support for them added also - should be pretty simple.
+
+Multi poll and setting the select parameters are **not yet implemented**
 
 ## Features
 
