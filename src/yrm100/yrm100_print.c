@@ -3,7 +3,7 @@
 #include "yrm100_string.h"
 #include "yrm100_command.h"
 
-void yrm100_print_tag_info(rfid_tag_t *tag)
+void yrm100_print_tag_info(yrm100_rfid_tag_t *tag)
 {
     if (tag == NULL)
     {

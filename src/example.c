@@ -122,7 +122,7 @@ int main()
         printf("Region: %s\n", yrm100_convert_to_region_string((unsigned int)result));
     }
 
-    rfid_tag_t tag[5];
+    yrm100_rfid_tag_t tag[5];
     yrm100_clear_tag_data(tag, 5);
     result = yrm100_command_single_poll(device, tag, 5);
     if (result < 0)

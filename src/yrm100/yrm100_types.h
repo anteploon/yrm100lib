@@ -24,13 +24,13 @@
 /**
  * @brief RFID UHF tag
  */
-typedef struct rfid_tag_t
+typedef struct yrm100_rfid_tag_t
 {
     signed char rssi;
     unsigned short pc;
     unsigned char epc[YRM100_TAG_EPC_BYTE_COUNT];
     unsigned short crc;
-} rfid_tag_t;
+} yrm100_rfid_tag_t;
 
 /**
  * @brief RFID UHF device context
@@ -43,7 +43,7 @@ typedef struct yrm100_context_t
     int last_error_code;
     bool is_initialized;
     bool is_multi_poll_running;
-    rfid_tag_t *multi_poll_target;
+    yrm100_rfid_tag_t *multi_poll_target;
     unsigned short multi_poll_maximum_tag_count;
     unsigned short multi_poll_tag_count;
 } yrm100_context_t;

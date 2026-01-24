@@ -17,14 +17,14 @@ void yrm100_zero_buf(void *buf, size_t buf_size);
  * @param tags Pointer to tags
  * @param tag_count Number of how many tags to zero
  */
-void yrm100_clear_tag_data(rfid_tag_t *tags, unsigned short tag_count);
+void yrm100_clear_tag_data(yrm100_rfid_tag_t *tags, unsigned short tag_count);
 
 /**
  * @brief Checks if specified RFID tag structure is zeroed out
  * @param tag Pointer to tag
  * @return True if the tag is NULL or zeroed out
  */
-bool yrm100_is_empty_tag(rfid_tag_t *tag);
+bool yrm100_is_empty_tag(yrm100_rfid_tag_t *tag);
 
 /**
  * @brief Sleeps for the specified number of microseconds

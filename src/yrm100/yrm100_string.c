@@ -3,19 +3,19 @@
 #include "yrm100_util.h"
 #include "yrm100_string.h"
 
-char *yrm100_get_tag_pc_string(rfid_tag_t *tag, char string_buf[YRM100_TAG_PC_STRING_LENGTH])
+char *yrm100_get_tag_pc_string(yrm100_rfid_tag_t *tag, char string_buf[YRM100_TAG_PC_STRING_LENGTH])
 {
     snprintf(string_buf, YRM100_TAG_PC_STRING_LENGTH, "%04X", tag->pc);
     return string_buf;
 }
 
-char *yrm100_get_tag_crc_string(rfid_tag_t *tag, char string_buf[YRM100_TAG_CRC_STRING_LENGTH])
+char *yrm100_get_tag_crc_string(yrm100_rfid_tag_t *tag, char string_buf[YRM100_TAG_CRC_STRING_LENGTH])
 {
     snprintf(string_buf, YRM100_TAG_CRC_STRING_LENGTH, "%04X", tag->crc);
     return string_buf;
 }
 
-char *yrm100_get_tag_epc_string(rfid_tag_t *tag, char string_buf[YRM100_TAG_EPC_STRING_LENGTH])
+char *yrm100_get_tag_epc_string(yrm100_rfid_tag_t *tag, char string_buf[YRM100_TAG_EPC_STRING_LENGTH])
 {
     char hex_buf[3];
 
@@ -30,13 +30,13 @@ char *yrm100_get_tag_epc_string(rfid_tag_t *tag, char string_buf[YRM100_TAG_EPC_
     return string_buf;
 }
 
-char *yrm100_get_tag_rssi_string(rfid_tag_t *tag, char buf[YRM100_TAG_RSSI_STRING_LENGTH])
+char *yrm100_get_tag_rssi_string(yrm100_rfid_tag_t *tag, char buf[YRM100_TAG_RSSI_STRING_LENGTH])
 {
     snprintf(buf, YRM100_TAG_RSSI_STRING_LENGTH, "%4idBm", tag->rssi);
     return buf;
 }
 
-char *yrm100_get_tag_string(rfid_tag_t *tag, char string_buf[YRM100_TAG_STRING_LENGTH])
+char *yrm100_get_tag_string(yrm100_rfid_tag_t *tag, char string_buf[YRM100_TAG_STRING_LENGTH])
 {
     char pc[YRM100_TAG_PC_STRING_LENGTH];
     char crc[YRM100_TAG_CRC_STRING_LENGTH];

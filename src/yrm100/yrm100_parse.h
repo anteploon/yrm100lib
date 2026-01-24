@@ -22,7 +22,7 @@ int yrm100_parse_ascii_response(unsigned char *response, size_t response_len, ch
  * @param maximum_tag_count Maximum number of tags to parse
  * @return Value 0 or positive on success, otherwise error code
  */
-int yrm100_parse_poll_response(unsigned char *response, size_t response_len, rfid_tag_t *tags, unsigned short maximum_tag_count);
+int yrm100_parse_poll_response(unsigned char *response, size_t response_len, yrm100_rfid_tag_t *tags, unsigned short maximum_tag_count);
 
 /**
  * @brief Extracts the error code from the error response frame

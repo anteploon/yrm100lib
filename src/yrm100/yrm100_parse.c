@@ -55,7 +55,7 @@ int yrm100_parse_ascii_response(unsigned char *response, size_t response_len, ch
     return YRM100_ERROR_UNKNOWN_ERROR;
 }
 
-int yrm100_parse_poll_response(unsigned char *response, size_t response_len, rfid_tag_t *tags, unsigned short maximum_tag_count)
+int yrm100_parse_poll_response(unsigned char *response, size_t response_len, yrm100_rfid_tag_t *tags, unsigned short maximum_tag_count)
 {
     size_t pos = 0;
 
@@ -72,7 +72,7 @@ int yrm100_parse_poll_response(unsigned char *response, size_t response_len, rfi
     {
         message_count = maximum_tag_count;
     }
-    rfid_tag_t *t;
+    yrm100_rfid_tag_t *t;
 
     for (unsigned short n = 0; n < maximum_tag_count; n++)
     {

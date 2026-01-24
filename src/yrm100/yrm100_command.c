@@ -288,7 +288,7 @@ int yrm100_command_get_module_software_version(yrm100_context_t *device_context,
     return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
 }
 
-int yrm100_command_single_poll(yrm100_context_t *device_context, rfid_tag_t *tags, unsigned short maximum_tag_count)
+int yrm100_command_single_poll(yrm100_context_t *device_context, yrm100_rfid_tag_t *tags, unsigned short maximum_tag_count)
 {
     unsigned char bytes[] = {0xBB, 0x00, 0x22, 0x00, 0x00, 0x22, 0x7E};
 

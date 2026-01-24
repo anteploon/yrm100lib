@@ -7,7 +7,7 @@
  * @brief Prints RFID tag
  * @param tag RFID tag
  */
-void yrm100_print_tag_info(rfid_tag_t *tag);
+void yrm100_print_tag_info(yrm100_rfid_tag_t *tag);
 
 /**
  * @brief Prints RFID module info
