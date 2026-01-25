@@ -7,6 +7,7 @@
 
 ssize_t yrm100_command_read_response(yrm100_context_t *device_context);
 void test_serial_set_read_data(const unsigned char *data, size_t len, const size_t *chunks, size_t chunk_count);
+int test_string_functions(void);
 
 static int expect_equal_int(const char *label, int got, int expected)
 {
@@ -96,7 +97,7 @@ static int test_single_poll_error_response(void)
     size_t chunks[] = {sizeof(response)};
     test_serial_set_read_data(response, sizeof(response), chunks, 1);
 
-    rfid_tag_t tags[1];
+    yrm100_rfid_tag_t tags[1];
     memset(tags, 0, sizeof(tags));
 
     int result = yrm100_command_single_poll(&ctx, tags, 1);
@@ -129,6 +130,7 @@ int main(void)
     failures += test_invalid_end_byte_checksum_validation();
     failures += test_single_poll_error_response();
     failures += test_get_tx_power_error_response();
+    failures += test_string_functions();
     if (failures == 0)
     {
         printf("OK\n");
