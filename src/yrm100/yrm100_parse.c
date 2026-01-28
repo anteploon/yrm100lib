@@ -55,6 +55,30 @@ int yrm100_parse_ascii_response(unsigned char *response, size_t response_len, ch
     return YRM100_ERROR_UNKNOWN_ERROR;
 }
 
+// TODO: verify correctness
+
+int yrm100_parse_read_tag_memory_response(unsigned char *response, size_t response_len, yrm100_rfid_tag_t *tag, unsigned short data_length)
+{
+    size_t pos = 0;
+
+    if (response == NULL || tag == NULL)
+    {
+        return YRM100_ERROR_BUFFER_NULL;
+    }
+    if (response_len < YRM100_FRAME_MINIMUM_RESPONSE_SIZE)
+    {
+        return YRM100_ERROR_PARSE_ERROR;
+    }
+    pos = 5; // Data starts at byte 5
+
+    if (response[pos + 0] == 0xBB && response[pos + 1] == 0x03)
+    {
+        tag->data = (unsigned short)(((unsigned short)(response[pos + 4]) << 8) | ((unsigned short)response[pos + 5]));
+        return YRM100_STATUS_OK;
+    }
+    return YRM100_ERROR_PARSE_ERROR;
+}
+
 int yrm100_parse_poll_response(unsigned char *response, size_t response_len, yrm100_rfid_tag_t *tags, unsigned short maximum_tag_count)
 {
     size_t pos = 0;
