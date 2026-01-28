@@ -731,12 +731,19 @@ int yrm100_command_disable_continous_wave(yrm100_context_t *device_context)
     return yrm100_command_set_continous_wave(device_context, YRM100_PARAM_CONTINOUS_WAVE_OFF);
 }
 
-int yrm100_command_sleep(yrm100_context_t *device_context) {
+int yrm100_command_sleep(yrm100_context_t *device_context)
+{
     unsigned char bytes[] = {0xBB, 0x00, 0x17, 0x00, 0x00, 0x17, 0x7E};
     if (yrm100_is_device_context_valid(device_context) == false)
     {
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_INVALID_DEVICE_HANDLE);
     }
+    int checksum = yrm100_frame_calculate_checksum(bytes, sizeof(bytes));
+    if (checksum < 0)
+    {
+        return yrm100_set_last_error_code(device_context, YRM100_ERROR_CHECKSUM_CALCULATION_FAILURE);
+    }
+    bytes[sizeof(bytes) - 2] = (unsigned char)checksum;
     if (yrm100_command_send(device_context, bytes, sizeof(bytes)) == YRM100_STATUS_OK)
     {
         ssize_t response_len = yrm100_command_read_response(device_context);
@@ -746,6 +753,60 @@ int yrm100_command_sleep(yrm100_context_t *device_context) {
         }
         if (yrm100_frame_is_ok_response(device_context->command_response_buf, (size_t)response_len))
         {
+            return yrm100_set_last_error_code(device_context, YRM100_STATUS_OK);
+        }
+        if (yrm100_frame_is_error_response(device_context->command_response_buf, (size_t)response_len))
+        {
+            return yrm100_set_last_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
+        }
+        return yrm100_set_last_error_code(device_context, YRM100_ERROR_COMMAND_FAILED);
+    }
+    return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
+}
+
+int yrm100_read_tag_memory_area(yrm100_context_t *device_context,
+                                yrm100_rfid_tag_t *tag,
+                                unsigned char memory_bank,
+                                unsigned short segment_address,
+                                unsigned short data_length,
+                                unsigned short password)
+{
+    unsigned char bytes[] = {0xBB, 0x00, 0x39, 0x00, 0x09, 0x00, 0x00, 0xFF, 0xFF, 0x03, 0x00, 0x00, 0x00, 0x02, 0x45, 0x7E};
+
+    if (yrm100_is_device_context_valid(device_context) == false)
+    {
+        return yrm100_set_last_error_code(device_context, YRM100_ERROR_INVALID_DEVICE_HANDLE);
+    }
+    if (tag == NULL)
+    {
+        return yrm100_set_last_error_code(device_context, YRM100_ERROR_BUFFER_NULL);
+    }
+    bytes[5] = (unsigned char)((password >> 24) & 0xFF);
+    bytes[6] = (unsigned char)((password >> 16) & 0xFF);
+    bytes[7] = (unsigned char)((password >> 8) & 0xFF);
+    bytes[8] = (unsigned char)((password >> 0) & 0xFF);
+    bytes[9] = memory_bank;
+    bytes[10] = (unsigned char)((segment_address >> 8) & 0xFF);
+    bytes[11] = (unsigned char)((segment_address >> 0) & 0xFF);
+    bytes[12] = (unsigned char)((data_length >> 8) & 0xFF);
+    bytes[13] = (unsigned char)((data_length >> 0) & 0xFF);
+    int checksum = yrm100_frame_calculate_checksum(bytes, sizeof(bytes));
+    if (checksum < 0)
+    {
+        return yrm100_set_last_error_code(device_context, YRM100_ERROR_CHECKSUM_CALCULATION_FAILURE);
+    }
+    bytes[sizeof(bytes) - 2] = (unsigned char)checksum;
+    if (yrm100_command_send(device_context, bytes, sizeof(bytes)) == YRM100_STATUS_OK)
+    {
+        ssize_t response_len = yrm100_command_read_response(device_context);
+        if (response_len < 0)
+        {
+            return yrm100_set_last_error_code(device_context, response_len);
+        }
+        if (yrm100_frame_is_ok_response(device_context->command_response_buf, (size_t)response_len))
+        {
+//            int parse_result = yrm100_parse_read_tag_memory_response(device_context->command_response_buf, (size_t)response_len, tag, data_length);
+// TODO: Implement parsing of read tag memory response
             return yrm100_set_last_error_code(device_context, YRM100_STATUS_OK);
         }
         if (yrm100_frame_is_error_response(device_context->command_response_buf, (size_t)response_len))

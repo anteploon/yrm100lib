@@ -30,6 +30,7 @@ typedef struct yrm100_rfid_tag_t
     unsigned short pc;
     unsigned char epc[YRM100_TAG_EPC_BYTE_COUNT];
     unsigned short crc;
+    unsigned short data;
 } yrm100_rfid_tag_t;
 
 /**
