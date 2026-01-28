@@ -167,6 +167,13 @@ int yrm100_command_enable_continous_wave(yrm100_context_t *device_context);
 int yrm100_command_disable_continous_wave(yrm100_context_t *device_context);
 
 /**
+ * @brief Puts the RFID module to sleep
+ * @param device_context Handle to the RFID UHF device
+ * @return Value 0 on success otherwise error code
+ */
+int yrm100_command_sleep(yrm100_context_t *device_context);
+
+/**
  * @brief Formats the current TX power setting as a string
  * @param device_context Handle to the RFID UHF device
  * @param string_buf Pointer to string buffer

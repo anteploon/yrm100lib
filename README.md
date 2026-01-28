@@ -16,7 +16,7 @@ Multi poll and setting the select parameters are **not yet implemented**
 - [x] Single poll tag(s)
 - [ ] Multi poll tags
 - [x] Set module idle sleep timer
-- [ ] Sleep
+- [x] Sleep
 - [ ] Get and set select parameters
 - [x] Set select mode
 - [x] Get and set operating region (frequency)
