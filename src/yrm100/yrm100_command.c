@@ -764,7 +764,7 @@ int yrm100_command_sleep(yrm100_context_t *device_context)
     return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
 }
 
-int yrm100_read_tag_memory_area(yrm100_context_t *device_context, yrm100_rfid_tag_t *tag, unsigned char memory_bank, unsigned short segment_address, unsigned short data_length, unsigned short password)
+int yrm100_command_read_tag_memory_area(yrm100_context_t *device_context, yrm100_rfid_tag_t *tag, unsigned char memory_bank, unsigned short segment_address, unsigned short data_length, unsigned short password)
 {
     unsigned char bytes[] = {0xBB, 0x00, 0x39, 0x00, 0x09, 0x00, 0x00, 0xFF, 0xFF, 0x03, 0x00, 0x00, 0x00, 0x02, 0x45, 0x7E};
 
@@ -800,6 +800,7 @@ int yrm100_read_tag_memory_area(yrm100_context_t *device_context, yrm100_rfid_ta
         }
         if (yrm100_frame_is_ok_response(device_context->command_response_buf, (size_t)response_len))
         {
+            
             //            int parse_result = yrm100_parse_read_tag_memory_response(device_context->command_response_buf, (size_t)response_len, tag, data_length);
             // TODO: Implement parsing of read tag memory response
             return yrm100_set_last_error_code(device_context, YRM100_STATUS_OK);

@@ -16,7 +16,25 @@ void yrm100_zero_buf(void *buf, size_t buf_size)
     }
 }
 
-void yrm100_clear_tag_data(yrm100_rfid_tag_t *tags, unsigned short tag_count)
+void yrm100_free_tag_data(yrm100_rfid_tag_t *tags, unsigned short tag_count)
+{
+    yrm100_rfid_tag_t *t;
+    if (tags==NULL || tag_count==0) {
+        return;
+    }
+    for (unsigned short i = 0; i < tag_count; i++)
+    {
+        t = &tags[i];
+        if (t->data != NULL)
+        {
+            free(t->data);
+            t->data = NULL;
+            t->data_length = 0;
+        }
+    }
+}
+
+void yrm100_clear_tag_buf(yrm100_rfid_tag_t *tags, unsigned short tag_count)
 {
     yrm100_rfid_tag_t *t;
     if (tags==NULL || tag_count==0) {
@@ -32,6 +50,8 @@ void yrm100_clear_tag_data(yrm100_rfid_tag_t *tags, unsigned short tag_count)
         t->rssi = 0;
         t->pc = 0;
         t->crc = 0;
+        t->data = NULL;
+        t->data_length = 0;
     }
 }
 

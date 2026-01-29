@@ -55,11 +55,9 @@ int yrm100_parse_ascii_response(unsigned char *response, size_t response_len, ch
     return YRM100_ERROR_UNKNOWN_ERROR;
 }
 
-// TODO: verify correctness
-
 int yrm100_parse_read_tag_memory_response(unsigned char *response, size_t response_len, yrm100_rfid_tag_t *tag, unsigned short data_length)
 {
-    size_t pos = 0;
+    size_t data_byte_count = data_length * 2; // data_length is in words (2 bytes), but we need bytes
 
     if (response == NULL || tag == NULL)
     {
@@ -69,14 +67,31 @@ int yrm100_parse_read_tag_memory_response(unsigned char *response, size_t respon
     {
         return YRM100_ERROR_PARSE_ERROR;
     }
-    pos = 5; // Data starts at byte 5
-
-    if (response[pos + 0] == 0xBB && response[pos + 1] == 0x03)
+    if (data_length == 0)
     {
-        tag->data = (unsigned short)(((unsigned short)(response[pos + 4]) << 8) | ((unsigned short)response[pos + 5]));
-        return YRM100_STATUS_OK;
+        return YRM100_ERROR_PARSE_ERROR;
     }
-    return YRM100_ERROR_PARSE_ERROR;
+    if (response_len < (9 + YRM100_TAG_EPC_BYTE_COUNT + data_byte_count))
+    {
+        return YRM100_ERROR_PARSE_ERROR;
+    }
+    yrm100_clear_tag_buf(tag, 1);
+    for (size_t i = 0; i < YRM100_TAG_EPC_BYTE_COUNT; i++)
+    {
+        tag->epc[i] = response[8 + i];
+    }
+    tag->rssi = 0; // memory read response does not include RSSI
+    tag->pc = (unsigned short)(((unsigned short)(response[6]) << 8) | ((unsigned short)response[7]));
+    tag->crc = 0; // memory read response does not include CRC
+
+    tag->data = (unsigned char *)malloc(data_byte_count);
+    if (tag->data == NULL)
+    {
+        return YRM100_ERROR_MEMORY_ALLOCATION_FAILURE;
+    }
+    memcpy(tag->data, &response[8 + YRM100_TAG_EPC_BYTE_COUNT], data_byte_count);
+    tag->data_length = data_byte_count;
+    return YRM100_STATUS_OK;
 }
 
 int yrm100_parse_poll_response(unsigned char *response, size_t response_len, yrm100_rfid_tag_t *tags, unsigned short maximum_tag_count)
@@ -87,7 +102,8 @@ int yrm100_parse_poll_response(unsigned char *response, size_t response_len, yrm
     {
         return YRM100_ERROR_BUFFER_NULL;
     }
-    if (response_len>(USHRT_MAX/YRM100_FRAME_POLL_NOTICE_SIZE)) {
+    if (response_len > (USHRT_MAX / YRM100_FRAME_POLL_NOTICE_SIZE))
+    {
         return YRM100_ERROR_BUFFER_OVERFLOW;
     }
 
