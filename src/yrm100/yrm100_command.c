@@ -805,8 +805,73 @@ int yrm100_read_tag_memory_area(yrm100_context_t *device_context,
         }
         if (yrm100_frame_is_ok_response(device_context->command_response_buf, (size_t)response_len))
         {
-//            int parse_result = yrm100_parse_read_tag_memory_response(device_context->command_response_buf, (size_t)response_len, tag, data_length);
-// TODO: Implement parsing of read tag memory response
+            //            int parse_result = yrm100_parse_read_tag_memory_response(device_context->command_response_buf, (size_t)response_len, tag, data_length);
+            // TODO: Implement parsing of read tag memory response
+            return yrm100_set_last_error_code(device_context, YRM100_STATUS_OK);
+        }
+        if (yrm100_frame_is_error_response(device_context->command_response_buf, (size_t)response_len))
+        {
+            return yrm100_set_last_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
+        }
+        return yrm100_set_last_error_code(device_context, YRM100_ERROR_COMMAND_FAILED);
+    }
+    return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
+}
+
+int yrm100_command_kill(yrm100_context_t *device_context, unsigned int password)
+{
+    unsigned char bytes[] = {0xBB, 0x00, 0x65, 0x00, 0x04, 0x00, 0x00, 0xFF, 0x70, 0x67, 0x7E};
+    bytes[5] = (unsigned char)((password >> 24) & 0xFF);
+    bytes[6] = (unsigned char)((password >> 16) & 0xFF);
+    bytes[7] = (unsigned char)((password >> 8) & 0xFF);
+    bytes[8] = (unsigned char)((password >> 0) & 0xFF);
+    int checksum = yrm100_frame_calculate_checksum(bytes, sizeof(bytes));
+    if (checksum < 0)
+    {
+        return yrm100_set_last_error_code(device_context, YRM100_ERROR_CHECKSUM_CALCULATION_FAILURE);
+    }
+    bytes[sizeof(bytes) - 2] = (unsigned char)checksum;
+    if (yrm100_command_send(device_context, bytes, sizeof(bytes)) == YRM100_STATUS_OK)
+    {
+        ssize_t response_len = yrm100_command_read_response(device_context);
+        if (response_len < 0)
+        {
+            return yrm100_set_last_error_code(device_context, response_len);
+        }
+        if (yrm100_frame_is_ok_response(device_context->command_response_buf, (size_t)response_len))
+        {
+            return yrm100_set_last_error_code(device_context, YRM100_STATUS_OK);
+        }
+        if (yrm100_frame_is_error_response(device_context->command_response_buf, (size_t)response_len))
+        {
+            return yrm100_set_last_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
+        }
+        return yrm100_set_last_error_code(device_context, YRM100_ERROR_COMMAND_FAILED);
+    }
+    return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
+}
+
+int yrm100_command_lock(yrm100_context_t *device_context, unsigned int password) {
+    unsigned char bytes[]={0xBB,0x00,0x82,0x00,0x07,0x00,0x00,0xFF,0xFF,0x02,0x00,0x80,0x09,0x7E};
+    bytes[5]=(unsigned char)((password>>24)&0xFF);
+    bytes[6]=(unsigned char)((password>>16)&0xFF);
+    bytes[7]=(unsigned char)((password>>8)&0xFF);
+    bytes[8]=(unsigned char)((password>>0)&0xFF);
+    int checksum = yrm100_frame_calculate_checksum(bytes, sizeof(bytes));
+    if (checksum < 0)
+    {
+        return yrm100_set_last_error_code(device_context, YRM100_ERROR_CHECKSUM_CALCULATION_FAILURE);
+    }
+    bytes[sizeof(bytes) - 2] = (unsigned char)checksum;
+    if (yrm100_command_send(device_context, bytes, sizeof(bytes)) == YRM100_STATUS_OK)
+    {
+        ssize_t response_len = yrm100_command_read_response(device_context);
+        if (response_len < 0)
+        {
+            return yrm100_set_last_error_code(device_context, response_len);
+        }
+        if (yrm100_frame_is_ok_response(device_context->command_response_buf, (size_t)response_len))
+        {
             return yrm100_set_last_error_code(device_context, YRM100_STATUS_OK);
         }
         if (yrm100_frame_is_error_response(device_context->command_response_buf, (size_t)response_len))

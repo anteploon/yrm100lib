@@ -174,6 +174,14 @@ int yrm100_command_disable_continous_wave(yrm100_context_t *device_context);
 int yrm100_command_sleep(yrm100_context_t *device_context);
 
 /**
+ * @brief Sends the kill command to a specific RFID tag; before this command, a set select parameter command should be sent first
+ * @param device_context Handle to the RFID UHF device
+ * @param password Password to use when killing the tag
+ * @return Value 0 on success otherwise error code
+ */
+int yrm100_command_kill(yrm100_context_t *device_context, unsigned int password);
+
+/**
  * @brief Formats the current TX power setting as a string
  * @param device_context Handle to the RFID UHF device
  * @param string_buf Pointer to string buffer

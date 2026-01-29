@@ -52,6 +52,8 @@ const char *yrm100_error_code_to_string(int error_code)
         return "Serial port call to SetCommState() failed";
     case YRM100_ERROR_SERIAL_SETCOMMTIMEOUTS_FAILED:
         return "Serial port call to SetCommTimeouts() failed";
+    case YRM100_ERROR_NOT_IMPLEMENTED:
+        return "Function not implemented";
     default:
         return "Unknown error";
     }
