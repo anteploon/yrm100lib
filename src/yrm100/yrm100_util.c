@@ -4,6 +4,7 @@
 #else
 #include <unistd.h>
 #endif
+#include <stdlib.h>
 #include "yrm100_command.h"
 #include "yrm100_util.h"
 #include "yrm100_string.h"
