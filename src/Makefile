@@ -49,7 +49,7 @@ $(TARGET): $(OBJS)
 
 clean:
 ifeq ($(OS),Windows_NT)
-	-cmd /c "del /q $(WIN_CLEAN) 2>NUL & exit /b 0"
+	-powershell -NoProfile -Command '$$files = "$(WIN_CLEAN)".Split(" "); if ($$files[0] -ne "") { Remove-Item -Force -ErrorAction SilentlyContinue -LiteralPath $$files }; exit 0'
 else
 	rm -f $(CLEAN)
 endif
