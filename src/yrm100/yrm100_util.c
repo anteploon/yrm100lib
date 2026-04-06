@@ -35,7 +35,7 @@ void yrm100_free_tag_data(yrm100_rfid_tag_t *tags, unsigned short tag_count)
     }
 }
 
-void yrm100_init_tag_buf(yrm100_rfid_tag_t *tags, unsigned short tag_count)
+void yrm100_reset_tag_buf(yrm100_rfid_tag_t *tags, unsigned short tag_count)
 {
     yrm100_rfid_tag_t *t;
     if (tags==NULL || tag_count==0) {
@@ -51,6 +51,10 @@ void yrm100_init_tag_buf(yrm100_rfid_tag_t *tags, unsigned short tag_count)
         t->rssi = 0;
         t->pc = 0;
         t->crc = 0;
+        if (t->data != NULL)
+        {
+            free(t->data);
+        }
         t->data = NULL;
         t->data_length = 0;
     }

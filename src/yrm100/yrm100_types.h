@@ -23,6 +23,7 @@
 
 /**
  * @brief RFID UHF tag
+ * The `data` field is used for additional data read from the tag, such as TID or user memory. It is allocated and freed by the library, and the caller should not modify it directly.
  */
 typedef struct yrm100_rfid_tag_t
 {

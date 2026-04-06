@@ -75,7 +75,13 @@ int yrm100_parse_read_tag_memory_response(unsigned char *response, size_t respon
     {
         return YRM100_ERROR_PARSE_ERROR;
     }
-    yrm100_init_tag_buf(tag, 1);
+    unsigned char *data_buf=(unsigned char *)malloc(data_byte_count);
+    if (data_buf == NULL)
+    {
+        return YRM100_ERROR_MEMORY_ALLOCATION_FAILURE;
+    }
+
+    yrm100_reset_tag_buf(tag, 1);
     for (size_t i = 0; i < YRM100_TAG_EPC_BYTE_COUNT; i++)
     {
         tag->epc[i] = response[8 + i];
@@ -83,12 +89,7 @@ int yrm100_parse_read_tag_memory_response(unsigned char *response, size_t respon
     tag->rssi = 0; // memory read response does not include RSSI
     tag->pc = (unsigned short)(((unsigned short)(response[6]) << 8) | ((unsigned short)response[7]));
     tag->crc = 0; // memory read response does not include CRC
-
-    tag->data = (unsigned char *)malloc(data_byte_count);
-    if (tag->data == NULL)
-    {
-        return YRM100_ERROR_MEMORY_ALLOCATION_FAILURE;
-    }
+    tag->data = data_buf;
     memcpy(tag->data, &response[8 + YRM100_TAG_EPC_BYTE_COUNT], data_byte_count);
     tag->data_length = data_byte_count;
     return YRM100_STATUS_OK;
