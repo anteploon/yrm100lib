@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
     }
 */
 
-    yrm100_rfid_tag_t tag[5];
+    yrm100_rfid_tag_t tag[5] = {{0}};
     yrm100_reset_tag_buf(tag, 5);
     int result = yrm100_command_single_poll(device, tag, 5);
     if (result < 0)

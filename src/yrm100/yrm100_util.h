@@ -21,7 +21,8 @@ void yrm100_free_tag_data(yrm100_rfid_tag_t *tags, unsigned short tag_count);
 
 /**
  * @brief Zeros out the RFID tag structure in memory
- * If there is memory allocated for tag data, it will be freed and set to NULL
+ * If there is memory allocated for tag data, it will be freed and set to NULL.
+ * The tag buffer must be zero-initialized before its first call to this helper.
  * @param tags Pointer to tags
  * @param tag_count Number of how many tags to zero
  */
