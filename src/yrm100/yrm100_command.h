@@ -45,29 +45,6 @@ int yrm100_command_get_module_software_version(yrm100_context_t *device_context,
 int yrm100_command_single_poll(yrm100_context_t *device_context, yrm100_rfid_tag_t *tags, unsigned short maximum_tag_count);
 
 /**
- * @brief Starts the multi poll process
- * @param device_context Handle to the RFID UHF device
- * @param tags Pointer to memory are that will hold the RFID tag data
- * @param maximum_tag_count Maximum number of tags to read
- * @return Value 0 on success otherwise error code
- */
-// int yrm100_command_multi_poll_start(yrm100_context_t *device_context, yrm100_rfid_tag_t *tags, unsigned short maximum_tag_count);
-
-/**
- * @brief Should be called when the multi poll process is active, for the data in buffers to get processed
- * @param device_context Handle to the RFID UHF device
- * @return Value 0 on success otherwise error code
- */
-// int yrm100_command_multi_poll_continue(yrm100_context_t *device_context);
-
-/**
- * @brief Stops the multi poll process
- * @param device_context Handle to the RFID UHF device
- * @return Value 0 on success otherwise error code
- */
-// int yrm100_command_multi_poll_stop(yrm100_context_t *device_context);
-
-/**
  * @brief Executes "Set idle sleep time" command on the RFID module
  * @param device_context Handle to the RFID UHF device
  * @param minutes After how many minutes to sleep (0 means never)
