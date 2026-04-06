@@ -75,7 +75,7 @@ int yrm100_parse_read_tag_memory_response(unsigned char *response, size_t respon
     {
         return YRM100_ERROR_PARSE_ERROR;
     }
-    yrm100_clear_tag_buf(tag, 1);
+    yrm100_init_tag_buf(tag, 1);
     for (size_t i = 0; i < YRM100_TAG_EPC_BYTE_COUNT; i++)
     {
         tag->epc[i] = response[8 + i];
