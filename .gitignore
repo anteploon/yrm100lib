@@ -1,6 +1,7 @@
 # Binaries
 example
 test_example
+build/
 
 # Prerequisites
 *.d

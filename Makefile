@@ -7,6 +7,9 @@ CFLAGS = -pedantic $(SANITIZE_FLAGS) -Wconversion -Wall -Wextra -Werror -fmax-er
 INCLUDES = -Isrc
 TARGET = example
 TEST_TARGET = test_example
+BUILD_DIR = build
+TARGET_PATH = $(BUILD_DIR)/$(TARGET)
+TEST_TARGET_PATH = $(BUILD_DIR)/$(TEST_TARGET)
 SRCS = src/example.c \
 	src/yrm100/yrm100_command.c \
 	src/yrm100/yrm100_error.c \
@@ -18,7 +21,7 @@ SRCS = src/example.c \
 	src/yrm100/yrm100_print.c \
 	src/yrm100/yrm100.c
 
-OBJS = $(SRCS:.c=.o)
+OBJS = $(SRCS:%.c=$(BUILD_DIR)/%.o)
 TEST_SRCS = tests/test_example.c \
 	tests/test_serial.c \
 	tests/test_string.c \
@@ -30,36 +33,39 @@ TEST_SRCS = tests/test_example.c \
 	src/yrm100/yrm100_util.c \
 	src/yrm100/yrm100_print.c \
 	src/yrm100/yrm100.c
-TEST_OBJS = $(TEST_SRCS:.c=.o)
+TEST_OBJS = $(TEST_SRCS:%.c=$(BUILD_DIR)/%.o)
 
 ifeq ($(OS),Windows_NT)
 WIN_OBJS = $(subst /,\,$(OBJS))
 WIN_TEST_OBJS = $(subst /,\,$(TEST_OBJS))
-WIN_CLEAN = $(sort $(WIN_OBJS) $(WIN_TEST_OBJS) $(TARGET).exe $(TEST_TARGET).exe)
+WIN_CLEAN = $(BUILD_DIR)
 else
-CLEAN = $(sort $(OBJS) $(TEST_OBJS) $(TARGET) $(TEST_TARGET))
+CLEAN = $(BUILD_DIR)
 endif
 
-all: $(TARGET)
+all: $(TARGET_PATH)
 
-$(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) $(INCLUDES) -o $(TARGET) $(OBJS)
+$(TARGET_PATH): $(OBJS)
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) $(INCLUDES) -o $@ $(OBJS)
 
-%.o: %.c
+$(BUILD_DIR)/%.o: %.c
+	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 clean:
 ifeq ($(OS),Windows_NT)
-	-powershell -NoProfile -Command '$$files = "$(WIN_CLEAN)".Split(" "); if ($$files[0] -ne "") { Remove-Item -Force -ErrorAction SilentlyContinue -LiteralPath $$files }; exit 0'
+	-powershell -NoProfile -Command 'if (Test-Path "$(WIN_CLEAN)") { Remove-Item -Recurse -Force -ErrorAction SilentlyContinue -LiteralPath "$(WIN_CLEAN)" }; exit 0'
 else
-	rm -f $(CLEAN)
+	rm -rf $(CLEAN)
 endif
 
-test: $(TEST_TARGET)
-	@./$(TEST_TARGET)
+test: $(TEST_TARGET_PATH)
+	@./$(TEST_TARGET_PATH)
 
-$(TEST_TARGET): $(TEST_OBJS)
-	$(CC) $(CFLAGS) $(INCLUDES) -o $(TEST_TARGET) $(TEST_OBJS)
+$(TEST_TARGET_PATH): $(TEST_OBJS)
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) $(INCLUDES) -o $@ $(TEST_OBJS)
 
 rebuild: clean all
 
