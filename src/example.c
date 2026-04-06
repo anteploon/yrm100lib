@@ -8,13 +8,18 @@
 #include "yrm100/yrm100_print.h"
 #include "yrm100/yrm100_error.h"
 
-int main()
+int main(int argc, char *argv[])
 {
 #ifdef _WIN32
     const char *port_name = "COM7";
 #else
     const char *port_name = "/dev/ttyUSB0";
 #endif
+
+    if (argc > 1)
+    {
+        port_name = argv[1];
+    }
 
     printf("Serial port: %s \n", port_name);
     yrm100_context_t *device = yrm100_init(port_name);

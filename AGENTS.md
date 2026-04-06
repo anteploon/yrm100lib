@@ -3,19 +3,19 @@
 ## Project Structure & Module Organization
 This repository is a small C library plus a sample program for a UHF RFID device.
 Core code lives under `src/rfid_uhf/` (public headers and implementation files).
-The sample app is `src/example.c`, and build rules are in `src/Makefile`.
+The sample app is `src/example.c`, and build rules are in `Makefile`.
 There are no dedicated test or asset directories today.
 
 ## Build, Test, and Development Commands
-- `make -C src` builds the sample binary `src/example` using GCC.
-- `make -C src clean` removes object files and the `example` binary.
-- `make -C src test` builds and runs a minimal smoke test binary.
-- `make -C src rebuild` runs a clean build (equivalent to `clean` then `all`).
+- `make` builds the sample binary `example` using GCC.
+- `make clean` removes object files and the `example` binary.
+- `make test` builds and runs a minimal smoke test binary.
+- `make rebuild` runs a clean build (equivalent to `clean` then `all`).
 
 ## Coding Style & Naming Conventions
 Use C with 4-space indentation and Allman-style braces (opening brace on its own line).
 Function and variable names use `snake_case`; types end in `_t`; macros are `UPPER_CASE`.
-Keep code warning-free with the existing flags in `src/Makefile` (`-Wall -Wextra -Werror -pedantic`).
+Keep code warning-free with the existing flags in `Makefile` (`-Wall -Wextra -Werror -pedantic`).
 Prefer adding APIs to `src/rfid_uhf/*.h` and their implementations to matching `.c` files.
 
 ## Testing Guidelines

@@ -4,31 +4,32 @@ ifeq ($(OS),Windows_NT)
 SANITIZE_FLAGS =
 endif
 CFLAGS = -pedantic $(SANITIZE_FLAGS) -Wconversion -Wall -Wextra -Werror -fmax-errors=3 -O0
-INCLUDES = -I.
+INCLUDES = -Isrc
 TARGET = example
 TEST_TARGET = test_example
-SRCS = example.c \
-	yrm100/yrm100_command.c \
-	yrm100/yrm100_error.c \
-	yrm100/yrm100_frame.c \
-	yrm100/yrm100_parse.c \
-	yrm100/yrm100_serial.c \
-	yrm100/yrm100_string.c \
-	yrm100/yrm100_util.c \
-	yrm100/yrm100_print.c \
-	yrm100/yrm100.c
+SRCS = src/example.c \
+	src/yrm100/yrm100_command.c \
+	src/yrm100/yrm100_error.c \
+	src/yrm100/yrm100_frame.c \
+	src/yrm100/yrm100_parse.c \
+	src/yrm100/yrm100_serial.c \
+	src/yrm100/yrm100_string.c \
+	src/yrm100/yrm100_util.c \
+	src/yrm100/yrm100_print.c \
+	src/yrm100/yrm100.c
 
 OBJS = $(SRCS:.c=.o)
-TEST_SRCS = ../tests/test_example.c \
-	../tests/test_serial.c \
-	yrm100/yrm100_command.c \
-	yrm100/yrm100_error.c \
-	yrm100/yrm100_frame.c \
-	yrm100/yrm100_parse.c \
-	yrm100/yrm100_string.c \
-	yrm100/yrm100_util.c \
-	yrm100/yrm100_print.c \
-	yrm100/yrm100.c
+TEST_SRCS = tests/test_example.c \
+	tests/test_serial.c \
+	tests/test_string.c \
+	src/yrm100/yrm100_command.c \
+	src/yrm100/yrm100_error.c \
+	src/yrm100/yrm100_frame.c \
+	src/yrm100/yrm100_parse.c \
+	src/yrm100/yrm100_string.c \
+	src/yrm100/yrm100_util.c \
+	src/yrm100/yrm100_print.c \
+	src/yrm100/yrm100.c
 TEST_OBJS = $(TEST_SRCS:.c=.o)
 
 ifeq ($(OS),Windows_NT)
