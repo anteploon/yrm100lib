@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "yrm100/yrm100_command.h"
 #include "yrm100/yrm100_error.h"
@@ -141,11 +142,19 @@ static int test_poll_response_validation(void)
     };
 
     memset(tags, 0, sizeof(tags));
+    tags[0].data = malloc(1);
+    if (tags[0].data == NULL)
+    {
+        return expect_equal_int("poll response data allocation", 0, 1);
+    }
+    tags[0].data_length = 1;
     set_poll_notice_checksum(response);
     failures += expect_equal_int("valid poll response", yrm100_parse_poll_response(response, sizeof(response), tags, 2), 1);
     failures += expect_equal_int("poll response rssi", tags[0].rssi, (signed char)0xC8);
     failures += expect_equal_int("poll response pc", tags[0].pc, 0x3000);
     failures += expect_equal_int("poll response crc", tags[0].crc, 0xABCD);
+    failures += expect_equal_int("poll response data reset", tags[0].data == NULL, 1);
+    failures += expect_equal_int("poll response data length reset", (int)tags[0].data_length, 0);
 
     failures += expect_equal_int("short poll response", yrm100_parse_poll_response(response, sizeof(response) - 1, tags, 2), YRM100_ERROR_PARSE_ERROR);
 

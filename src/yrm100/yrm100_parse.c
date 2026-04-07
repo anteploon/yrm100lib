@@ -131,17 +131,7 @@ int yrm100_parse_poll_response(unsigned char *response, size_t response_len, yrm
         message_count = maximum_tag_count;
     }
 
-    for (unsigned short n = 0; n < maximum_tag_count; n++)
-    {
-        t = &tags[n];
-        for (size_t i = 0; i < YRM100_TAG_EPC_BYTE_COUNT; i++)
-        {
-            t->epc[i] = 0;
-        }
-        t->rssi = 0;
-        t->pc = 0;
-        t->crc = 0;
-    }
+    yrm100_reset_tag_buf(tags, maximum_tag_count);
 
     for (unsigned short n = 0; n < message_count; n++)
     {
