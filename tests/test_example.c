@@ -3,6 +3,7 @@
 #include "yrm100/yrm100_command.h"
 #include "yrm100/yrm100_error.h"
 #include "yrm100/yrm100_frame.h"
+#include "yrm100/yrm100_parse.h"
 #include "yrm100/yrm100_types.h"
 
 ssize_t yrm100_command_read_response(yrm100_context_t *device_context);
@@ -123,6 +124,43 @@ static int test_error_response_checksum_validation(void)
     return failures;
 }
 
+static void set_poll_notice_checksum(unsigned char *response)
+{
+    response[YRM100_FRAME_POLL_NOTICE_SIZE - 2] = (unsigned char)yrm100_frame_calculate_checksum(response, YRM100_FRAME_POLL_NOTICE_SIZE);
+}
+
+static int test_poll_response_validation(void)
+{
+    int failures = 0;
+    yrm100_rfid_tag_t tags[2];
+    unsigned char two_responses[YRM100_FRAME_POLL_NOTICE_SIZE * 2];
+    unsigned char response[] = {
+        0xBB, 0x02, 0x22, 0x00, 0x11, 0xC8, 0x30, 0x00,
+        0xE2, 0x00, 0x00, 0x17, 0x22, 0x11, 0x44, 0x55,
+        0x66, 0x77, 0x88, 0x99, 0xAB, 0xCD, 0x00, 0x7E
+    };
+
+    memset(tags, 0, sizeof(tags));
+    set_poll_notice_checksum(response);
+    failures += expect_equal_int("valid poll response", yrm100_parse_poll_response(response, sizeof(response), tags, 2), 1);
+    failures += expect_equal_int("poll response rssi", tags[0].rssi, (signed char)0xC8);
+    failures += expect_equal_int("poll response pc", tags[0].pc, 0x3000);
+    failures += expect_equal_int("poll response crc", tags[0].crc, 0xABCD);
+
+    failures += expect_equal_int("short poll response", yrm100_parse_poll_response(response, sizeof(response) - 1, tags, 2), YRM100_ERROR_PARSE_ERROR);
+
+    response[YRM100_FRAME_POLL_NOTICE_SIZE - 2]++;
+    failures += expect_equal_int("invalid poll response checksum", yrm100_parse_poll_response(response, sizeof(response), tags, 2), YRM100_ERROR_PARSE_ERROR);
+
+    set_poll_notice_checksum(response);
+    memcpy(two_responses, response, sizeof(response));
+    memcpy(&two_responses[YRM100_FRAME_POLL_NOTICE_SIZE], response, sizeof(response));
+    two_responses[(YRM100_FRAME_POLL_NOTICE_SIZE * 2) - 2]++;
+    failures += expect_equal_int("invalid capped poll response", yrm100_parse_poll_response(two_responses, sizeof(two_responses), tags, 1), YRM100_ERROR_PARSE_ERROR);
+
+    return failures;
+}
+
 static int test_single_poll_error_response(void)
 {
     yrm100_context_t ctx;
@@ -141,6 +179,30 @@ static int test_single_poll_error_response(void)
 
     int result = yrm100_command_single_poll(&ctx, tags, 1);
     return expect_equal_int("single poll error response", result, YRM100_MODULE_ERROR_READ_FAIL);
+}
+
+static int test_single_poll_nonmultiple_notice_response(void)
+{
+    yrm100_context_t ctx;
+    memset(&ctx, 0, sizeof(ctx));
+    ctx.serial_port_name = "mock";
+    ctx.serial_port = (serial_port_t)1;
+    ctx.is_initialized = true;
+
+    unsigned char response[] = {
+        0xBB, 0x02, 0x22, 0x00, 0x12, 0xC8, 0x30, 0x00,
+        0xE2, 0x00, 0x00, 0x17, 0x22, 0x11, 0x44, 0x55,
+        0x66, 0x77, 0x88, 0x99, 0xAB, 0xCD, 0x00, 0x00, 0x7E
+    };
+    response[sizeof(response) - 2] = (unsigned char)yrm100_frame_calculate_checksum(response, sizeof(response));
+    size_t chunks[] = {sizeof(response)};
+    test_serial_set_read_data(response, sizeof(response), chunks, 1);
+
+    yrm100_rfid_tag_t tags[1];
+    memset(tags, 0, sizeof(tags));
+
+    int result = yrm100_command_single_poll(&ctx, tags, 1);
+    return expect_equal_int("single poll nonmultiple notice", result, YRM100_ERROR_PARSE_ERROR);
 }
 
 static int test_get_tx_power_error_response(void)
@@ -169,7 +231,9 @@ int main(void)
     failures += test_partial_read_without_end_byte();
     failures += test_invalid_end_byte_checksum_validation();
     failures += test_error_response_checksum_validation();
+    failures += test_poll_response_validation();
     failures += test_single_poll_error_response();
+    failures += test_single_poll_nonmultiple_notice_response();
     failures += test_get_tx_power_error_response();
     failures += test_string_functions();
     if (failures == 0)

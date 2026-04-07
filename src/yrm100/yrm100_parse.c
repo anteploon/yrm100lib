@@ -98,22 +98,38 @@ int yrm100_parse_read_tag_memory_response(unsigned char *response, size_t respon
 int yrm100_parse_poll_response(unsigned char *response, size_t response_len, yrm100_rfid_tag_t *tags, unsigned short maximum_tag_count)
 {
     size_t pos = 0;
+    unsigned short frame_count;
+    unsigned short message_count;
+    yrm100_rfid_tag_t *t;
 
     if (response == NULL || tags == NULL)
     {
         return YRM100_ERROR_BUFFER_NULL;
     }
-    if (response_len > (USHRT_MAX / YRM100_FRAME_POLL_NOTICE_SIZE))
+    if ((response_len % YRM100_FRAME_POLL_NOTICE_SIZE) != 0)
+    {
+        return YRM100_ERROR_PARSE_ERROR;
+    }
+    if (response_len > ((size_t)USHRT_MAX * YRM100_FRAME_POLL_NOTICE_SIZE))
     {
         return YRM100_ERROR_BUFFER_OVERFLOW;
     }
 
-    unsigned short message_count = (unsigned short)(response_len / YRM100_FRAME_POLL_NOTICE_SIZE);
+    frame_count = (unsigned short)(response_len / YRM100_FRAME_POLL_NOTICE_SIZE);
+    for (unsigned short n = 0; n < frame_count; n++)
+    {
+        pos = YRM100_FRAME_POLL_NOTICE_SIZE * n;
+        if (yrm100_frame_is_valid_notice(&response[pos], YRM100_FRAME_POLL_NOTICE_SIZE) == false)
+        {
+            return YRM100_ERROR_PARSE_ERROR;
+        }
+    }
+
+    message_count = frame_count;
     if (message_count > maximum_tag_count)
     {
         message_count = maximum_tag_count;
     }
-    yrm100_rfid_tag_t *t;
 
     for (unsigned short n = 0; n < maximum_tag_count; n++)
     {
@@ -131,26 +147,13 @@ int yrm100_parse_poll_response(unsigned char *response, size_t response_len, yrm
     {
         pos = YRM100_FRAME_POLL_NOTICE_SIZE * n;
         t = &tags[n];
-        if (response[pos + 0] == 0xBB && response[pos + 1] == 0x02)
+        for (size_t i = 0; i < YRM100_TAG_EPC_BYTE_COUNT; i++)
         {
-            for (size_t i = 0; i < YRM100_TAG_EPC_BYTE_COUNT; i++)
-            {
-                t->epc[i] = response[pos + 8 + i];
-            }
-            t->rssi = (signed char)response[pos + 5];
-            t->pc = (unsigned short)(((unsigned short)(response[pos + 6]) << 8) | ((unsigned short)response[pos + 7]));
-            t->crc = (unsigned short)(((unsigned short)(response[pos + 20]) << 8) | ((unsigned short)response[pos + 21]));
+            t->epc[i] = response[pos + 8 + i];
         }
-        else
-        {
-            t->pc = 0;
-            t->crc = 0;
-            t->rssi = 0;
-            for (int i = 0; i < YRM100_TAG_EPC_BYTE_COUNT; i++)
-            {
-                t->epc[i] = 0;
-            }
-        }
+        t->rssi = (signed char)response[pos + 5];
+        t->pc = (unsigned short)(((unsigned short)(response[pos + 6]) << 8) | ((unsigned short)response[pos + 7]));
+        t->crc = (unsigned short)(((unsigned short)(response[pos + 20]) << 8) | ((unsigned short)response[pos + 21]));
     }
     return message_count;
 }
