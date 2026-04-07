@@ -53,7 +53,7 @@ typedef struct yrm100_context_t
 
 /**
  * @brief RFID UHF select parameters.
- * Depending on the select mode, the select is sent prior other operations.
+ * Depending on the select mode, the select is sent before other operations.
  */
 typedef struct yrm100_select_parameters_t
 {

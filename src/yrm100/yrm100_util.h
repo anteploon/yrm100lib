@@ -7,7 +7,7 @@
 
 /**
  * @brief Sets buf_size number of bytes in buf to zero
- * @param buf String buffer
+ * @param buf Buffer
  * @param buf_size Buffer size
  */
 void yrm100_zero_buf(void *buf, size_t buf_size);
@@ -20,11 +20,11 @@ void yrm100_zero_buf(void *buf, size_t buf_size);
 void yrm100_free_tag_data(yrm100_rfid_tag_t *tags, unsigned short tag_count);
 
 /**
- * @brief Zeros out the RFID tag structure in memory
+ * @brief Resets RFID tag structures in memory
  * If there is memory allocated for tag data, it will be freed and set to NULL.
  * The tag buffer must be zero-initialized before its first call to this helper.
- * @param tags Pointer to tags
- * @param tag_count Number of how many tags to zero
+ * @param tags Pointer to tag array
+ * @param tag_count Number of tags to reset
  */
 void yrm100_reset_tag_buf(yrm100_rfid_tag_t *tags, unsigned short tag_count);
 

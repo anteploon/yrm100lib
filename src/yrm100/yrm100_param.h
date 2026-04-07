@@ -37,10 +37,11 @@
 
 /** @} */
 
-/** @defgroup yrm100_select_membank RFID select membank - see https://www.atlasrfidstore.com/rfid-insider/types-of-memory-in-gen-2-uhf-rfid-tags/
+/** @defgroup yrm100_select_membank RFID select memory bank values
  *  @{
  */
 
+/** Reserved for future use */
 #define YRM100_PARAM_MEMBANK_RFU 0b00
 
 /** Target EPC bank */
@@ -67,14 +68,14 @@
 
 /** @} */
 
-/** @defgroup yrm100_continous_wave_toggle Values to use to turn continous wave on and off
+/** @defgroup yrm100_continous_wave_toggle Values to use to turn continuous wave on and off
  *  @{
  */
 
-/** Continous wave off */
+/** Continuous wave off */
 #define YRM100_PARAM_CONTINOUS_WAVE_OFF 0x00
 
-/** Continous wave on */
+/** Continuous wave on */
 #define YRM100_PARAM_CONTINOUS_WAVE_ON 0xFF
 
 /** @} */

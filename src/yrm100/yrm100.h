@@ -17,7 +17,7 @@ yrm100_context_t *yrm100_init(const char *port_name);
 /**
  * @brief Frees RFID UHF device context resources and closes the serial port
  * @param device_context Device context
- * @return Negative value on failure
+ * @return YRM100_STATUS_OK
  */
 int yrm100_deinit(yrm100_context_t *device_context);
 

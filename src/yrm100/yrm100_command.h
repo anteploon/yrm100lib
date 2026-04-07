@@ -13,7 +13,7 @@
  * @param device_context Handle to the RFID UHF device
  * @param string_buf Pointer to string buffer
  * @param string_buf_size String buffer size
- * @return Value 0 on success otherwise error code
+ * @return Value 0 on success, otherwise error code
  */
 int yrm100_command_get_module_manufacturer(yrm100_context_t *device_context, char *string_buf, size_t string_buf_size);
 
@@ -22,7 +22,7 @@ int yrm100_command_get_module_manufacturer(yrm100_context_t *device_context, cha
  * @param device_context Handle to the RFID UHF device
  * @param string_buf Pointer to string buffer
  * @param string_buf_size String buffer size
- * @return Value 0 on success otherwise error code
+ * @return Value 0 on success, otherwise error code
  */
 int yrm100_command_get_module_hardware_version(yrm100_context_t *device_context, char *string_buf, size_t string_buf_size);
 
@@ -31,7 +31,7 @@ int yrm100_command_get_module_hardware_version(yrm100_context_t *device_context,
  * @param device_context Handle to the RFID UHF device
  * @param string_buf Pointer to string buffer
  * @param string_buf_size String buffer size
- * @return Value 0 on success otherwise error code
+ * @return Value 0 on success, otherwise error code
  */
 int yrm100_command_get_module_software_version(yrm100_context_t *device_context, char *string_buf, size_t string_buf_size);
 
@@ -40,7 +40,7 @@ int yrm100_command_get_module_software_version(yrm100_context_t *device_context,
  * @param device_context Handle to the RFID UHF device
  * @param tags Pointer where to store tags
  * @param maximum_tag_count Maximum number of tags to read
- * @return Value 0 on success otherwise error code
+ * @return Value 0 on success, otherwise error code
  */
 int yrm100_command_single_poll(yrm100_context_t *device_context, yrm100_rfid_tag_t *tags, unsigned short maximum_tag_count);
 
@@ -48,7 +48,7 @@ int yrm100_command_single_poll(yrm100_context_t *device_context, yrm100_rfid_tag
  * @brief Executes "Set idle sleep time" command on the RFID module
  * @param device_context Handle to the RFID UHF device
  * @param minutes After how many minutes to sleep (0 means never)
- * @return Value 0 on success otherwise error code
+ * @return Value 0 on success, otherwise error code
  */
 int yrm100_command_set_idle_sleep_time(yrm100_context_t *device_context, unsigned char minutes);
 
@@ -56,7 +56,7 @@ int yrm100_command_set_idle_sleep_time(yrm100_context_t *device_context, unsigne
  * @brief Gets select parameters from the RFID module
  * @param device_context Handle to the RFID UHF device
  * @param select_parameters Pointer to where to store the select parameters
- * @return Value 0 on success otherwise error code
+ * @return Value 0 on success, otherwise error code
  */
 int yrm100_command_get_select_parameters(yrm100_context_t *device_context, yrm100_select_parameters_t *select_parameters);
 
@@ -64,7 +64,7 @@ int yrm100_command_get_select_parameters(yrm100_context_t *device_context, yrm10
  * @brief Sets select parameters on the RFID module
  * @param device_context Handle to the RFID UHF device
  * @param select_parameters Pointer to select parameters
- * @return Value 0 on success otherwise error code
+ * @return Value 0 on success, otherwise error code
  */
 int yrm100_command_set_select_parameters(yrm100_context_t *device_context, yrm100_select_parameters_t *select_parameters);
 
@@ -72,7 +72,7 @@ int yrm100_command_set_select_parameters(yrm100_context_t *device_context, yrm10
  * @brief Sets select mode on the RFID module
  * @param device_context Handle to the RFID UHF device
  * @param select_mode One of the values from @ref yrm100_select_mode
- * @return Value 0 on success otherwise error code
+ * @return Value 0 on success, otherwise error code
  */
 int yrm100_command_set_select_mode(yrm100_context_t *device_context, unsigned char select_mode);
 
@@ -80,14 +80,14 @@ int yrm100_command_set_select_mode(yrm100_context_t *device_context, unsigned ch
  * @brief Gets query parameters from the RFID module
  * @param device_context Handle to the RFID UHF device
  * @param query_parameters Pointer to where to store the query parameters
- * @return Value 0 on success otherwise error code
+ * @return Value 0 on success, otherwise error code
  */
 int yrm100_command_get_query_parameters(yrm100_context_t *device_context, yrm100_query_parameters_t *query_parameters);
 
 /**
  * @brief Disables idle sleep on RFID module
  * @param device_context Handle to the RFID UHF device
- * @return Value 0 on success otherwise error code
+ * @return Value 0 on success, otherwise error code
  */
 int yrm100_command_disable_idle_sleep(yrm100_context_t *device_context);
 
@@ -95,7 +95,7 @@ int yrm100_command_disable_idle_sleep(yrm100_context_t *device_context);
  * @brief Sets RFID module operating region setting
  * @param device_context Handle to the RFID UHF device
  * @param region See YRM100_PARAM_REGION_* constants
- * @return Value 0 on success otherwise error code
+ * @return Value 0 on success, otherwise error code
  */
 int yrm100_command_set_operating_region(yrm100_context_t *device_context, unsigned char region);
 
@@ -110,43 +110,43 @@ int yrm100_command_get_operating_region(yrm100_context_t *device_context);
  * @brief Sets RFID module TX power setting
  * @param device_context Handle to the RFID UHF device
  * @param power Value where for instance 2600 means 26dBm
- * @return Value 0 on success otherwise error code
+ * @return Value 0 on success, otherwise error code
  */
 int yrm100_command_set_tx_power(yrm100_context_t *device_context, unsigned short power);
 
 /**
  * @brief Gets RFID module TX power setting
  * @param device_context Handle to the RFID UHF device
- * @return Positive value indicating the power setting (where 2000 means for example 20dBm) and negative value indicating an error
+ * @return Positive value indicating the power setting (where 2000 means 20dBm) or negative error code
  */
 int yrm100_command_get_tx_power(yrm100_context_t *device_context);
 
 /**
- * @brief Turns the continous wave mode on or of
+ * @brief Turns the continuous wave mode on or off
  * @param device_context Handle to the RFID UHF device
- * @param on_or_off Use either YRM100_PARAM_CONTINOUS_WAVE_OFF (0x00) or YRM100_MODULE_CONTINOUS_WAVE_ON (0xFF)
- * @return Value 0 on success otherwise error code
+ * @param on_or_off Use either YRM100_PARAM_CONTINOUS_WAVE_OFF (0x00) or YRM100_PARAM_CONTINOUS_WAVE_ON (0xFF)
+ * @return Value 0 on success, otherwise error code
  */
 int yrm100_command_set_continous_wave(yrm100_context_t *device_context, unsigned char on_or_off);
 
 /**
- * @brief Turns continous wave mode on
+ * @brief Turns continuous wave mode on
  * @param device_context Handle to the RFID UHF device
- * @return Value 0 on success otherwise error code
+ * @return Value 0 on success, otherwise error code
  */
 int yrm100_command_enable_continous_wave(yrm100_context_t *device_context);
 
 /**
- * @brief Turns continous wave mode off
+ * @brief Turns continuous wave mode off
  * @param device_context Handle to the RFID UHF device
- * @return Value 0 on success otherwise error code
+ * @return Value 0 on success, otherwise error code
  */
 int yrm100_command_disable_continous_wave(yrm100_context_t *device_context);
 
 /**
  * @brief Puts the RFID module to sleep
  * @param device_context Handle to the RFID UHF device
- * @return Value 0 on success otherwise error code
+ * @return Value 0 on success, otherwise error code
  */
 int yrm100_command_sleep(yrm100_context_t *device_context);
 
@@ -154,7 +154,7 @@ int yrm100_command_sleep(yrm100_context_t *device_context);
  * @brief Sends the kill command to a specific RFID tag; before this command, a set select parameter command should be sent first
  * @param device_context Handle to the RFID UHF device
  * @param password Password to use when killing the tag
- * @return Value 0 on success otherwise error code
+ * @return Value 0 on success, otherwise error code
  */
 int yrm100_command_kill(yrm100_context_t *device_context, unsigned int password);
 
@@ -162,15 +162,15 @@ int yrm100_command_kill(yrm100_context_t *device_context, unsigned int password)
  * @brief Formats the current TX power setting as a string
  * @param device_context Handle to the RFID UHF device
  * @param string_buf Pointer to string buffer
- * @return Value 0 on success otherwise error code
+ * @return Pointer to string_buf
  */
 char *yrm100_command_get_tx_power_string(yrm100_context_t *device_context, char string_buf[YRM100_PARAM_TX_POWER_STRING_LENGTH]);
 
 /**
- * @brief Wraps three separate RFID UHF function calls into one, that formats the resulting string into human readable one
+ * @brief Gets manufacturer, hardware version, and software version as one human-readable string
  * @param device_context Handle to the RFID UHF device
  * @param string_buf Pointer to string buffer
- * @return Value 0 on success otherwise error code
+ * @return Pointer to string_buf
  */
 char *yrm100_command_get_module_info_string(yrm100_context_t *device_context, char string_buf[YRM100_MODULE_INFO_STRING_LENGTH]);
 

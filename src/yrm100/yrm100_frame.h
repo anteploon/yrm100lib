@@ -77,10 +77,10 @@ bool yrm100_frame_is_valid_response(unsigned char *buf, size_t buf_size);
 bool yrm100_frame_is_valid_notice(unsigned char *buf, size_t buf_size);
 
 /**
- * @brief Checks if the RFID UHF frame looks like an error response frame
+ * @brief Checks if the RFID UHF frame is a valid error response frame
  * @param buf Buffer
  * @param buf_size Buffer size
- * @return True if the frame is a error response
+ * @return True if the frame is an error response
  */
 bool yrm100_frame_is_error_response(unsigned char *buf, size_t buf_size);
 

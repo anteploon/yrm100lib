@@ -41,16 +41,16 @@
 #define YRM100_MODULE_ERROR_FHSS_FAIL 0x20
 
 /**
- * @brief Converts the error code to human readable string
- * @param error_code Numeric error code
+ * @brief Converts a library error code to a human-readable string
+ * @param error_code Library error code
  * @return Error message string
  */
 const char *yrm100_error_code_to_string(int error_code);
 
 /**
- * @brief Converts the error code to human readable string
- * @param error_code Numeric error code
- * @return Error message string
+ * @brief Converts a module error code to a human-readable string
+ * @param error_code Module error code
+ * @return Module error message string
  */
 const char *yrm100_module_error_code_to_string(int error_code);
 
