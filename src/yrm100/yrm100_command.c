@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "yrm100.h"
 #include "yrm100_util.h"
 #include "yrm100_frame.h"
@@ -6,6 +7,9 @@
 #include "yrm100_parse.h"
 #include "yrm100_command.h"
 #include "yrm100_error.h"
+
+#define YRM100_COMMAND_FRAME_PREFIX_SIZE 5
+#define YRM100_COMMAND_FRAME_OVERHEAD_SIZE 7
 
 int yrm100_set_last_error_code(yrm100_context_t *device_context, ssize_t error_code)
 {
@@ -58,6 +62,61 @@ static int yrm100_command_send(yrm100_context_t *device_context, unsigned char *
     return yrm100_set_last_error_code(device_context, YRM100_STATUS_OK);
 }
 
+static bool yrm100_command_frame_type_is_supported(unsigned char frame_type)
+{
+    return frame_type == YRM100_FRAME_TYPE_BYTE_RESPONSE ||
+           frame_type == YRM100_FRAME_TYPE_BYTE_NOTICE;
+}
+
+static int yrm100_command_frame_expected_size(unsigned char *buf, size_t buf_size, size_t *expected_size)
+{
+    if (buf == NULL || expected_size == NULL)
+    {
+        return YRM100_ERROR_BUFFER_NULL;
+    }
+    if (buf_size < YRM100_COMMAND_FRAME_PREFIX_SIZE)
+    {
+        return YRM100_ERROR_PARSE_ERROR;
+    }
+    if (buf[YRM100_FRAME_BYTE_POSITION_HEADER] != YRM100_FRAME_HEADER_BYTE ||
+        yrm100_command_frame_type_is_supported(buf[YRM100_FRAME_BYTE_POSITION_TYPE]) == false)
+    {
+        return YRM100_ERROR_PARSE_ERROR;
+    }
+
+    size_t payload_len = ((size_t)buf[3] << 8) | (size_t)buf[4];
+    *expected_size = payload_len + YRM100_COMMAND_FRAME_OVERHEAD_SIZE;
+    return YRM100_STATUS_OK;
+}
+
+static int yrm100_command_validate_complete_frame(unsigned char *buf, size_t frame_size)
+{
+    int checksum;
+
+    if (buf == NULL)
+    {
+        return YRM100_ERROR_BUFFER_NULL;
+    }
+    if (frame_size < YRM100_FRAME_MINIMUM_RESPONSE_SIZE)
+    {
+        return YRM100_ERROR_PARSE_ERROR;
+    }
+    if (buf[frame_size - 1] != YRM100_FRAME_END_BYTE)
+    {
+        return YRM100_ERROR_PARSE_ERROR;
+    }
+    checksum = yrm100_frame_calculate_checksum(buf, frame_size);
+    if (checksum < 0)
+    {
+        return YRM100_ERROR_CHECKSUM_CALCULATION_FAILURE;
+    }
+    if (buf[frame_size - 2] != (unsigned char)checksum)
+    {
+        return YRM100_ERROR_PARSE_ERROR;
+    }
+    return YRM100_STATUS_OK;
+}
+
 ssize_t yrm100_command_read_response(yrm100_context_t *device_context)
 {
     if (yrm100_is_device_context_valid(device_context) == false)
@@ -65,20 +124,67 @@ ssize_t yrm100_command_read_response(yrm100_context_t *device_context)
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_INVALID_DEVICE_HANDLE);
     }
 
-    unsigned char *buf = device_context->command_response_buf;
+    unsigned char *buf;
     size_t buf_size = sizeof(device_context->command_response_buf);
-    unsigned short cursor = 0;
+    size_t cursor = 0;
     size_t total_read = 0;
+    size_t frame_start = 0;
+    size_t expected_frame_size = 0;
+    size_t expected_total = 0;
     ssize_t response_len;
 
     while (true)
     {
+        size_t read_size;
+
         if (cursor >= buf_size)
         {
             return yrm100_set_last_error_code(device_context, YRM100_ERROR_SERIAL_INPUT_OVERFLOW);
         }
+
+        if (expected_total > 0)
+        {
+            read_size = expected_total - cursor;
+        }
+        else if (cursor - frame_start < YRM100_COMMAND_FRAME_PREFIX_SIZE)
+        {
+            read_size = YRM100_COMMAND_FRAME_PREFIX_SIZE - (cursor - frame_start);
+        }
+        else
+        {
+            int result = yrm100_command_frame_expected_size(&device_context->command_response_buf[frame_start], cursor - frame_start, &expected_frame_size);
+            if (result != YRM100_STATUS_OK)
+            {
+                return yrm100_set_last_error_code(device_context, result);
+            }
+            expected_total = frame_start + expected_frame_size;
+            if (expected_total > buf_size)
+            {
+                return yrm100_set_last_error_code(device_context, YRM100_ERROR_SERIAL_INPUT_OVERFLOW);
+            }
+            read_size = expected_total - cursor;
+        }
+
+        if (read_size == 0)
+        {
+            int result = yrm100_command_validate_complete_frame(&device_context->command_response_buf[frame_start], expected_frame_size);
+            if (result != YRM100_STATUS_OK)
+            {
+                return yrm100_set_last_error_code(device_context, result);
+            }
+            if (device_context->command_response_buf[frame_start + YRM100_FRAME_BYTE_POSITION_TYPE] == YRM100_FRAME_TYPE_BYTE_RESPONSE)
+            {
+                break;
+            }
+
+            frame_start = cursor;
+            expected_frame_size = 0;
+            expected_total = 0;
+            continue;
+        }
+
         buf = &device_context->command_response_buf[cursor];
-        response_len = yrm100_serial_read(device_context->serial_port, buf, buf_size - cursor);
+        response_len = yrm100_serial_read(device_context->serial_port, buf, read_size);
         if (response_len < 0)
         {
             return yrm100_set_last_error_code(device_context, YRM100_ERROR_READING_FROM_SERIAL_PORT_FAILED);
@@ -89,13 +195,42 @@ ssize_t yrm100_command_read_response(yrm100_context_t *device_context)
             {
                 return yrm100_set_last_error_code(device_context, YRM100_ERROR_READ_TIMEOUT);
             }
+            if (cursor - frame_start < YRM100_COMMAND_FRAME_PREFIX_SIZE || (expected_total > 0 && cursor < expected_total))
+            {
+                return yrm100_set_last_error_code(device_context, YRM100_ERROR_PARSE_ERROR);
+            }
             break;
         }
-        cursor += (unsigned short)response_len;
+        cursor += (size_t)response_len;
         total_read += (size_t)response_len;
-        if (device_context->command_response_buf[cursor - 1] == YRM100_FRAME_END_BYTE)
+
+        while (frame_start < cursor &&
+               device_context->command_response_buf[frame_start] != YRM100_FRAME_HEADER_BYTE)
         {
-            break;
+            frame_start++;
+        }
+        if (frame_start > 0)
+        {
+            if (frame_start == cursor)
+            {
+                cursor = 0;
+                frame_start = 0;
+            }
+            else
+            {
+                memmove(device_context->command_response_buf, &device_context->command_response_buf[frame_start], cursor - frame_start);
+                cursor -= frame_start;
+                total_read = cursor;
+                frame_start = 0;
+            }
+            expected_frame_size = 0;
+            expected_total = 0;
+        }
+
+        if (cursor - frame_start >= 2 &&
+            yrm100_command_frame_type_is_supported(device_context->command_response_buf[frame_start + YRM100_FRAME_BYTE_POSITION_TYPE]) == false)
+        {
+            return yrm100_set_last_error_code(device_context, YRM100_ERROR_PARSE_ERROR);
         }
     }
 

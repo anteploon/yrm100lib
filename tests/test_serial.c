@@ -68,7 +68,11 @@ ssize_t yrm100_serial_read(serial_port_t port, void *buffer, size_t size)
 
     memcpy(buffer, &test_serial_read_data[test_serial_read_offset], to_read);
     test_serial_read_offset += to_read;
-    test_serial_chunk_index++;
+    test_serial_chunks[test_serial_chunk_index] -= to_read;
+    if (test_serial_chunks[test_serial_chunk_index] == 0)
+    {
+        test_serial_chunk_index++;
+    }
     return (ssize_t)to_read;
 }
 

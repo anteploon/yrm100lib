@@ -27,7 +27,8 @@ static int test_fragmented_read(void)
     ctx.serial_port = (serial_port_t)1;
     ctx.is_initialized = true;
 
-    unsigned char response[] = {0xBB, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x11, 0x22, 0x7E};
+    unsigned char response[] = {0xBB, 0x01, 0x00, 0x00, 0x03, 0x00, 0x00, 0x11, 0x00, 0x7E};
+    response[8] = (unsigned char)yrm100_frame_calculate_checksum(response, sizeof(response));
     size_t chunks[] = {4, 6};
     test_serial_set_read_data(response, sizeof(response), chunks, 2);
 
@@ -43,6 +44,31 @@ static int test_fragmented_read(void)
     return failures;
 }
 
+static int test_payload_end_byte_at_chunk_boundary(void)
+{
+    yrm100_context_t ctx;
+    memset(&ctx, 0, sizeof(ctx));
+    ctx.serial_port_name = "mock";
+    ctx.serial_port = (serial_port_t)1;
+    ctx.is_initialized = true;
+
+    unsigned char response[] = {0xBB, 0x01, 0x00, 0x00, 0x03, 0x12, 0x7E, 0x34, 0x00, 0x7E};
+    response[8] = (unsigned char)yrm100_frame_calculate_checksum(response, sizeof(response));
+    size_t chunks[] = {5, 2, 3};
+    test_serial_set_read_data(response, sizeof(response), chunks, 3);
+
+    ssize_t read_len = yrm100_command_read_response(&ctx);
+    int failures = 0;
+    failures += expect_equal_int("payload end byte read length", (int)read_len, (int)sizeof(response));
+    if (read_len == (ssize_t)sizeof(response) &&
+        memcmp(ctx.command_response_buf, response, sizeof(response)) != 0)
+    {
+        printf("FAIL: payload end byte buffer mismatch\n");
+        failures++;
+    }
+    return failures;
+}
+
 static int test_overflow_read(void)
 {
     yrm100_context_t ctx;
@@ -51,10 +77,9 @@ static int test_overflow_read(void)
     ctx.serial_port = (serial_port_t)1;
     ctx.is_initialized = true;
 
-    unsigned char response[YRM100_COMMAND_RESPONSE_BUFFER_SIZE + 1];
-    memset(response, 0xAA, sizeof(response));
-    size_t chunks[] = {YRM100_COMMAND_RESPONSE_BUFFER_SIZE, 1};
-    test_serial_set_read_data(response, sizeof(response), chunks, 2);
+    unsigned char response[] = {0xBB, 0x01, 0x00, 0x04, 0x00};
+    size_t chunks[] = {sizeof(response)};
+    test_serial_set_read_data(response, sizeof(response), chunks, 1);
 
     ssize_t read_len = yrm100_command_read_response(&ctx);
     return expect_equal_int("overflow read error", (int)read_len, YRM100_ERROR_SERIAL_INPUT_OVERFLOW);
@@ -125,6 +150,7 @@ int main(void)
 {
     int failures = 0;
     failures += test_fragmented_read();
+    failures += test_payload_end_byte_at_chunk_boundary();
     failures += test_overflow_read();
     failures += test_partial_read_without_end_byte();
     failures += test_invalid_end_byte_checksum_validation();
