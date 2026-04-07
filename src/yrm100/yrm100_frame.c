@@ -103,12 +103,7 @@ bool yrm100_frame_is_error_response(unsigned char *buf, size_t buf_size)
     {
         return false;
     }
-    if (buf_size < YRM100_FRAME_MINIMUM_RESPONSE_SIZE)
-    {
-        return false;
-    }
-    if (buf[YRM100_FRAME_BYTE_POSITION_HEADER] == YRM100_FRAME_HEADER_BYTE &&
-        buf[YRM100_FRAME_BYTE_POSITION_TYPE] == YRM100_FRAME_TYPE_BYTE_RESPONSE &&
+    if (yrm100_frame_is_valid_response(buf, buf_size) &&
         buf[YRM100_FRAME_BYTE_POSITION_COMMAND] == 0xFF)
     {
         return true;

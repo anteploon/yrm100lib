@@ -109,6 +109,20 @@ static int test_invalid_end_byte_checksum_validation(void)
     return expect_equal_int("invalid end byte", yrm100_frame_is_valid_response(response, sizeof(response)), 0);
 }
 
+static int test_error_response_checksum_validation(void)
+{
+    int failures = 0;
+    unsigned char response[] = {0xBB, 0x01, 0xFF, 0x00, 0x01, YRM100_MODULE_ERROR_READ_FAIL, 0x00, 0x7E};
+
+    response[6] = (unsigned char)yrm100_frame_calculate_checksum(response, sizeof(response));
+    failures += expect_equal_int("valid error response", yrm100_frame_is_error_response(response, sizeof(response)), 1);
+
+    response[6]++;
+    failures += expect_equal_int("invalid error response checksum", yrm100_frame_is_error_response(response, sizeof(response)), 0);
+
+    return failures;
+}
+
 static int test_single_poll_error_response(void)
 {
     yrm100_context_t ctx;
@@ -154,6 +168,7 @@ int main(void)
     failures += test_overflow_read();
     failures += test_partial_read_without_end_byte();
     failures += test_invalid_end_byte_checksum_validation();
+    failures += test_error_response_checksum_validation();
     failures += test_single_poll_error_response();
     failures += test_get_tx_power_error_response();
     failures += test_string_functions();
