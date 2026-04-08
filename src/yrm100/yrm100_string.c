@@ -178,17 +178,15 @@ const char *yrm100_convert_to_target_string(uint8_t target)
 
 const char *yrm100_convert_to_q_string(uint8_t q)
 {
-    // TODO in reality the integer should be calculated as 2^q
-    switch (q)
+    static char string_buf[14];
+    unsigned int slot_count;
+
+    if (q > 15)
     {
-    case 0:
-        return "1 slot";
-    case 1:
-        return "2 slots";
-    case 4:
-        return "16 slots";
-    case 15:
-        return "32768 slots";
+        return "-";
     }
-    return "-";
+
+    slot_count = 1U << q;
+    snprintf(string_buf, sizeof(string_buf), "%u slot%s", slot_count, slot_count == 1U ? "" : "s");
+    return string_buf;
 }

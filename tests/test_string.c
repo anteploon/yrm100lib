@@ -49,6 +49,22 @@ int test_string_functions(void)
         yrm100_convert_to_region_string(YRM100_PARAM_REGION_USA),
         "USA");
     failures += expect_equal_string(
+        "q string low",
+        yrm100_convert_to_q_string(0),
+        "1 slot");
+    failures += expect_equal_string(
+        "q string middle",
+        yrm100_convert_to_q_string(5),
+        "32 slots");
+    failures += expect_equal_string(
+        "q string high",
+        yrm100_convert_to_q_string(15),
+        "32768 slots");
+    failures += expect_equal_string(
+        "q string invalid",
+        yrm100_convert_to_q_string(16),
+        "-");
+    failures += expect_equal_string(
         "tag string",
         yrm100_get_tag_string(&tag, tag_buf),
         "EPC: DEADBEEF0123456789ABCDEF, PC: 1234, RSSI:  -42dBm, CRC: ABCD");
