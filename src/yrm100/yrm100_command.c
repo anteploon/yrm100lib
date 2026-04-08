@@ -965,7 +965,7 @@ int yrm100_command_read_tag_memory_area(yrm100_context_t *device_context, yrm100
     return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
 }
 
-int yrm100_command_kill(yrm100_context_t *device_context, unsigned int password)
+int yrm100_command_kill(yrm100_context_t *device_context, yrm100_tag_password_t password)
 {
     unsigned char bytes[] = {0xBB, 0x00, 0x65, 0x00, 0x04, 0x00, 0x00, 0xFF, 0x70, 0x67, 0x7E};
     bytes[5] = (unsigned char)((password >> 24) & 0xFF);
@@ -998,7 +998,7 @@ int yrm100_command_kill(yrm100_context_t *device_context, unsigned int password)
     return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
 }
 
-int yrm100_command_lock(yrm100_context_t *device_context, unsigned int password)
+int yrm100_command_lock(yrm100_context_t *device_context, yrm100_tag_password_t password)
 {
     unsigned char bytes[] = {0xBB, 0x00, 0x82, 0x00, 0x07, 0x00, 0x00, 0xFF, 0xFF, 0x02, 0x00, 0x80, 0x09, 0x7E};
     bytes[5] = (unsigned char)((password >> 24) & 0xFF);

@@ -101,7 +101,7 @@ int yrm100_command_disable_idle_sleep(yrm100_context_t *device_context);
  * @param password Access password to use when reading the memory area
  * @return Value 0 on success, otherwise error code
  */
-int yrm100_command_read_tag_memory_area(yrm100_context_t *device_context, yrm100_rfid_tag_t *tag, unsigned char memory_bank, unsigned short segment_address, unsigned short data_length, unsigned int password);
+int yrm100_command_read_tag_memory_area(yrm100_context_t *device_context, yrm100_rfid_tag_t *tag, unsigned char memory_bank, unsigned short segment_address, unsigned short data_length, yrm100_tag_password_t password);
 
 /**
  * @brief Sets RFID module operating region setting
@@ -163,12 +163,20 @@ int yrm100_command_disable_continous_wave(yrm100_context_t *device_context);
 int yrm100_command_sleep(yrm100_context_t *device_context);
 
 /**
+ * @brief Sends the lock command to a specific RFID tag; before this command, a set select parameter command should be sent first
+ * @param device_context Handle to the RFID UHF device
+ * @param password Password to use when locking the tag
+ * @return Value 0 on success, otherwise error code
+ */
+int yrm100_command_lock(yrm100_context_t *device_context, yrm100_tag_password_t password);
+
+/**
  * @brief Sends the kill command to a specific RFID tag; before this command, a set select parameter command should be sent first
  * @param device_context Handle to the RFID UHF device
  * @param password Password to use when killing the tag
  * @return Value 0 on success, otherwise error code
  */
-int yrm100_command_kill(yrm100_context_t *device_context, unsigned int password);
+int yrm100_command_kill(yrm100_context_t *device_context, yrm100_tag_password_t password);
 
 /**
  * @brief Formats the current TX power setting as a string

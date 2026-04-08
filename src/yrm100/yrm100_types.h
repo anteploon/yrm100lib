@@ -2,6 +2,7 @@
 #define YRM100_TYPES_H
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "yrm100_serial.h"
 
 #define YRM100_COMMAND_RESPONSE_BUFFER_SIZE 1024
@@ -25,6 +26,11 @@
 #define YRM100_MEMORY_BANK_EPC 1
 #define YRM100_MEMORY_BANK_TID 2
 #define YRM100_MEMORY_BANK_USER 3
+
+/**
+ * @brief RFID tag password
+ */
+typedef uint32_t yrm100_tag_password_t;
 
 /**
  * @brief RFID UHF tag
