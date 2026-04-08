@@ -531,8 +531,7 @@ int yrm100_command_set_select_parameters(yrm100_context_t *device_context, yrm10
     bytes[9] = (uint8_t)((select_parameters->pointer >> 0) & 0xFF);
     bytes[10] = select_parameters->length;
     bytes[11] = select_parameters->truncate;
-
-    // TODO: Set mask bytes
+    memcpy(&bytes[12], select_parameters->mask, YRM100_TAG_EPC_BYTE_COUNT);
 
     int checksum = yrm100_frame_calculate_checksum(bytes, sizeof(bytes));
     if (checksum < 0)

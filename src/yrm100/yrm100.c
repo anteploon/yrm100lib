@@ -8,6 +8,11 @@ yrm100_context_t *yrm100_init(const char *port_name)
     yrm100_context_t *device_context = calloc(1, sizeof(*device_context));
     if (device_context != NULL)
     {
+        if (port_name == NULL)
+        {
+            free(device_context);
+            return NULL;
+        }
         device_context->last_error_code = YRM100_STATUS_OK;
         device_context->serial_port_name = strdup(port_name);
         if (device_context->serial_port_name == NULL)

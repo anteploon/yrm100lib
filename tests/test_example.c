@@ -9,6 +9,7 @@
 
 ssize_t yrm100_command_read_response(yrm100_context_t *device_context);
 void test_serial_set_read_data(const unsigned char *data, size_t len, const size_t *chunks, size_t chunk_count);
+size_t test_serial_get_last_write(unsigned char *buffer, size_t size);
 int test_string_functions(void);
 
 static int expect_equal_int(const char *label, int got, int expected)
@@ -254,6 +255,55 @@ static int test_get_tx_power_error_response(void)
     return expect_equal_int("get tx power error response", result, YRM100_MODULE_ERROR_READ_FAIL);
 }
 
+static int test_set_select_parameters_writes_mask(void)
+{
+    int failures = 0;
+    yrm100_context_t ctx;
+    yrm100_select_parameters_t select_parameters;
+    unsigned char command_buf[32];
+    unsigned char response[] = {0xBB, 0x01, 0x0C, 0x00, 0x01, 0x00, 0x00, 0x7E};
+    size_t chunks[] = {sizeof(response)};
+
+    memset(&ctx, 0, sizeof(ctx));
+    ctx.serial_port_name = "mock";
+    ctx.serial_port = (serial_port_t)1;
+    ctx.is_initialized = true;
+
+    memset(&select_parameters, 0, sizeof(select_parameters));
+    select_parameters.target = 1;
+    select_parameters.action = 2;
+    select_parameters.membank = YRM100_PARAM_MEMBANK_EPC;
+    select_parameters.pointer = 0x00000020;
+    select_parameters.length = 0x60;
+    select_parameters.truncate = 0x00;
+    for (size_t i = 0; i < YRM100_TAG_EPC_BYTE_COUNT; i++)
+    {
+        select_parameters.mask[i] = (unsigned char)(0xA0U + i);
+    }
+
+    response[6] = (unsigned char)yrm100_frame_calculate_checksum(response, sizeof(response));
+    test_serial_set_read_data(response, sizeof(response), chunks, 1);
+
+    failures += expect_equal_int(
+        "set select parameters result",
+        yrm100_command_set_select_parameters(&ctx, &select_parameters),
+        YRM100_STATUS_OK);
+    failures += expect_equal_int(
+        "set select parameters write length",
+        (int)test_serial_get_last_write(command_buf, sizeof(command_buf)),
+        26);
+    if (memcmp(&command_buf[12], select_parameters.mask, YRM100_TAG_EPC_BYTE_COUNT) != 0)
+    {
+        printf("FAIL: set select parameters mask mismatch\n");
+        failures++;
+    }
+    failures += expect_equal_int(
+        "set select parameters checksum",
+        command_buf[24],
+        yrm100_frame_calculate_checksum(command_buf, 26));
+    return failures;
+}
+
 int main(void)
 {
     int failures = 0;
@@ -268,6 +318,7 @@ int main(void)
     failures += test_single_poll_error_response();
     failures += test_single_poll_nonmultiple_notice_response();
     failures += test_get_tx_power_error_response();
+    failures += test_set_select_parameters_writes_mask();
     failures += test_string_functions();
     if (failures == 0)
     {

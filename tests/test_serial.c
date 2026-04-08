@@ -3,11 +3,14 @@
 #include "yrm100/yrm100_error.h"
 
 #define TEST_SERIAL_MAX_READ_DATA 2048
+#define TEST_SERIAL_MAX_WRITE_DATA 2048
 #define TEST_SERIAL_MAX_CHUNKS 16
 
 static unsigned char test_serial_read_data[TEST_SERIAL_MAX_READ_DATA];
+static unsigned char test_serial_write_data[TEST_SERIAL_MAX_WRITE_DATA];
 static size_t test_serial_read_len;
 static size_t test_serial_read_offset;
+static size_t test_serial_write_len;
 static size_t test_serial_chunks[TEST_SERIAL_MAX_CHUNKS];
 static size_t test_serial_chunk_count;
 static size_t test_serial_chunk_index;
@@ -29,6 +32,21 @@ void test_serial_set_read_data(const unsigned char *data, size_t len, const size
     test_serial_read_offset = 0;
     test_serial_chunk_count = chunk_count;
     test_serial_chunk_index = 0;
+}
+
+size_t test_serial_get_last_write(unsigned char *buffer, size_t size)
+{
+    size_t copy_len = test_serial_write_len;
+
+    if (copy_len > size)
+    {
+        copy_len = size;
+    }
+    if (buffer != NULL && copy_len > 0)
+    {
+        memcpy(buffer, test_serial_write_data, copy_len);
+    }
+    return test_serial_write_len;
 }
 
 serial_port_t yrm100_serial_open(const char *port_name)
@@ -79,7 +97,12 @@ ssize_t yrm100_serial_read(serial_port_t port, void *buffer, size_t size)
 ssize_t yrm100_serial_write(serial_port_t port, const void *buffer, size_t size)
 {
     (void)port;
-    (void)buffer;
+    test_serial_write_len = 0;
+    if (buffer != NULL && size <= TEST_SERIAL_MAX_WRITE_DATA)
+    {
+        memcpy(test_serial_write_data, buffer, size);
+        test_serial_write_len = size;
+    }
     return (ssize_t)size;
 }
 
