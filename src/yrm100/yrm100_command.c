@@ -213,7 +213,12 @@ ssize_t yrm100_command_read_response(yrm100_context_t *device_context)
         }
         if (frame_start > 0)
         {
-            if (frame_start == cursor)
+            if (device_context->command_response_buf[0] == YRM100_FRAME_HEADER_BYTE)
+            {
+                expected_frame_size = 0;
+                expected_total = 0;
+            }
+            else if (frame_start == cursor)
             {
                 cursor = 0;
                 frame_start = 0;
@@ -225,8 +230,11 @@ ssize_t yrm100_command_read_response(yrm100_context_t *device_context)
                 total_read = cursor;
                 frame_start = 0;
             }
-            expected_frame_size = 0;
-            expected_total = 0;
+            if (device_context->command_response_buf[0] != YRM100_FRAME_HEADER_BYTE)
+            {
+                expected_frame_size = 0;
+                expected_total = 0;
+            }
         }
 
         if (cursor - frame_start >= 2 &&
@@ -428,6 +436,7 @@ int yrm100_command_get_module_software_version(yrm100_context_t *device_context,
 int yrm100_command_single_poll(yrm100_context_t *device_context, yrm100_rfid_tag_t *tags, unsigned short maximum_tag_count)
 {
     uint8_t bytes[] = {0xBB, 0x00, 0x22, 0x00, 0x00, 0x22, 0x7E};
+    size_t notice_len = 0;
 
     if (yrm100_is_device_context_valid(device_context) == false)
     {
@@ -446,13 +455,32 @@ int yrm100_command_single_poll(yrm100_context_t *device_context, yrm100_rfid_tag
         {
             return yrm100_set_last_error_code(device_context, response_len);
         }
-        if (yrm100_frame_is_error_response(device_context->command_response_buf, (size_t)response_len))
+        while (notice_len + YRM100_FRAME_POLL_NOTICE_SIZE <= (size_t)response_len &&
+               yrm100_frame_is_valid_notice(&device_context->command_response_buf[notice_len], YRM100_FRAME_POLL_NOTICE_SIZE))
+        {
+            notice_len += YRM100_FRAME_POLL_NOTICE_SIZE;
+        }
+        if (notice_len < (size_t)response_len)
+        {
+            size_t trailing_len = (size_t)response_len - notice_len;
+            uint8_t *trailing_frame = &device_context->command_response_buf[notice_len];
+
+            if (yrm100_frame_is_error_response(trailing_frame, trailing_len))
+            {
+                return yrm100_set_last_error_code(device_context, yrm100_parse_get_error_code(trailing_frame, trailing_len));
+            }
+            if (yrm100_frame_is_ok_response(trailing_frame, trailing_len) == false)
+            {
+                return yrm100_set_last_error_code(device_context, YRM100_ERROR_PARSE_ERROR);
+            }
+        }
+        else if (yrm100_frame_is_error_response(device_context->command_response_buf, (size_t)response_len))
         {
             return yrm100_set_last_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
         }
-        if (response_len > 1)
+        if (notice_len > 0)
         {
-            int parse_result = yrm100_parse_poll_response(device_context->command_response_buf, (size_t)response_len, tags, maximum_tag_count);
+            int parse_result = yrm100_parse_poll_response(device_context->command_response_buf, notice_len, tags, maximum_tag_count);
             if (parse_result >= 0)
             {
                 return yrm100_set_last_error_code(device_context, YRM100_STATUS_OK);

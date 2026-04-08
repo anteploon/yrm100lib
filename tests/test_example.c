@@ -214,6 +214,48 @@ static int test_single_poll_error_response(void)
     return expect_equal_int("single poll error response", result, YRM100_MODULE_ERROR_READ_FAIL);
 }
 
+static int test_single_poll_success_response(void)
+{
+    int failures = 0;
+    yrm100_context_t ctx;
+    yrm100_rfid_tag_t tags[2];
+    unsigned char response[] = {
+        0xBB, 0x02, 0x22, 0x00, 0x11, 0xC8, 0x30, 0x00,
+        0xE2, 0x00, 0x00, 0x17, 0x22, 0x11, 0x44, 0x55,
+        0x66, 0x77, 0x88, 0x99, 0xAB, 0xCD, 0x00, 0x7E,
+        0xBB, 0x01, 0x22, 0x00, 0x01, 0x00, 0x23, 0x7E
+    };
+    size_t chunks[] = {24, 8};
+
+    memset(&ctx, 0, sizeof(ctx));
+    ctx.serial_port_name = "mock";
+    ctx.serial_port = (serial_port_t)1;
+    ctx.is_initialized = true;
+
+    memset(tags, 0, sizeof(tags));
+    response[22] = (unsigned char)yrm100_frame_calculate_checksum(response, YRM100_FRAME_POLL_NOTICE_SIZE);
+    response[30] = (unsigned char)yrm100_frame_calculate_checksum(&response[YRM100_FRAME_POLL_NOTICE_SIZE], 8);
+    test_serial_set_read_data(response, sizeof(response), chunks, 2);
+
+    failures += expect_equal_int(
+        "single poll success result",
+        yrm100_command_single_poll(&ctx, tags, 2),
+        YRM100_STATUS_OK);
+    failures += expect_equal_int("single poll success rssi", tags[0].rssi, (signed char)0xC8);
+    failures += expect_equal_int("single poll success pc", tags[0].pc, 0x3000);
+    failures += expect_equal_int("single poll success crc", tags[0].crc, 0xABCD);
+    if (memcmp(tags[0].epc, &response[8], YRM100_TAG_EPC_BYTE_COUNT) != 0)
+    {
+        printf("FAIL: single poll success EPC mismatch\n");
+        failures++;
+    }
+    failures += expect_equal_int("single poll second tag rssi", tags[1].rssi, 0);
+    failures += expect_equal_int("single poll second tag pc", tags[1].pc, 0);
+    failures += expect_equal_int("single poll second tag crc", tags[1].crc, 0);
+
+    return failures;
+}
+
 static int test_single_poll_nonmultiple_notice_response(void)
 {
     yrm100_context_t ctx;
@@ -253,6 +295,38 @@ static int test_get_tx_power_error_response(void)
 
     int result = yrm100_command_get_tx_power(&ctx);
     return expect_equal_int("get tx power error response", result, YRM100_MODULE_ERROR_READ_FAIL);
+}
+
+static int test_get_query_parameters_success(void)
+{
+    int failures = 0;
+    yrm100_context_t ctx;
+    yrm100_query_parameters_t query_parameters;
+    unsigned char response[] = {0xBB, 0x01, 0x0D, 0x00, 0x02, 0x0B, 0x73, 0x00, 0x7E};
+    size_t chunks[] = {sizeof(response)};
+
+    memset(&ctx, 0, sizeof(ctx));
+    ctx.serial_port_name = "mock";
+    ctx.serial_port = (serial_port_t)1;
+    ctx.is_initialized = true;
+
+    memset(&query_parameters, 0, sizeof(query_parameters));
+    response[7] = (unsigned char)yrm100_frame_calculate_checksum(response, sizeof(response));
+    test_serial_set_read_data(response, sizeof(response), chunks, 1);
+
+    failures += expect_equal_int(
+        "get query parameters result",
+        yrm100_command_get_query_parameters(&ctx, &query_parameters),
+        YRM100_STATUS_OK);
+    failures += expect_equal_int("get query parameters dr", query_parameters.dr, 1);
+    failures += expect_equal_int("get query parameters m", query_parameters.m, 1);
+    failures += expect_equal_int("get query parameters trext", query_parameters.trext, 0);
+    failures += expect_equal_int("get query parameters sel", query_parameters.sel, 3);
+    failures += expect_equal_int("get query parameters session", query_parameters.session, 1);
+    failures += expect_equal_int("get query parameters target", query_parameters.target, 1);
+    failures += expect_equal_int("get query parameters q", query_parameters.q, 5);
+
+    return failures;
 }
 
 static int test_set_select_parameters_writes_mask(void)
@@ -362,8 +436,10 @@ int main(void)
     failures += test_read_tag_memory_response_validation();
     failures += test_poll_response_validation();
     failures += test_single_poll_error_response();
+    failures += test_single_poll_success_response();
     failures += test_single_poll_nonmultiple_notice_response();
     failures += test_get_tx_power_error_response();
+    failures += test_get_query_parameters_success();
     failures += test_set_select_parameters_writes_mask();
     failures += test_get_select_parameters_reads_mask();
     failures += test_string_functions();
