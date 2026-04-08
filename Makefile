@@ -12,6 +12,7 @@ TARGET_PATH = $(BUILD_DIR)/$(TARGET)
 TEST_TARGET_PATH = $(BUILD_DIR)/$(TEST_TARGET)
 SRCS = src/example.c \
 	src/yrm100/yrm100_types.c \
+	src/yrm100/yrm100_param.c \
 	src/yrm100/yrm100_command.c \
 	src/yrm100/yrm100_error.c \
 	src/yrm100/yrm100_frame.c \
@@ -27,6 +28,7 @@ TEST_SRCS = tests/test_example.c \
 	tests/test_serial.c \
 	tests/test_string.c \
 	src/yrm100/yrm100_types.c \
+	src/yrm100/yrm100_param.c \
 	src/yrm100/yrm100_command.c \
 	src/yrm100/yrm100_error.c \
 	src/yrm100/yrm100_frame.c \

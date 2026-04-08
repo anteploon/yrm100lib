@@ -50,7 +50,7 @@ int yrm100_command_single_poll(yrm100_context_t *device_context, yrm100_rfid_tag
  * @param minutes After how many minutes to sleep (0 means never)
  * @return Value 0 on success, otherwise error code
  */
-int yrm100_command_set_idle_sleep_time(yrm100_context_t *device_context, unsigned char minutes);
+int yrm100_command_set_idle_sleep_time(yrm100_context_t *device_context, uint8_t minutes);
 
 /**
  * @brief Gets select parameters from the RFID module
@@ -74,7 +74,7 @@ int yrm100_command_set_select_parameters(yrm100_context_t *device_context, yrm10
  * @param select_mode One of the values from @ref yrm100_select_mode
  * @return Value 0 on success, otherwise error code
  */
-int yrm100_command_set_select_mode(yrm100_context_t *device_context, unsigned char select_mode);
+int yrm100_command_set_select_mode(yrm100_context_t *device_context, uint8_t select_mode);
 
 /**
  * @brief Gets query parameters from the RFID module
@@ -95,13 +95,13 @@ int yrm100_command_disable_idle_sleep(yrm100_context_t *device_context);
  * @brief Reads data from a specific RFID tag memory bank
  * @param device_context Handle to the RFID UHF device
  * @param tag Pointer where to store the returned tag data
- * @param memory_bank One of the YRM100_MEMORY_BANK_* constants
+ * @param memory_bank One of the YRM100_PARAM_MEMBANK_* constants
  * @param segment_address Starting word address in the memory bank
  * @param data_length Number of words to read
  * @param password Access password to use when reading the memory area
  * @return Value 0 on success, otherwise error code
  */
-int yrm100_command_read_tag_memory_area(yrm100_context_t *device_context, yrm100_rfid_tag_t *tag, unsigned char memory_bank, unsigned short segment_address, unsigned short data_length, yrm100_tag_password_t password);
+int yrm100_command_read_tag_memory_area(yrm100_context_t *device_context, yrm100_rfid_tag_t *tag, uint8_t memory_bank, unsigned short segment_address, unsigned short data_length, yrm100_tag_password_t password);
 
 /**
  * @brief Sets RFID module operating region setting
@@ -109,7 +109,7 @@ int yrm100_command_read_tag_memory_area(yrm100_context_t *device_context, yrm100
  * @param region See YRM100_PARAM_REGION_* constants
  * @return Value 0 on success, otherwise error code
  */
-int yrm100_command_set_operating_region(yrm100_context_t *device_context, unsigned char region);
+int yrm100_command_set_operating_region(yrm100_context_t *device_context, uint8_t region);
 
 /**
  * @brief Gets RFID module operating region setting
@@ -139,7 +139,7 @@ int yrm100_command_get_tx_power(yrm100_context_t *device_context);
  * @param on_or_off Use either YRM100_PARAM_CONTINOUS_WAVE_OFF (0x00) or YRM100_PARAM_CONTINOUS_WAVE_ON (0xFF)
  * @return Value 0 on success, otherwise error code
  */
-int yrm100_command_set_continous_wave(yrm100_context_t *device_context, unsigned char on_or_off);
+int yrm100_command_set_continous_wave(yrm100_context_t *device_context, uint8_t on_or_off);
 
 /**
  * @brief Turns continuous wave mode on

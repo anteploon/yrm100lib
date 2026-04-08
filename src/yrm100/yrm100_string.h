@@ -68,58 +68,58 @@ char *yrm100_convert_to_tx_power_string(unsigned int power, char string_buf[YRM1
 
 /**
  * @brief Converts a region code to a human-readable string
- * @param region_code Region code value
+ * @param region Region code value
  * @return Pointer to a region string
  */
-const char *yrm100_convert_to_region_string(unsigned int region_code);
+const char *yrm100_convert_to_region_string(uint8_t region);
 
 /**
  * @brief Converts a divide ratio value to a human-readable string
  * @param dr Divide ratio value
  * @return Pointer to a divide ratio string
  */
-const char *yrm100_convert_to_divide_ratio_string(unsigned char dr);
+const char *yrm100_convert_to_divide_ratio_string(uint8_t dr);
 
 /**
  * @brief Converts a backscatter encoding value to a human-readable string
  * @param m Backscatter encoding value
  * @return Pointer to a backscatter encoding string
  */
-const char *yrm100_convert_to_backscatter_encoding_string(unsigned char m);
+const char *yrm100_convert_to_backscatter_encoding_string(uint8_t m);
 
 /**
  * @brief Converts a TREXT value to a human-readable string
  * @param trext TREXT value
  * @return Pointer to a TREXT string
  */
-const char *yrm100_convert_to_trext_string(unsigned char trext);
+const char *yrm100_convert_to_trext_string(uint8_t trext);
 
 /**
  * @brief Converts a SEL value to a human-readable string
  * @param sel SEL value
  * @return Pointer to a SEL string
  */
-const char *yrm100_convert_to_sel_string(unsigned char sel);
+const char *yrm100_convert_to_sel_string(uint8_t sel);
 
 /**
  * @brief Converts a session value to a human-readable string
  * @param session Session value
  * @return Pointer to a session string
  */
-const char *yrm100_convert_to_session_string(unsigned char session);
+const char *yrm100_convert_to_session_string(uint8_t session);
 
 /**
  * @brief Converts a target value to a human-readable string
  * @param target Target value
  * @return Pointer to a target string
  */
-const char *yrm100_convert_to_target_string(unsigned char target);
+const char *yrm100_convert_to_target_string(uint8_t target);
 
 /**
  * @brief Converts a Q value to a human-readable string
  * @param q Q value
  * @return Pointer to a Q string
  */
-const char *yrm100_convert_to_q_string(unsigned char q);
+const char *yrm100_convert_to_q_string(uint8_t q);
 
 #endif

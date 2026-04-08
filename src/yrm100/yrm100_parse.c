@@ -5,7 +5,7 @@
 #include "yrm100_util.h"
 #include "yrm100_parse.h"
 
-int yrm100_parse_ascii_response(unsigned char *response, size_t response_len, char *string_buf, size_t string_buf_len)
+int yrm100_parse_ascii_response(uint8_t *response, size_t response_len, char *string_buf, size_t string_buf_len)
 {
     char work_buf[YRM100_ASCII_BUFFER_SIZE];
 
@@ -55,7 +55,7 @@ int yrm100_parse_ascii_response(unsigned char *response, size_t response_len, ch
     return YRM100_ERROR_UNKNOWN_ERROR;
 }
 
-int yrm100_parse_read_tag_memory_response(unsigned char *response, size_t response_len, yrm100_rfid_tag_t *tag, unsigned short data_length)
+int yrm100_parse_read_tag_memory_response(uint8_t *response, size_t response_len, yrm100_rfid_tag_t *tag, uint16_t data_length)
 {
     size_t data_byte_count = data_length * 2; // data_length is in words (2 bytes), but we need bytes
 
@@ -75,7 +75,7 @@ int yrm100_parse_read_tag_memory_response(unsigned char *response, size_t respon
     {
         return YRM100_ERROR_PARSE_ERROR;
     }
-    unsigned char *data_buf=(unsigned char *)malloc(data_byte_count);
+    uint8_t *data_buf=(uint8_t *)malloc(data_byte_count);
     if (data_buf == NULL)
     {
         return YRM100_ERROR_MEMORY_ALLOCATION_FAILURE;
@@ -87,7 +87,7 @@ int yrm100_parse_read_tag_memory_response(unsigned char *response, size_t respon
         tag->epc[i] = response[8 + i];
     }
     tag->rssi = 0; // memory read response does not include RSSI
-    tag->pc = (unsigned short)(((unsigned short)(response[6]) << 8) | ((unsigned short)response[7]));
+    tag->pc = (uint16_t)(((uint16_t)(response[6]) << 8) | ((unsigned short)response[7]));
     tag->crc = 0; // memory read response does not include CRC
     tag->data = data_buf;
     memcpy(tag->data, &response[8 + YRM100_TAG_EPC_BYTE_COUNT], data_byte_count);
@@ -95,11 +95,11 @@ int yrm100_parse_read_tag_memory_response(unsigned char *response, size_t respon
     return YRM100_STATUS_OK;
 }
 
-int yrm100_parse_poll_response(unsigned char *response, size_t response_len, yrm100_rfid_tag_t *tags, unsigned short maximum_tag_count)
+int yrm100_parse_poll_response(uint8_t *response, size_t response_len, yrm100_rfid_tag_t *tags, uint16_t maximum_tag_count)
 {
     size_t pos = 0;
-    unsigned short frame_count;
-    unsigned short message_count;
+    uint16_t frame_count;
+    uint16_t message_count;
     yrm100_rfid_tag_t *t;
 
     if (response == NULL || tags == NULL)
@@ -115,8 +115,8 @@ int yrm100_parse_poll_response(unsigned char *response, size_t response_len, yrm
         return YRM100_ERROR_BUFFER_OVERFLOW;
     }
 
-    frame_count = (unsigned short)(response_len / YRM100_FRAME_POLL_NOTICE_SIZE);
-    for (unsigned short n = 0; n < frame_count; n++)
+    frame_count = (uint16_t)(response_len / YRM100_FRAME_POLL_NOTICE_SIZE);
+    for (uint16_t n = 0; n < frame_count; n++)
     {
         pos = YRM100_FRAME_POLL_NOTICE_SIZE * n;
         if (yrm100_frame_is_valid_notice(&response[pos], YRM100_FRAME_POLL_NOTICE_SIZE) == false)
@@ -133,7 +133,7 @@ int yrm100_parse_poll_response(unsigned char *response, size_t response_len, yrm
 
     yrm100_reset_tag_buf(tags, maximum_tag_count);
 
-    for (unsigned short n = 0; n < message_count; n++)
+    for (uint16_t n = 0; n < message_count; n++)
     {
         pos = YRM100_FRAME_POLL_NOTICE_SIZE * n;
         t = &tags[n];
@@ -142,13 +142,13 @@ int yrm100_parse_poll_response(unsigned char *response, size_t response_len, yrm
             t->epc[i] = response[pos + 8 + i];
         }
         t->rssi = (signed char)response[pos + 5];
-        t->pc = (unsigned short)(((unsigned short)(response[pos + 6]) << 8) | ((unsigned short)response[pos + 7]));
-        t->crc = (unsigned short)(((unsigned short)(response[pos + 20]) << 8) | ((unsigned short)response[pos + 21]));
+        t->pc = (uint16_t)(((uint16_t)(response[pos + 6]) << 8) | ((unsigned short)response[pos + 7]));
+        t->crc = (uint16_t)(((uint16_t)(response[pos + 20]) << 8) | ((unsigned short)response[pos + 21]));
     }
     return message_count;
 }
 
-int yrm100_parse_get_error_code(unsigned char *buf, size_t buf_size)
+int yrm100_parse_get_error_code(uint8_t *buf, size_t buf_size)
 {
     if (buf_size < YRM100_FRAME_MINIMUM_RESPONSE_SIZE)
     {

@@ -12,7 +12,7 @@
  * @param string_buf_len Output string buffer size
  * @return Value 0 on success, otherwise error code
  */
-int yrm100_parse_ascii_response(unsigned char *response, size_t response_len, char *string_buf, size_t string_buf_len);
+int yrm100_parse_ascii_response(uint8_t *response, size_t response_len, char *string_buf, size_t string_buf_len);
 
 /**
  * @brief Extracts RFID UHF tag information from one or more poll notice frames
@@ -22,7 +22,7 @@ int yrm100_parse_ascii_response(unsigned char *response, size_t response_len, ch
  * @param maximum_tag_count Maximum number of tags to parse
  * @return Number of parsed tags on success, otherwise negative error code
  */
-int yrm100_parse_poll_response(unsigned char *response, size_t response_len, yrm100_rfid_tag_t *tags, unsigned short maximum_tag_count);
+int yrm100_parse_poll_response(uint8_t *response, size_t response_len, yrm100_rfid_tag_t *tags, uint16_t maximum_tag_count);
 
 /**
  * @brief Extracts the module error code from an error response frame
@@ -30,7 +30,7 @@ int yrm100_parse_poll_response(unsigned char *response, size_t response_len, yrm
  * @param buf_size Buffer size
  * @return Module error code or a negative value on parse failure
  */
-int yrm100_parse_get_error_code(unsigned char *buf, size_t buf_size);
+int yrm100_parse_get_error_code(uint8_t *buf, size_t buf_size);
 
 /**
  * @brief Extracts RFID UHF tag data from a read tag memory response frame
@@ -40,6 +40,6 @@ int yrm100_parse_get_error_code(unsigned char *buf, size_t buf_size);
  * @param data_length Number of words requested from tag memory
  * @return Value 0 on success, otherwise error code
  */
-int yrm100_parse_read_tag_memory_response(unsigned char *response, size_t response_len, yrm100_rfid_tag_t *tag, unsigned short data_length);
+int yrm100_parse_read_tag_memory_response(uint8_t *response, size_t response_len, yrm100_rfid_tag_t *tag, uint16_t data_length);
 
 #endif

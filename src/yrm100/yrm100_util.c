@@ -44,7 +44,7 @@ void yrm100_reset_tag_buf(yrm100_rfid_tag_t *tags, unsigned short tag_count)
     for (unsigned short i = 0; i < tag_count; i++)
     {
         t = &tags[i];
-        for (unsigned char j = 0; j < YRM100_TAG_EPC_BYTE_COUNT; j++)
+        for (uint8_t j = 0; j < YRM100_TAG_EPC_BYTE_COUNT; j++)
         {
             t->epc[j] = 0x00;
         }

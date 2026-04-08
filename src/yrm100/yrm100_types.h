@@ -22,13 +22,8 @@
 #define YRM100_QUERY_M4 2
 #define YRM100_QUERY_M8 3
 
-#define YRM100_MEMORY_BANK_RESERVED 0
-#define YRM100_MEMORY_BANK_EPC 1
-#define YRM100_MEMORY_BANK_TID 2
-#define YRM100_MEMORY_BANK_USER 3
-
 /**
- * @brief RFID tag password
+ * @brief 32-bit RFID tag access password
  */
 typedef uint32_t yrm100_tag_password_t;
 
@@ -39,10 +34,10 @@ typedef uint32_t yrm100_tag_password_t;
 typedef struct yrm100_rfid_tag_t
 {
     signed char rssi;
-    unsigned short pc;
-    unsigned char epc[YRM100_TAG_EPC_BYTE_COUNT];
-    unsigned short crc;
-    unsigned char *data;
+    uint16_t pc;
+    uint8_t epc[YRM100_TAG_EPC_BYTE_COUNT];
+    uint16_t crc;
+    uint8_t *data;
     size_t data_length;
 } yrm100_rfid_tag_t;
 
@@ -53,13 +48,13 @@ typedef struct yrm100_context_t
 {
     char *serial_port_name;
     serial_port_t serial_port;
-    unsigned char command_response_buf[YRM100_COMMAND_RESPONSE_BUFFER_SIZE];
+    uint8_t command_response_buf[YRM100_COMMAND_RESPONSE_BUFFER_SIZE];
     int last_error_code;
     bool is_initialized;
     bool is_multi_poll_running;
     yrm100_rfid_tag_t *multi_poll_target;
-    unsigned short multi_poll_maximum_tag_count;
-    unsigned short multi_poll_tag_count;
+    uint16_t multi_poll_maximum_tag_count;
+    uint16_t multi_poll_tag_count;
 } yrm100_context_t;
 
 /**
@@ -92,10 +87,10 @@ typedef struct yrm100_query_parameters_t
 } yrm100_query_parameters_t;
 
 /**
- * @brief Checks if a value is a valid RFID tag memory bank
- * @param memory_bank Memory bank value
- * @return True if memory_bank is one of the YRM100_MEMORY_BANK_* constants
+ * @brief Checks if the RFID UHF device context looks like a valid one
+ * @param device_context Device context
+ * @return True if the device context is valid
  */
-bool yrm100_is_valid_memory_bank(unsigned char memory_bank);
+bool yrm100_is_device_context_valid(yrm100_context_t *device_context);
 
 #endif

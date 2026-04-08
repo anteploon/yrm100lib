@@ -3,7 +3,7 @@
 #include "yrm100_frame.h"
 #include "yrm100_error.h"
 
-bool yrm100_frame_is_command(unsigned char *buf, size_t buf_size)
+bool yrm100_frame_is_command(uint8_t *buf, size_t buf_size)
 {
     if (buf == NULL)
     {
@@ -20,7 +20,7 @@ bool yrm100_frame_is_command(unsigned char *buf, size_t buf_size)
     return true;
 }
 
-bool yrm100_frame_is_response(unsigned char *buf, size_t buf_size)
+bool yrm100_frame_is_response(uint8_t *buf, size_t buf_size)
 {
     if (buf == NULL)
     {
@@ -37,7 +37,7 @@ bool yrm100_frame_is_response(unsigned char *buf, size_t buf_size)
     return true;
 }
 
-bool yrm100_frame_is_notice(unsigned char *buf, size_t buf_size)
+bool yrm100_frame_is_notice(uint8_t *buf, size_t buf_size)
 {
     if (buf == NULL)
     {
@@ -54,7 +54,7 @@ bool yrm100_frame_is_notice(unsigned char *buf, size_t buf_size)
     return true;
 }
 
-bool yrm100_frame_is_valid_command(unsigned char *buf, size_t buf_size)
+bool yrm100_frame_is_valid_command(uint8_t *buf, size_t buf_size)
 {
     if (buf == NULL)
     {
@@ -75,7 +75,7 @@ bool yrm100_frame_is_valid_command(unsigned char *buf, size_t buf_size)
     return true;
 }
 
-bool yrm100_frame_is_valid_response(unsigned char *buf, size_t buf_size)
+bool yrm100_frame_is_valid_response(uint8_t *buf, size_t buf_size)
 {
     if (buf == NULL)
     {
@@ -97,7 +97,7 @@ bool yrm100_frame_is_valid_response(unsigned char *buf, size_t buf_size)
     return true;
 }
 
-bool yrm100_frame_is_valid_notice(unsigned char *buf, size_t buf_size)
+bool yrm100_frame_is_valid_notice(uint8_t *buf, size_t buf_size)
 {
     if (buf == NULL)
     {
@@ -118,7 +118,7 @@ bool yrm100_frame_is_valid_notice(unsigned char *buf, size_t buf_size)
     return true;
 }
 
-bool yrm100_frame_is_error_response(unsigned char *buf, size_t buf_size)
+bool yrm100_frame_is_error_response(uint8_t *buf, size_t buf_size)
 {
     if (buf == NULL)
     {
@@ -132,7 +132,7 @@ bool yrm100_frame_is_error_response(unsigned char *buf, size_t buf_size)
     return false;
 }
 
-bool yrm100_frame_is_ok_response(unsigned char *buf, size_t buf_size)
+bool yrm100_frame_is_ok_response(uint8_t *buf, size_t buf_size)
 {
     if (buf == NULL)
     {
@@ -149,7 +149,7 @@ bool yrm100_frame_is_ok_response(unsigned char *buf, size_t buf_size)
     return false;
 }
 
-bool yrm100_frame_is_read_tag_memory_response(unsigned char *buf, size_t buf_size)
+bool yrm100_frame_is_read_tag_memory_response(uint8_t *buf, size_t buf_size)
 {
     size_t payload_size;
 
@@ -182,7 +182,7 @@ bool yrm100_frame_is_read_tag_memory_response(unsigned char *buf, size_t buf_siz
     return true;
 }
 
-int yrm100_frame_calculate_checksum(unsigned char *buf, size_t buf_size)
+int yrm100_frame_calculate_checksum(uint8_t *buf, size_t buf_size)
 {
     if (buf == NULL)
     {
@@ -222,5 +222,5 @@ int yrm100_frame_calculate_checksum(unsigned char *buf, size_t buf_size)
     {
         sum += buf[i];
     }
-    return (unsigned char)(sum & 0xFF);
+    return (uint8_t)(sum & 0xFF);
 }

@@ -1,9 +1,13 @@
 #include "yrm100_types.h"
+#include "yrm100_param.h"
 
-bool yrm100_is_valid_memory_bank(unsigned char memory_bank)
+bool yrm100_is_device_context_valid(yrm100_context_t *device_context)
 {
-    return memory_bank == YRM100_MEMORY_BANK_RESERVED ||
-           memory_bank == YRM100_MEMORY_BANK_EPC ||
-           memory_bank == YRM100_MEMORY_BANK_TID ||
-           memory_bank == YRM100_MEMORY_BANK_USER;
+    if (device_context != NULL &&
+        device_context->serial_port_name != NULL &&
+        device_context->is_initialized == true)
+    {
+        return true;
+    }
+    return false;
 }

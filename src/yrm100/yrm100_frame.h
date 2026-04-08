@@ -2,6 +2,7 @@
 #define YRM100_FRAME_H
 
 #include <sys/types.h>
+#include <stdint.h>
 #include <stdbool.h>
 
 /** @defgroup frame_byte_position Byte positions in the RFID frame
@@ -35,7 +36,7 @@
  * @param buf_size Buffer size
  * @return True if the frame looks like a command frame
  */
-bool yrm100_frame_is_command(unsigned char *buf, size_t buf_size);
+bool yrm100_frame_is_command(uint8_t *buf, size_t buf_size);
 
 /**
  * @brief Checks if the RFID UHF frame looks like a response frame (does not validate the frame)
@@ -43,7 +44,7 @@ bool yrm100_frame_is_command(unsigned char *buf, size_t buf_size);
  * @param buf_size Buffer size
  * @return True if the frame looks like a response frame
  */
-bool yrm100_frame_is_response(unsigned char *buf, size_t buf_size);
+bool yrm100_frame_is_response(uint8_t *buf, size_t buf_size);
 
 /**
  * @brief Checks if the RFID UHF frame looks like a notice frame (does not validate the frame)
@@ -51,7 +52,7 @@ bool yrm100_frame_is_response(unsigned char *buf, size_t buf_size);
  * @param buf_size Buffer size
  * @return True if the frame looks like a notice frame
  */
-bool yrm100_frame_is_notice(unsigned char *buf, size_t buf_size);
+bool yrm100_frame_is_notice(uint8_t *buf, size_t buf_size);
 
 /**
  * @brief Checks if the RFID UHF frame looks like a valid command frame (also verifies the frame checksum)
@@ -59,7 +60,7 @@ bool yrm100_frame_is_notice(unsigned char *buf, size_t buf_size);
  * @param buf_size Buffer size
  * @return True if the frame is a valid command frame
  */
-bool yrm100_frame_is_valid_command(unsigned char *buf, size_t buf_size);
+bool yrm100_frame_is_valid_command(uint8_t *buf, size_t buf_size);
 
 /**
  * @brief Checks if the RFID UHF frame looks like a valid response frame (also verifies the frame checksum)
@@ -67,7 +68,7 @@ bool yrm100_frame_is_valid_command(unsigned char *buf, size_t buf_size);
  * @param buf_size Buffer size
  * @return True if the frame is a valid response frame
  */
-bool yrm100_frame_is_valid_response(unsigned char *buf, size_t buf_size);
+bool yrm100_frame_is_valid_response(uint8_t *buf, size_t buf_size);
 
 /**
  * @brief Checks if the RFID UHF frame looks like a valid notice frame (also verifies the frame checksum)
@@ -75,7 +76,7 @@ bool yrm100_frame_is_valid_response(unsigned char *buf, size_t buf_size);
  * @param buf_size Buffer size
  * @return True if the frame is a valid notice frame
  */
-bool yrm100_frame_is_valid_notice(unsigned char *buf, size_t buf_size);
+bool yrm100_frame_is_valid_notice(uint8_t *buf, size_t buf_size);
 
 /**
  * @brief Checks if the RFID UHF frame is a valid error response frame
@@ -83,7 +84,7 @@ bool yrm100_frame_is_valid_notice(unsigned char *buf, size_t buf_size);
  * @param buf_size Buffer size
  * @return True if the frame is an error response
  */
-bool yrm100_frame_is_error_response(unsigned char *buf, size_t buf_size);
+bool yrm100_frame_is_error_response(uint8_t *buf, size_t buf_size);
 
 /**
  * @brief Checks if the RFID UHF frame looks like a valid non-error response frame
@@ -91,7 +92,7 @@ bool yrm100_frame_is_error_response(unsigned char *buf, size_t buf_size);
  * @param buf_size Buffer size
  * @return True if the frame is a non-error response frame
  */
-bool yrm100_frame_is_ok_response(unsigned char *buf, size_t buf_size);
+bool yrm100_frame_is_ok_response(uint8_t *buf, size_t buf_size);
 
 /**
  * @brief Checks if the RFID UHF frame is a valid read tag memory response frame
@@ -99,7 +100,7 @@ bool yrm100_frame_is_ok_response(unsigned char *buf, size_t buf_size);
  * @param buf_size Buffer size
  * @return True if the frame is a valid read tag memory response frame
  */
-bool yrm100_frame_is_read_tag_memory_response(unsigned char *buf, size_t buf_size);
+bool yrm100_frame_is_read_tag_memory_response(uint8_t *buf, size_t buf_size);
 
 /**
  * @brief Calculates the checksum of the frame
@@ -107,6 +108,6 @@ bool yrm100_frame_is_read_tag_memory_response(unsigned char *buf, size_t buf_siz
  * @param buf_size Buffer size
  * @return Checksum or a negative value on error (buf_size must be at least 2)
  */
-int yrm100_frame_calculate_checksum(unsigned char *buf, size_t buf_size);
+int yrm100_frame_calculate_checksum(uint8_t *buf, size_t buf_size);
 
 #endif

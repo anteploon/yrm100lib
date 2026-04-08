@@ -1,6 +1,9 @@
 #ifndef YRM100_PARAM_H
 #define YRM100_PARAM_H
 
+#include <stdbool.h>
+#include <stdint.h>
+
 /** @defgroup yrm100_region RFID operating region values
  *  @{
  */
@@ -42,16 +45,16 @@
  */
 
 /** Reserved for future use */
-#define YRM100_PARAM_MEMBANK_RFU 0b00
+#define YRM100_PARAM_MEMBANK_RFU 0
 
 /** Target EPC bank */
-#define YRM100_PARAM_MEMBANK_EPC 0b01
+#define YRM100_PARAM_MEMBANK_EPC 1
 
 /** Target Tag ID bank */
-#define YRM100_PARAM_MEMBANK_TID 0b10
+#define YRM100_PARAM_MEMBANK_TID 2
 
 /** Target user bank */
-#define YRM100_PARAM_MEMBANK_USER 0b11
+#define YRM100_PARAM_MEMBANK_USER 3
 
 /** @} */
 
@@ -79,5 +82,33 @@
 #define YRM100_PARAM_CONTINOUS_WAVE_ON 0xFF
 
 /** @} */
+
+/**
+ * @brief Checks if a value is a valid RFID tag memory bank
+ * @param memory_bank Memory bank value
+ * @return True if memory_bank is one of the YRM100_PARAM_MEMBANK_* constants
+ */
+bool yrm100_param_is_valid_memory_bank(uint8_t memory_bank);
+
+/**
+ * @brief Checks if a value is a valid RFID operating region
+ * @param region Region value
+ * @return True if region is one of the YRM100_PARAM_REGION_* constants
+ */
+bool yrm100_param_is_valid_region(uint8_t region);
+
+/**
+ * @brief Checks if a value is a valid RFID select mode
+ * @param select_mode Select mode value
+ * @return True if select_mode is one of the YRM100_PARAM_SELECT_MODE_* constants
+ */
+bool yrm100_param_is_valid_select_mode(uint8_t select_mode);
+
+/**
+ * @brief Checks if a value is a valid RFID query Q value
+ * @param q_value Query Q value
+ * @return True if q_value can fit in the 4-bit Q field
+ */
+bool yrm100_param_is_valid_q_value(uint8_t q_value);
 
 #endif

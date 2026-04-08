@@ -4,6 +4,7 @@
 #include "yrm100_types.h"
 #include "yrm100_util.h"
 #include "yrm100_frame.h"
+#include "yrm100_param.h"
 #include "yrm100_serial.h"
 #include "yrm100_parse.h"
 #include "yrm100_command.h"
@@ -21,7 +22,7 @@ int yrm100_set_last_error_code(yrm100_context_t *device_context, ssize_t error_c
     return (int)error_code;
 }
 
-static int yrm100_command_send(yrm100_context_t *device_context, unsigned char *cmd, size_t cmd_size)
+static int yrm100_command_send(yrm100_context_t *device_context, uint8_t *cmd, size_t cmd_size)
 {
     if (yrm100_is_device_context_valid(device_context) == false)
     {
@@ -63,13 +64,13 @@ static int yrm100_command_send(yrm100_context_t *device_context, unsigned char *
     return yrm100_set_last_error_code(device_context, YRM100_STATUS_OK);
 }
 
-static bool yrm100_command_frame_type_is_supported(unsigned char frame_type)
+static bool yrm100_command_frame_type_is_supported(uint8_t frame_type)
 {
     return frame_type == YRM100_FRAME_TYPE_BYTE_RESPONSE ||
            frame_type == YRM100_FRAME_TYPE_BYTE_NOTICE;
 }
 
-static int yrm100_command_frame_expected_size(unsigned char *buf, size_t buf_size, size_t *expected_size)
+static int yrm100_command_frame_expected_size(uint8_t *buf, size_t buf_size, size_t *expected_size)
 {
     if (buf == NULL || expected_size == NULL)
     {
@@ -90,7 +91,7 @@ static int yrm100_command_frame_expected_size(unsigned char *buf, size_t buf_siz
     return YRM100_STATUS_OK;
 }
 
-static int yrm100_command_validate_complete_frame(unsigned char *buf, size_t frame_size)
+static int yrm100_command_validate_complete_frame(uint8_t *buf, size_t frame_size)
 {
     int checksum;
 
@@ -111,7 +112,7 @@ static int yrm100_command_validate_complete_frame(unsigned char *buf, size_t fra
     {
         return YRM100_ERROR_CHECKSUM_CALCULATION_FAILURE;
     }
-    if (buf[frame_size - 2] != (unsigned char)checksum)
+    if (buf[frame_size - 2] != (uint8_t)checksum)
     {
         return YRM100_ERROR_PARSE_ERROR;
     }
@@ -125,7 +126,7 @@ ssize_t yrm100_command_read_response(yrm100_context_t *device_context)
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_INVALID_DEVICE_HANDLE);
     }
 
-    unsigned char *buf;
+    uint8_t *buf;
     size_t buf_size = sizeof(device_context->command_response_buf);
     size_t cursor = 0;
     size_t total_read = 0;
@@ -252,9 +253,9 @@ ssize_t yrm100_command_read_response(yrm100_context_t *device_context)
     return (ssize_t)total_read;
 }
 
-unsigned char yrm100_pack_select_parameters(yrm100_select_parameters_t *data)
+uint8_t yrm100_pack_select_parameters(yrm100_select_parameters_t *data)
 {
-    return (unsigned char)((data->target & 0x07) | ((data->action & 0x07) << 3) | ((data->membank & 0x03) << 6));
+    return (uint8_t)((data->target & 0x07) | ((data->action & 0x07) << 3) | ((data->membank & 0x03) << 6));
 }
 
 unsigned short yrm100_pack_query_parameters(yrm100_query_parameters_t *data)
@@ -278,18 +279,18 @@ void unpack_query_parameters(unsigned short packed, yrm100_query_parameters_t *d
     {
         return;
     }
-    data->dr = (unsigned char)(packed & 0x01);
-    data->m = (unsigned char)((packed >> 1) & 0x03);
-    data->trext = (unsigned char)((packed >> 3) & 0x01);
-    data->sel = (unsigned char)((packed >> 4) & 0x03);
-    data->session = (unsigned char)((packed >> 6) & 0x03);
-    data->target = (unsigned char)((packed >> 8) & 0x01);
-    data->q = (unsigned char)((packed >> 9) & 0x0F);
+    data->dr = (uint8_t)(packed & 0x01);
+    data->m = (uint8_t)((packed >> 1) & 0x03);
+    data->trext = (uint8_t)((packed >> 3) & 0x01);
+    data->sel = (uint8_t)((packed >> 4) & 0x03);
+    data->session = (uint8_t)((packed >> 6) & 0x03);
+    data->target = (uint8_t)((packed >> 8) & 0x01);
+    data->q = (uint8_t)((packed >> 9) & 0x0F);
 }
 
 int yrm100_command_get_module_manufacturer(yrm100_context_t *device_context, char *string_buf, size_t string_buf_size)
 {
-    unsigned char bytes[] = {0xBB, 0x00, 0x03, 0x00, 0x01, 0x02, 0x06, 0x7E};
+    uint8_t bytes[] = {0xBB, 0x00, 0x03, 0x00, 0x01, 0x02, 0x06, 0x7E};
 
     if (yrm100_is_device_context_valid(device_context) == false)
     {
@@ -332,7 +333,7 @@ int yrm100_command_get_module_manufacturer(yrm100_context_t *device_context, cha
 
 int yrm100_command_get_module_hardware_version(yrm100_context_t *device_context, char *string_buf, size_t string_buf_size)
 {
-    unsigned char bytes[] = {0xBB, 0x00, 0x03, 0x00, 0x01, 0x00, 0x04, 0x7E};
+    uint8_t bytes[] = {0xBB, 0x00, 0x03, 0x00, 0x01, 0x00, 0x04, 0x7E};
 
     if (yrm100_is_device_context_valid(device_context) == false)
     {
@@ -379,7 +380,7 @@ int yrm100_command_get_module_hardware_version(yrm100_context_t *device_context,
 
 int yrm100_command_get_module_software_version(yrm100_context_t *device_context, char *string_buf, size_t string_buf_size)
 {
-    unsigned char bytes[] = {0xBB, 0x00, 0x03, 0x00, 0x01, 0x01, 0x05, 0x7E};
+    uint8_t bytes[] = {0xBB, 0x00, 0x03, 0x00, 0x01, 0x01, 0x05, 0x7E};
 
     if (yrm100_is_device_context_valid(device_context) == false)
     {
@@ -426,7 +427,7 @@ int yrm100_command_get_module_software_version(yrm100_context_t *device_context,
 
 int yrm100_command_single_poll(yrm100_context_t *device_context, yrm100_rfid_tag_t *tags, unsigned short maximum_tag_count)
 {
-    unsigned char bytes[] = {0xBB, 0x00, 0x22, 0x00, 0x00, 0x22, 0x7E};
+    uint8_t bytes[] = {0xBB, 0x00, 0x22, 0x00, 0x00, 0x22, 0x7E};
 
     if (yrm100_is_device_context_valid(device_context) == false)
     {
@@ -437,7 +438,7 @@ int yrm100_command_single_poll(yrm100_context_t *device_context, yrm100_rfid_tag
     {
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_CHECKSUM_CALCULATION_FAILURE);
     }
-    bytes[sizeof(bytes) - 2] = (unsigned char)checksum;
+    bytes[sizeof(bytes) - 2] = (uint8_t)checksum;
     if (yrm100_command_send(device_context, bytes, sizeof(bytes)) == YRM100_STATUS_OK)
     {
         ssize_t response_len = yrm100_command_read_response(device_context);
@@ -468,7 +469,7 @@ int yrm100_command_single_poll(yrm100_context_t *device_context, yrm100_rfid_tag
 
 int yrm100_command_get_select_parameters(yrm100_context_t *device_context, yrm100_select_parameters_t *select_parameters)
 {
-    unsigned char bytes[] = {0xBB, 0x00, 0x0B, 0x00, 0x00, 0x0B, 0x7E};
+    uint8_t bytes[] = {0xBB, 0x00, 0x0B, 0x00, 0x00, 0x0B, 0x7E};
 
     if (yrm100_is_device_context_valid(device_context) == false)
     {
@@ -483,7 +484,7 @@ int yrm100_command_get_select_parameters(yrm100_context_t *device_context, yrm10
     {
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_CHECKSUM_CALCULATION_FAILURE);
     }
-    bytes[sizeof(bytes) - 2] = (unsigned char)checksum;
+    bytes[sizeof(bytes) - 2] = (uint8_t)checksum;
     if (yrm100_command_send(device_context, bytes, sizeof(bytes)) == YRM100_STATUS_OK)
     {
         ssize_t response_len = yrm100_command_read_response(device_context);
@@ -513,7 +514,7 @@ int yrm100_command_get_select_parameters(yrm100_context_t *device_context, yrm10
 
 int yrm100_command_set_select_parameters(yrm100_context_t *device_context, yrm100_select_parameters_t *select_parameters)
 {
-    unsigned char bytes[] = {0xBB, 0x00, 0x0C, 0x00, 0x13, 0x01, 0x00, 0x00, 0x00, 0x20, 0x60, 0x00, 0x30, 0x75, 0x1F, 0xEB, 0x70, 0x5C, 0x59, 0x04, 0xE3, 0xD5, 0x0D, 0x70, 0xAD, 0x7E};
+    uint8_t bytes[] = {0xBB, 0x00, 0x0C, 0x00, 0x13, 0x01, 0x00, 0x00, 0x00, 0x20, 0x60, 0x00, 0x30, 0x75, 0x1F, 0xEB, 0x70, 0x5C, 0x59, 0x04, 0xE3, 0xD5, 0x0D, 0x70, 0xAD, 0x7E};
 
     if (yrm100_is_device_context_valid(device_context) == false)
     {
@@ -524,10 +525,10 @@ int yrm100_command_set_select_parameters(yrm100_context_t *device_context, yrm10
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_BUFFER_NULL);
     }
     bytes[5] = yrm100_pack_select_parameters(select_parameters);
-    bytes[6] = (unsigned char)((select_parameters->pointer >> 24) & 0xFF);
-    bytes[7] = (unsigned char)((select_parameters->pointer >> 16) & 0xFF);
-    bytes[8] = (unsigned char)((select_parameters->pointer >> 8) & 0xFF);
-    bytes[9] = (unsigned char)((select_parameters->pointer >> 0) & 0xFF);
+    bytes[6] = (uint8_t)((select_parameters->pointer >> 24) & 0xFF);
+    bytes[7] = (uint8_t)((select_parameters->pointer >> 16) & 0xFF);
+    bytes[8] = (uint8_t)((select_parameters->pointer >> 8) & 0xFF);
+    bytes[9] = (uint8_t)((select_parameters->pointer >> 0) & 0xFF);
     bytes[10] = select_parameters->length;
     bytes[11] = select_parameters->truncate;
 
@@ -538,7 +539,7 @@ int yrm100_command_set_select_parameters(yrm100_context_t *device_context, yrm10
     {
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_CHECKSUM_CALCULATION_FAILURE);
     }
-    bytes[sizeof(bytes) - 2] = (unsigned char)checksum;
+    bytes[sizeof(bytes) - 2] = (uint8_t)checksum;
     if (yrm100_command_send(device_context, bytes, sizeof(bytes)) == YRM100_STATUS_OK)
     {
         ssize_t response_len = yrm100_command_read_response(device_context);
@@ -554,9 +555,9 @@ int yrm100_command_set_select_parameters(yrm100_context_t *device_context, yrm10
     return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
 }
 
-int yrm100_command_set_select_mode(yrm100_context_t *device_context, unsigned char select_mode)
+int yrm100_command_set_select_mode(yrm100_context_t *device_context, uint8_t select_mode)
 {
-    unsigned char bytes[] = {0xBB, 0x00, 0x12, 0x00, 0x01, 0x01, 0x14, 0x7E};
+    uint8_t bytes[] = {0xBB, 0x00, 0x12, 0x00, 0x01, 0x01, 0x14, 0x7E};
 
     if (select_mode != YRM100_PARAM_SELECT_MODE_DO_SEND_BEFORE_ALL_OPERATIONS &&
         select_mode != YRM100_PARAM_SELECT_MODE_DONT_SEND_BEFORE_ANY_OPERATIONS &&
@@ -576,7 +577,7 @@ int yrm100_command_set_select_mode(yrm100_context_t *device_context, unsigned ch
     {
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_CHECKSUM_CALCULATION_FAILURE);
     }
-    bytes[sizeof(bytes) - 2] = (unsigned char)checksum;
+    bytes[sizeof(bytes) - 2] = (uint8_t)checksum;
 
     if (yrm100_command_send(device_context, bytes, sizeof(bytes)) == YRM100_STATUS_OK)
     {
@@ -595,7 +596,7 @@ int yrm100_command_set_select_mode(yrm100_context_t *device_context, unsigned ch
 
 int yrm100_command_get_query_parameters(yrm100_context_t *device_context, yrm100_query_parameters_t *query_parameters)
 {
-    unsigned char bytes[] = {0xBB, 0x00, 0x0D, 0x00, 0x00, 0x0D, 0x7E};
+    uint8_t bytes[] = {0xBB, 0x00, 0x0D, 0x00, 0x00, 0x0D, 0x7E};
     if (yrm100_is_device_context_valid(device_context) == false)
     {
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_INVALID_DEVICE_HANDLE);
@@ -609,7 +610,7 @@ int yrm100_command_get_query_parameters(yrm100_context_t *device_context, yrm100
     {
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_CHECKSUM_CALCULATION_FAILURE);
     }
-    bytes[sizeof(bytes) - 2] = (unsigned char)checksum;
+    bytes[sizeof(bytes) - 2] = (uint8_t)checksum;
     if (yrm100_command_send(device_context, bytes, sizeof(bytes)) == YRM100_STATUS_OK)
     {
         ssize_t response_len = yrm100_command_read_response(device_context);
@@ -628,9 +629,9 @@ int yrm100_command_get_query_parameters(yrm100_context_t *device_context, yrm100
     return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
 }
 
-int yrm100_command_set_idle_sleep_time(yrm100_context_t *device_context, unsigned char minutes)
+int yrm100_command_set_idle_sleep_time(yrm100_context_t *device_context, uint8_t minutes)
 {
-    unsigned char bytes[] = {0xBB, 0x00, 0x1D, 0x00, 0x01, 0x02, 0x20, 0x7E};
+    uint8_t bytes[] = {0xBB, 0x00, 0x1D, 0x00, 0x01, 0x02, 0x20, 0x7E};
 
     if (yrm100_is_device_context_valid(device_context) == false)
     {
@@ -642,7 +643,7 @@ int yrm100_command_set_idle_sleep_time(yrm100_context_t *device_context, unsigne
     {
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_CHECKSUM_CALCULATION_FAILURE);
     }
-    bytes[sizeof(bytes) - 2] = (unsigned char)checksum;
+    bytes[sizeof(bytes) - 2] = (uint8_t)checksum;
 
     if (yrm100_command_send(device_context, bytes, sizeof(bytes)) == YRM100_STATUS_OK)
     {
@@ -664,9 +665,9 @@ int yrm100_command_disable_idle_sleep(yrm100_context_t *device_context)
     return yrm100_command_set_idle_sleep_time(device_context, 0);
 }
 
-int yrm100_command_set_operating_region(yrm100_context_t *device_context, unsigned char region)
+int yrm100_command_set_operating_region(yrm100_context_t *device_context, uint8_t region)
 {
-    unsigned char bytes[] = {0xBB, 0x00, 0x07, 0x00, 0x01, 0x01, 0x09, 0x7E};
+    uint8_t bytes[] = {0xBB, 0x00, 0x07, 0x00, 0x01, 0x01, 0x09, 0x7E};
 
     if (yrm100_is_device_context_valid(device_context) == false)
     {
@@ -687,7 +688,7 @@ int yrm100_command_set_operating_region(yrm100_context_t *device_context, unsign
     {
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_CHECKSUM_CALCULATION_FAILURE);
     }
-    bytes[sizeof(bytes) - 2] = (unsigned char)checksum;
+    bytes[sizeof(bytes) - 2] = (uint8_t)checksum;
     if (yrm100_command_send(device_context, bytes, sizeof(bytes)) == YRM100_STATUS_OK)
     {
         ssize_t response_len = yrm100_command_read_response(device_context);
@@ -710,7 +711,7 @@ int yrm100_command_set_operating_region(yrm100_context_t *device_context, unsign
 
 int yrm100_command_get_operating_region(yrm100_context_t *device_context)
 {
-    unsigned char bytes[] = {0xBB, 0x00, 0x08, 0x00, 0x00, 0x08, 0x7E};
+    uint8_t bytes[] = {0xBB, 0x00, 0x08, 0x00, 0x00, 0x08, 0x7E};
 
     if (yrm100_is_device_context_valid(device_context) == false)
     {
@@ -721,7 +722,7 @@ int yrm100_command_get_operating_region(yrm100_context_t *device_context)
     {
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_CHECKSUM_CALCULATION_FAILURE);
     }
-    bytes[sizeof(bytes) - 2] = (unsigned char)checksum;
+    bytes[sizeof(bytes) - 2] = (uint8_t)checksum;
     if (yrm100_command_send(device_context, bytes, sizeof(bytes)) == YRM100_STATUS_OK)
     {
         ssize_t response_len = yrm100_command_read_response(device_context);
@@ -745,7 +746,7 @@ int yrm100_command_get_operating_region(yrm100_context_t *device_context)
 
 int yrm100_command_set_tx_power(yrm100_context_t *device_context, unsigned short power)
 {
-    unsigned char bytes[] = {0xBB, 0x00, 0xB6, 0x00, 0x02, 0x07, 0xD0, 0x8F, 0x7E};
+    uint8_t bytes[] = {0xBB, 0x00, 0xB6, 0x00, 0x02, 0x07, 0xD0, 0x8F, 0x7E};
 
     if (yrm100_is_device_context_valid(device_context) == false)
     {
@@ -759,14 +760,14 @@ int yrm100_command_set_tx_power(yrm100_context_t *device_context, unsigned short
     {
         power = YRM100_PARAM_TX_POWER_MAXIMUM;
     }
-    bytes[5] = (unsigned char)(power >> 8);
-    bytes[6] = (unsigned char)(power & 0xFF);
+    bytes[5] = (uint8_t)(power >> 8);
+    bytes[6] = (uint8_t)(power & 0xFF);
     int checksum = yrm100_frame_calculate_checksum(bytes, sizeof(bytes));
     if (checksum < 0)
     {
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_CHECKSUM_CALCULATION_FAILURE);
     }
-    bytes[sizeof(bytes) - 2] = (unsigned char)checksum;
+    bytes[sizeof(bytes) - 2] = (uint8_t)checksum;
     if (yrm100_command_send(device_context, bytes, sizeof(bytes)) == YRM100_STATUS_OK)
     {
         ssize_t response_len = yrm100_command_read_response(device_context);
@@ -789,14 +790,14 @@ int yrm100_command_set_tx_power(yrm100_context_t *device_context, unsigned short
 
 int yrm100_command_get_tx_power(yrm100_context_t *device_context)
 {
-    unsigned char bytes[] = {0xBB, 0x00, 0xB7, 0x00, 0x00, 0xB7, 0x7E};
+    uint8_t bytes[] = {0xBB, 0x00, 0xB7, 0x00, 0x00, 0xB7, 0x7E};
 
     int checksum = yrm100_frame_calculate_checksum(bytes, sizeof(bytes));
     if (checksum < 0)
     {
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_CHECKSUM_CALCULATION_FAILURE);
     }
-    bytes[sizeof(bytes) - 2] = (unsigned char)checksum;
+    bytes[sizeof(bytes) - 2] = (uint8_t)checksum;
     if (yrm100_is_device_context_valid(device_context) == false)
     {
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_INVALID_DEVICE_HANDLE);
@@ -822,9 +823,9 @@ int yrm100_command_get_tx_power(yrm100_context_t *device_context)
     return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
 }
 
-int yrm100_command_set_continous_wave(yrm100_context_t *device_context, unsigned char on_or_off)
+int yrm100_command_set_continous_wave(yrm100_context_t *device_context, uint8_t on_or_off)
 {
-    unsigned char bytes[] = {0xBB, 0x00, 0xB0, 0x00, 0x01, 0xFF, 0xB0, 0x7E};
+    uint8_t bytes[] = {0xBB, 0x00, 0xB0, 0x00, 0x01, 0xFF, 0xB0, 0x7E};
 
     bytes[5] = on_or_off;
     int checksum = yrm100_frame_calculate_checksum(bytes, sizeof(bytes));
@@ -832,7 +833,7 @@ int yrm100_command_set_continous_wave(yrm100_context_t *device_context, unsigned
     {
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_CHECKSUM_CALCULATION_FAILURE);
     }
-    bytes[sizeof(bytes) - 2] = (unsigned char)checksum;
+    bytes[sizeof(bytes) - 2] = (uint8_t)checksum;
     if (yrm100_is_device_context_valid(device_context) == false)
     {
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_INVALID_DEVICE_HANDLE);
@@ -869,7 +870,7 @@ int yrm100_command_disable_continous_wave(yrm100_context_t *device_context)
 
 int yrm100_command_sleep(yrm100_context_t *device_context)
 {
-    unsigned char bytes[] = {0xBB, 0x00, 0x17, 0x00, 0x00, 0x17, 0x7E};
+    uint8_t bytes[] = {0xBB, 0x00, 0x17, 0x00, 0x00, 0x17, 0x7E};
     if (yrm100_is_device_context_valid(device_context) == false)
     {
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_INVALID_DEVICE_HANDLE);
@@ -879,7 +880,7 @@ int yrm100_command_sleep(yrm100_context_t *device_context)
     {
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_CHECKSUM_CALCULATION_FAILURE);
     }
-    bytes[sizeof(bytes) - 2] = (unsigned char)checksum;
+    bytes[sizeof(bytes) - 2] = (uint8_t)checksum;
     if (yrm100_command_send(device_context, bytes, sizeof(bytes)) == YRM100_STATUS_OK)
     {
         ssize_t response_len = yrm100_command_read_response(device_context);
@@ -900,9 +901,9 @@ int yrm100_command_sleep(yrm100_context_t *device_context)
     return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
 }
 
-int yrm100_command_read_tag_memory_area(yrm100_context_t *device_context, yrm100_rfid_tag_t *tag, unsigned char memory_bank, unsigned short segment_address, unsigned short data_length, unsigned int password)
+int yrm100_command_read_tag_memory_area(yrm100_context_t *device_context, yrm100_rfid_tag_t *tag, uint8_t memory_bank, unsigned short segment_address, unsigned short data_length, yrm100_tag_password_t password)
 {
-    unsigned char bytes[] = {0xBB, 0x00, 0x39, 0x00, 0x09, 0x00, 0x00, 0xFF, 0xFF, 0x03, 0x00, 0x00, 0x00, 0x02, 0x45, 0x7E};
+    uint8_t bytes[] = {0xBB, 0x00, 0x39, 0x00, 0x09, 0x00, 0x00, 0xFF, 0xFF, 0x03, 0x00, 0x00, 0x00, 0x02, 0x45, 0x7E};
 
     if (yrm100_is_device_context_valid(device_context) == false)
     {
@@ -916,26 +917,26 @@ int yrm100_command_read_tag_memory_area(yrm100_context_t *device_context, yrm100
     {
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_INVALID_DATA_LENGTH);
     }
-    if (yrm100_is_valid_memory_bank(memory_bank) == false)
+    if (yrm100_param_is_valid_memory_bank(memory_bank) == false)
     {
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_MEMORY_BANK);
     }
 
-    bytes[5] = (unsigned char)((password >> 24) & 0xFF);
-    bytes[6] = (unsigned char)((password >> 16) & 0xFF);
-    bytes[7] = (unsigned char)((password >> 8) & 0xFF);
-    bytes[8] = (unsigned char)((password >> 0) & 0xFF);
+    bytes[5] = (uint8_t)((password >> 24) & 0xFF);
+    bytes[6] = (uint8_t)((password >> 16) & 0xFF);
+    bytes[7] = (uint8_t)((password >> 8) & 0xFF);
+    bytes[8] = (uint8_t)((password >> 0) & 0xFF);
     bytes[9] = memory_bank;
-    bytes[10] = (unsigned char)((segment_address >> 8) & 0xFF);
-    bytes[11] = (unsigned char)((segment_address >> 0) & 0xFF);
-    bytes[12] = (unsigned char)((data_length >> 8) & 0xFF);
-    bytes[13] = (unsigned char)((data_length >> 0) & 0xFF);
+    bytes[10] = (uint8_t)((segment_address >> 8) & 0xFF);
+    bytes[11] = (uint8_t)((segment_address >> 0) & 0xFF);
+    bytes[12] = (uint8_t)((data_length >> 8) & 0xFF);
+    bytes[13] = (uint8_t)((data_length >> 0) & 0xFF);
     int checksum = yrm100_frame_calculate_checksum(bytes, sizeof(bytes));
     if (checksum < 0)
     {
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_CHECKSUM_CALCULATION_FAILURE);
     }
-    bytes[sizeof(bytes) - 2] = (unsigned char)checksum;
+    bytes[sizeof(bytes) - 2] = (uint8_t)checksum;
     if (yrm100_command_send(device_context, bytes, sizeof(bytes)) == YRM100_STATUS_OK)
     {
         ssize_t response_len = yrm100_command_read_response(device_context);
@@ -967,17 +968,17 @@ int yrm100_command_read_tag_memory_area(yrm100_context_t *device_context, yrm100
 
 int yrm100_command_kill(yrm100_context_t *device_context, yrm100_tag_password_t password)
 {
-    unsigned char bytes[] = {0xBB, 0x00, 0x65, 0x00, 0x04, 0x00, 0x00, 0xFF, 0x70, 0x67, 0x7E};
-    bytes[5] = (unsigned char)((password >> 24) & 0xFF);
-    bytes[6] = (unsigned char)((password >> 16) & 0xFF);
-    bytes[7] = (unsigned char)((password >> 8) & 0xFF);
-    bytes[8] = (unsigned char)((password >> 0) & 0xFF);
+    uint8_t bytes[] = {0xBB, 0x00, 0x65, 0x00, 0x04, 0x00, 0x00, 0xFF, 0x70, 0x67, 0x7E};
+    bytes[5] = (uint8_t)((password >> 24) & 0xFF);
+    bytes[6] = (uint8_t)((password >> 16) & 0xFF);
+    bytes[7] = (uint8_t)((password >> 8) & 0xFF);
+    bytes[8] = (uint8_t)((password >> 0) & 0xFF);
     int checksum = yrm100_frame_calculate_checksum(bytes, sizeof(bytes));
     if (checksum < 0)
     {
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_CHECKSUM_CALCULATION_FAILURE);
     }
-    bytes[sizeof(bytes) - 2] = (unsigned char)checksum;
+    bytes[sizeof(bytes) - 2] = (uint8_t)checksum;
     if (yrm100_command_send(device_context, bytes, sizeof(bytes)) == YRM100_STATUS_OK)
     {
         ssize_t response_len = yrm100_command_read_response(device_context);
@@ -1000,17 +1001,17 @@ int yrm100_command_kill(yrm100_context_t *device_context, yrm100_tag_password_t 
 
 int yrm100_command_lock(yrm100_context_t *device_context, yrm100_tag_password_t password)
 {
-    unsigned char bytes[] = {0xBB, 0x00, 0x82, 0x00, 0x07, 0x00, 0x00, 0xFF, 0xFF, 0x02, 0x00, 0x80, 0x09, 0x7E};
-    bytes[5] = (unsigned char)((password >> 24) & 0xFF);
-    bytes[6] = (unsigned char)((password >> 16) & 0xFF);
-    bytes[7] = (unsigned char)((password >> 8) & 0xFF);
-    bytes[8] = (unsigned char)((password >> 0) & 0xFF);
+    uint8_t bytes[] = {0xBB, 0x00, 0x82, 0x00, 0x07, 0x00, 0x00, 0xFF, 0xFF, 0x02, 0x00, 0x80, 0x09, 0x7E};
+    bytes[5] = (uint8_t)((password >> 24) & 0xFF);
+    bytes[6] = (uint8_t)((password >> 16) & 0xFF);
+    bytes[7] = (uint8_t)((password >> 8) & 0xFF);
+    bytes[8] = (uint8_t)((password >> 0) & 0xFF);
     int checksum = yrm100_frame_calculate_checksum(bytes, sizeof(bytes));
     if (checksum < 0)
     {
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_CHECKSUM_CALCULATION_FAILURE);
     }
-    bytes[sizeof(bytes) - 2] = (unsigned char)checksum;
+    bytes[sizeof(bytes) - 2] = (uint8_t)checksum;
     if (yrm100_command_send(device_context, bytes, sizeof(bytes)) == YRM100_STATUS_OK)
     {
         ssize_t response_len = yrm100_command_read_response(device_context);

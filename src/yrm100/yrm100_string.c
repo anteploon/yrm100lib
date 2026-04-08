@@ -75,9 +75,9 @@ char *yrm100_convert_to_tx_power_string(unsigned int power, char string_buf[YRM1
     return string_buf;
 }
 
-const char *yrm100_convert_to_region_string(unsigned int region_code)
+const char *yrm100_convert_to_region_string(uint8_t region)
 {
-    switch (region_code)
+    switch (region)
     {
     case YRM100_PARAM_REGION_CHINA_900:
         return "China 900MHz";
@@ -93,7 +93,7 @@ const char *yrm100_convert_to_region_string(unsigned int region_code)
     return "Unknown region";
 }
 
-const char *yrm100_convert_to_divide_ratio_string(unsigned char dr)
+const char *yrm100_convert_to_divide_ratio_string(uint8_t dr)
 {
     switch (dr)
     {
@@ -105,7 +105,7 @@ const char *yrm100_convert_to_divide_ratio_string(unsigned char dr)
     return "-";
 }
 
-const char *yrm100_convert_to_backscatter_encoding_string(unsigned char m)
+const char *yrm100_convert_to_backscatter_encoding_string(uint8_t m)
 {
     switch (m)
     {
@@ -121,7 +121,7 @@ const char *yrm100_convert_to_backscatter_encoding_string(unsigned char m)
     return "-";
 }
 
-const char *yrm100_convert_to_trext_string(unsigned char trext)
+const char *yrm100_convert_to_trext_string(uint8_t trext)
 {
     switch (trext)
     {
@@ -133,7 +133,7 @@ const char *yrm100_convert_to_trext_string(unsigned char trext)
     return "-";
 }
 
-const char *yrm100_convert_to_sel_string(unsigned char sel)
+const char *yrm100_convert_to_sel_string(uint8_t sel)
 {
     switch (sel)
     {
@@ -148,7 +148,7 @@ const char *yrm100_convert_to_sel_string(unsigned char sel)
     return "-";
 }
 
-const char *yrm100_convert_to_session_string(unsigned char session)
+const char *yrm100_convert_to_session_string(uint8_t session)
 {
     switch (session)
     {
@@ -164,7 +164,7 @@ const char *yrm100_convert_to_session_string(unsigned char session)
     return "-";
 }
 
-const char *yrm100_convert_to_target_string(unsigned char target)
+const char *yrm100_convert_to_target_string(uint8_t target)
 {
     switch (target)
     {
@@ -176,18 +176,19 @@ const char *yrm100_convert_to_target_string(unsigned char target)
     return "-";
 }
 
-const char *yrm100_convert_to_q_string(unsigned char q)
+const char *yrm100_convert_to_q_string(uint8_t q)
 {
     // TODO in reality the integer should be calculated as 2^q
-    switch(q) {
-        case 0:
-            return "1 slot";
-        case 1:
-            return "2 slots";
-        case 4:
-            return "16 slots";
-        case 15:
-            return "32768 slots";
+    switch (q)
+    {
+    case 0:
+        return "1 slot";
+    case 1:
+        return "2 slots";
+    case 4:
+        return "16 slots";
+    case 15:
+        return "32768 slots";
     }
     return "-";
 }

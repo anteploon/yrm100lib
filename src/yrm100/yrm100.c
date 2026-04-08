@@ -55,14 +55,3 @@ int yrm100_deinit(yrm100_context_t *device_context)
     }
     return YRM100_STATUS_OK;
 }
-
-bool yrm100_is_device_context_valid(yrm100_context_t *device_context)
-{
-    if (device_context != NULL &&
-        device_context->serial_port_name != NULL &&
-        device_context->is_initialized == true)
-    {
-        return true;
-    }
-    return false;
-}
