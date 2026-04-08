@@ -304,6 +304,52 @@ static int test_set_select_parameters_writes_mask(void)
     return failures;
 }
 
+static int test_get_select_parameters_reads_mask(void)
+{
+    int failures = 0;
+    yrm100_context_t ctx;
+    yrm100_select_parameters_t select_parameters;
+    unsigned char response[] = {
+        0xBB, 0x01, 0x0B, 0x00, 0x13, 0x51, 0x12, 0x34,
+        0x56, 0x78, 0x60, 0x01, 0xA0, 0xA1, 0xA2, 0xA3,
+        0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB,
+        0x00, 0x7E
+    };
+    size_t chunks[] = {sizeof(response)};
+    unsigned char expected_mask[YRM100_TAG_EPC_BYTE_COUNT] = {
+        0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5,
+        0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB
+    };
+
+    memset(&ctx, 0, sizeof(ctx));
+    ctx.serial_port_name = "mock";
+    ctx.serial_port = (serial_port_t)1;
+    ctx.is_initialized = true;
+
+    memset(&select_parameters, 0xCC, sizeof(select_parameters));
+
+    response[24] = (unsigned char)yrm100_frame_calculate_checksum(response, sizeof(response));
+    test_serial_set_read_data(response, sizeof(response), chunks, 1);
+
+    failures += expect_equal_int(
+        "get select parameters result",
+        yrm100_command_get_select_parameters(&ctx, &select_parameters),
+        YRM100_STATUS_OK);
+    failures += expect_equal_int("get select parameters target", select_parameters.target, 1);
+    failures += expect_equal_int("get select parameters action", select_parameters.action, 2);
+    failures += expect_equal_int("get select parameters membank", select_parameters.membank, YRM100_PARAM_MEMBANK_EPC);
+    failures += expect_equal_int("get select parameters pointer", (int)select_parameters.pointer, 0x12345678);
+    failures += expect_equal_int("get select parameters length", select_parameters.length, 0x60);
+    failures += expect_equal_int("get select parameters truncate", select_parameters.truncate, 0x01);
+    if (memcmp(select_parameters.mask, expected_mask, sizeof(expected_mask)) != 0)
+    {
+        printf("FAIL: get select parameters mask mismatch\n");
+        failures++;
+    }
+
+    return failures;
+}
+
 int main(void)
 {
     int failures = 0;
@@ -319,6 +365,7 @@ int main(void)
     failures += test_single_poll_nonmultiple_notice_response();
     failures += test_get_tx_power_error_response();
     failures += test_set_select_parameters_writes_mask();
+    failures += test_get_select_parameters_reads_mask();
     failures += test_string_functions();
     if (failures == 0)
     {

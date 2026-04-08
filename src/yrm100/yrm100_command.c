@@ -470,6 +470,7 @@ int yrm100_command_single_poll(yrm100_context_t *device_context, yrm100_rfid_tag
 int yrm100_command_get_select_parameters(yrm100_context_t *device_context, yrm100_select_parameters_t *select_parameters)
 {
     uint8_t bytes[] = {0xBB, 0x00, 0x0B, 0x00, 0x00, 0x0B, 0x7E};
+    size_t payload_length;
 
     if (yrm100_is_device_context_valid(device_context) == false)
     {
@@ -494,9 +495,18 @@ int yrm100_command_get_select_parameters(yrm100_context_t *device_context, yrm10
         }
         if (yrm100_frame_is_ok_response(device_context->command_response_buf, (size_t)response_len))
         {
+            payload_length = ((size_t)device_context->command_response_buf[3] << 8) |
+                             (size_t)device_context->command_response_buf[4];
+            if (device_context->command_response_buf[YRM100_FRAME_BYTE_POSITION_COMMAND] != 0x0B ||
+                payload_length < 19)
+            {
+                return yrm100_set_last_error_code(device_context, YRM100_ERROR_PARSE_ERROR);
+            }
             // byte 5 -> SelParam
             // byte 6, 7, 8, 9 -> Pointer
             // byte 10 -> Length
+            // byte 11 -> Truncate
+            // byte 12..23 -> Mask
             select_parameters->target = device_context->command_response_buf[5] & 0x07;
             select_parameters->action = (device_context->command_response_buf[5] >> 3) & 0x07;
             select_parameters->membank = (device_context->command_response_buf[5] >> 6) & 0x03;
@@ -505,6 +515,8 @@ int yrm100_command_get_select_parameters(yrm100_context_t *device_context, yrm10
                                                         ((unsigned int)device_context->command_response_buf[7] << 16) |
                                                         ((unsigned int)device_context->command_response_buf[8] << 8) |
                                                         ((unsigned int)device_context->command_response_buf[9]));
+            select_parameters->truncate = device_context->command_response_buf[11];
+            memcpy(select_parameters->mask, &device_context->command_response_buf[12], YRM100_TAG_EPC_BYTE_COUNT);
 
             return yrm100_set_last_error_code(device_context, YRM100_STATUS_OK);
         }
