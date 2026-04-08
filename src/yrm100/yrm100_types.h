@@ -21,6 +21,11 @@
 #define YRM100_QUERY_M4 2
 #define YRM100_QUERY_M8 3
 
+#define YRM100_MEMORY_BANK_RESERVED 0
+#define YRM100_MEMORY_BANK_EPC 1
+#define YRM100_MEMORY_BANK_TID 2
+#define YRM100_MEMORY_BANK_USER 3
+
 /**
  * @brief RFID UHF tag
  * The `data` field is used for additional data read from the tag, such as TID or user memory. It is allocated and freed by the library, and the caller should not modify it directly.
@@ -79,5 +84,12 @@ typedef struct yrm100_query_parameters_t
     unsigned char target;  // 1 bit
     unsigned char q;       // 4 bits
 } yrm100_query_parameters_t;
+
+/**
+ * @brief Checks if a value is a valid RFID tag memory bank
+ * @param memory_bank Memory bank value
+ * @return True if memory_bank is one of the YRM100_MEMORY_BANK_* constants
+ */
+bool yrm100_is_valid_memory_bank(unsigned char memory_bank);
 
 #endif

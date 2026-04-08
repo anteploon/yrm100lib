@@ -32,4 +32,14 @@ int yrm100_parse_poll_response(unsigned char *response, size_t response_len, yrm
  */
 int yrm100_parse_get_error_code(unsigned char *buf, size_t buf_size);
 
+/**
+ * @brief Extracts RFID UHF tag data from a read tag memory response frame
+ * @param response Response frame buffer
+ * @param response_len Response buffer size
+ * @param tag Pointer to tag where parsed data will be stored
+ * @param data_length Number of words requested from tag memory
+ * @return Value 0 on success, otherwise error code
+ */
+int yrm100_parse_read_tag_memory_response(unsigned char *response, size_t response_len, yrm100_rfid_tag_t *tag, unsigned short data_length);
+
 #endif

@@ -92,6 +92,18 @@ int yrm100_command_get_query_parameters(yrm100_context_t *device_context, yrm100
 int yrm100_command_disable_idle_sleep(yrm100_context_t *device_context);
 
 /**
+ * @brief Reads data from a specific RFID tag memory bank
+ * @param device_context Handle to the RFID UHF device
+ * @param tag Pointer where to store the returned tag data
+ * @param memory_bank One of the YRM100_MEMORY_BANK_* constants
+ * @param segment_address Starting word address in the memory bank
+ * @param data_length Number of words to read
+ * @param password Access password to use when reading the memory area
+ * @return Value 0 on success, otherwise error code
+ */
+int yrm100_command_read_tag_memory_area(yrm100_context_t *device_context, yrm100_rfid_tag_t *tag, unsigned char memory_bank, unsigned short segment_address, unsigned short data_length, unsigned int password);
+
+/**
  * @brief Sets RFID module operating region setting
  * @param device_context Handle to the RFID UHF device
  * @param region See YRM100_PARAM_REGION_* constants

@@ -149,6 +149,39 @@ bool yrm100_frame_is_ok_response(unsigned char *buf, size_t buf_size)
     return false;
 }
 
+bool yrm100_frame_is_read_tag_memory_response(unsigned char *buf, size_t buf_size)
+{
+    size_t payload_size;
+
+    if (buf == NULL)
+    {
+        return false;
+    }
+    if (buf_size < YRM100_FRAME_MINIMUM_RESPONSE_SIZE)
+    {
+        return false;
+    }
+    if (yrm100_frame_is_ok_response(buf, buf_size) == false)
+    {
+        return false;
+    }
+    if (buf[YRM100_FRAME_BYTE_POSITION_COMMAND] != YRM100_FRAME_COMMAND_READ_TAG_MEMORY_AREA)
+    {
+        return false;
+    }
+
+    payload_size = ((size_t)buf[3] << 8) | (size_t)buf[4];
+    if (payload_size < 17)
+    {
+        return false;
+    }
+    if (buf_size != payload_size + YRM100_FRAME_MINIMUM_RESPONSE_SIZE)
+    {
+        return false;
+    }
+    return true;
+}
+
 int yrm100_frame_calculate_checksum(unsigned char *buf, size_t buf_size)
 {
     if (buf == NULL)

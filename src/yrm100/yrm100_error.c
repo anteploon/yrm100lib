@@ -52,6 +52,12 @@ const char *yrm100_error_code_to_string(int error_code)
         return "Serial port call to SetCommState() failed";
     case YRM100_ERROR_SERIAL_SETCOMMTIMEOUTS_FAILED:
         return "Serial port call to SetCommTimeouts() failed";
+    case YRM100_ERROR_MEMORY_ALLOCATION_FAILURE:
+        return "Memory allocation failed";
+    case YRM100_ERROR_INVALID_DATA_LENGTH:
+        return "Invalid data length";
+    case YRM100_ERROR_UNKNOWN_MEMORY_BANK:
+        return "Unknown memory bank specified";
     case YRM100_ERROR_NOT_IMPLEMENTED:
         return "Function not implemented";
     default:

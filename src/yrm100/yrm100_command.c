@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "yrm100.h"
+#include "yrm100_types.h"
 #include "yrm100_util.h"
 #include "yrm100_frame.h"
 #include "yrm100_serial.h"
@@ -899,7 +900,7 @@ int yrm100_command_sleep(yrm100_context_t *device_context)
     return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
 }
 
-int yrm100_command_read_tag_memory_area(yrm100_context_t *device_context, yrm100_rfid_tag_t *tag, unsigned char memory_bank, unsigned short segment_address, unsigned short data_length, unsigned short password)
+int yrm100_command_read_tag_memory_area(yrm100_context_t *device_context, yrm100_rfid_tag_t *tag, unsigned char memory_bank, unsigned short segment_address, unsigned short data_length, unsigned int password)
 {
     unsigned char bytes[] = {0xBB, 0x00, 0x39, 0x00, 0x09, 0x00, 0x00, 0xFF, 0xFF, 0x03, 0x00, 0x00, 0x00, 0x02, 0x45, 0x7E};
 
@@ -911,6 +912,15 @@ int yrm100_command_read_tag_memory_area(yrm100_context_t *device_context, yrm100
     {
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_BUFFER_NULL);
     }
+    if (data_length == 0)
+    {
+        return yrm100_set_last_error_code(device_context, YRM100_ERROR_INVALID_DATA_LENGTH);
+    }
+    if (yrm100_is_valid_memory_bank(memory_bank) == false)
+    {
+        return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_MEMORY_BANK);
+    }
+
     bytes[5] = (unsigned char)((password >> 24) & 0xFF);
     bytes[6] = (unsigned char)((password >> 16) & 0xFF);
     bytes[7] = (unsigned char)((password >> 8) & 0xFF);
@@ -933,11 +943,17 @@ int yrm100_command_read_tag_memory_area(yrm100_context_t *device_context, yrm100
         {
             return yrm100_set_last_error_code(device_context, response_len);
         }
-        if (yrm100_frame_is_ok_response(device_context->command_response_buf, (size_t)response_len))
+        if (yrm100_frame_is_read_tag_memory_response(device_context->command_response_buf, (size_t)response_len))
         {
-            
-            //            int parse_result = yrm100_parse_read_tag_memory_response(device_context->command_response_buf, (size_t)response_len, tag, data_length);
-            // TODO: Implement parsing of read tag memory response
+            int parse_result = yrm100_parse_read_tag_memory_response(
+                device_context->command_response_buf,
+                (size_t)response_len,
+                tag,
+                data_length);
+            if (parse_result != YRM100_STATUS_OK)
+            {
+                return yrm100_set_last_error_code(device_context, parse_result);
+            }
             return yrm100_set_last_error_code(device_context, YRM100_STATUS_OK);
         }
         if (yrm100_frame_is_error_response(device_context->command_response_buf, (size_t)response_len))

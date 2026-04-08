@@ -27,6 +27,7 @@
 #define YRM100_FRAME_TYPE_BYTE_RESPONSE 0x01
 #define YRM100_FRAME_TYPE_BYTE_NOTICE 0x02
 #define YRM100_FRAME_END_BYTE 0x7E
+#define YRM100_FRAME_COMMAND_READ_TAG_MEMORY_AREA 0x39
 
 /**
  * @brief Checks if the RFID UHF frame looks like a command frame (does not validate the frame)
@@ -91,6 +92,14 @@ bool yrm100_frame_is_error_response(unsigned char *buf, size_t buf_size);
  * @return True if the frame is a non-error response frame
  */
 bool yrm100_frame_is_ok_response(unsigned char *buf, size_t buf_size);
+
+/**
+ * @brief Checks if the RFID UHF frame is a valid read tag memory response frame
+ * @param buf Buffer
+ * @param buf_size Buffer size
+ * @return True if the frame is a valid read tag memory response frame
+ */
+bool yrm100_frame_is_read_tag_memory_response(unsigned char *buf, size_t buf_size);
 
 /**
  * @brief Calculates the checksum of the frame
