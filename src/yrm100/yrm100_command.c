@@ -558,13 +558,10 @@ int yrm100_command_set_select_mode(yrm100_context_t *device_context, uint8_t sel
 {
     uint8_t bytes[] = {0xBB, 0x00, 0x12, 0x00, 0x01, 0x01, 0x14, 0x7E};
 
-    if (select_mode != YRM100_PARAM_SELECT_MODE_DO_SEND_BEFORE_ALL_OPERATIONS &&
-        select_mode != YRM100_PARAM_SELECT_MODE_DONT_SEND_BEFORE_ANY_OPERATIONS &&
-        select_mode != YRM100_PARAM_SELECT_MODE_DO_SEND_BEFORE_TAG_OPERATIONS)
+    if (yrm100_param_is_valid_select_mode(select_mode) == false)
     {
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_SELECT_MODE);
     }
-
     if (yrm100_is_device_context_valid(device_context) == false)
     {
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_INVALID_DEVICE_HANDLE);
@@ -672,11 +669,7 @@ int yrm100_command_set_operating_region(yrm100_context_t *device_context, uint8_
     {
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_INVALID_DEVICE_HANDLE);
     }
-    if (region != YRM100_PARAM_REGION_CHINA_900 &&
-        region != YRM100_PARAM_REGION_CHINA_800 &&
-        region != YRM100_PARAM_REGION_EUROPE &&
-        region != YRM100_PARAM_REGION_KOREA &&
-        region != YRM100_PARAM_REGION_USA)
+    if (yrm100_param_is_valid_region(region) == false)
     {
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_REGION);
     }
