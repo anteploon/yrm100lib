@@ -900,7 +900,7 @@ int yrm100_command_sleep(yrm100_context_t *device_context)
     return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
 }
 
-int yrm100_command_read_tag_memory_area(yrm100_context_t *device_context, yrm100_rfid_tag_t *tag, uint8_t memory_bank, unsigned short segment_address, unsigned short data_length, yrm100_tag_password_t password)
+int yrm100_command_read_tag_memory_area(yrm100_context_t *device_context, yrm100_rfid_tag_t *tag, uint8_t memory_bank, unsigned short segment_address, unsigned short data_length, uint32_t password)
 {
     uint8_t bytes[] = {0xBB, 0x00, 0x39, 0x00, 0x09, 0x00, 0x00, 0xFF, 0xFF, 0x03, 0x00, 0x00, 0x00, 0x02, 0x45, 0x7E};
 
@@ -965,7 +965,7 @@ int yrm100_command_read_tag_memory_area(yrm100_context_t *device_context, yrm100
     return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
 }
 
-int yrm100_command_kill(yrm100_context_t *device_context, yrm100_tag_password_t password)
+int yrm100_command_kill(yrm100_context_t *device_context, uint32_t password)
 {
     uint8_t bytes[] = {0xBB, 0x00, 0x65, 0x00, 0x04, 0x00, 0x00, 0xFF, 0x70, 0x67, 0x7E};
     bytes[5] = (uint8_t)((password >> 24) & 0xFF);
@@ -998,7 +998,7 @@ int yrm100_command_kill(yrm100_context_t *device_context, yrm100_tag_password_t 
     return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
 }
 
-int yrm100_command_lock(yrm100_context_t *device_context, yrm100_tag_password_t password)
+int yrm100_command_lock(yrm100_context_t *device_context, uint32_t password)
 {
     uint8_t bytes[] = {0xBB, 0x00, 0x82, 0x00, 0x07, 0x00, 0x00, 0xFF, 0xFF, 0x02, 0x00, 0x80, 0x09, 0x7E};
     bytes[5] = (uint8_t)((password >> 24) & 0xFF);

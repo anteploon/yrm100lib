@@ -23,11 +23,6 @@
 #define YRM100_QUERY_M8 3
 
 /**
- * @brief 32-bit RFID tag access password
- */
-typedef uint32_t yrm100_tag_password_t;
-
-/**
  * @brief RFID UHF tag
  * The `data` field is used for additional data read from the tag, such as TID or user memory. It is allocated and freed by the library, and the caller should not modify it directly.
  */
