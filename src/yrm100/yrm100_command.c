@@ -197,6 +197,10 @@ ssize_t yrm100_command_read_response(yrm100_context_t *device_context)
             {
                 return yrm100_set_last_error_code(device_context, YRM100_ERROR_READ_TIMEOUT);
             }
+            if (frame_start == cursor)
+            {
+                break;
+            }
             if (cursor - frame_start < YRM100_COMMAND_FRAME_PREFIX_SIZE || (expected_total > 0 && cursor < expected_total))
             {
                 return yrm100_set_last_error_code(device_context, YRM100_ERROR_PARSE_ERROR);
