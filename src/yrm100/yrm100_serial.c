@@ -139,7 +139,11 @@ ssize_t yrm100_serial_configure(serial_port_t port)
     tty.c_oflag &= (tcflag_t)~(OPOST | ONLCR);
 
     tty.c_cc[VTIME] = 3;
-    tty.c_cc[VMIN] = YRM100_FRAME_MINIMUM_NOTICE_SIZE > YRM100_FRAME_MINIMUM_RESPONSE_SIZE ? YRM100_FRAME_MINIMUM_RESPONSE_SIZE : YRM100_FRAME_MINIMUM_NOTICE_SIZE;
+    /* Use a pure timeout-based read so follow-up reads after a complete
+     * notice frame can terminate cleanly when the module sends no trailing
+     * response frame.
+     */
+    tty.c_cc[VMIN] = 0;
 
     if (tcsetattr(port, TCSANOW, &tty) != 0)
     {
