@@ -11,6 +11,7 @@ ssize_t yrm100_command_read_response(yrm100_context_t *device_context);
 void test_serial_set_read_data(const unsigned char *data, size_t len, const size_t *chunks, size_t chunk_count);
 size_t test_serial_get_last_write(unsigned char *buffer, size_t size);
 int test_string_functions(void);
+static void set_poll_notice_checksum(unsigned char *response);
 
 static int expect_equal_int(const char *label, int got, int expected)
 {
@@ -67,6 +68,36 @@ static int test_payload_end_byte_at_chunk_boundary(void)
         memcmp(ctx.command_response_buf, response, sizeof(response)) != 0)
     {
         printf("FAIL: payload end byte buffer mismatch\n");
+        failures++;
+    }
+    return failures;
+}
+
+static int test_notice_only_read(void)
+{
+    yrm100_context_t ctx;
+    memset(&ctx, 0, sizeof(ctx));
+    ctx.serial_port_name = "mock";
+    ctx.serial_port = (serial_port_t)1;
+    ctx.is_initialized = true;
+
+    unsigned char response[] = {
+        0xBB, 0x02, 0x22, 0x00, 0x11, 0xC8, 0x30, 0x00,
+        0xE2, 0x00, 0x00, 0x17, 0x22, 0x11, 0x44, 0x55,
+        0x66, 0x77, 0x88, 0x99, 0xAB, 0xCD, 0x00, 0x7E
+    };
+    size_t chunks[] = {5, sizeof(response) - 5};
+
+    set_poll_notice_checksum(response);
+    test_serial_set_read_data(response, sizeof(response), chunks, 2);
+
+    ssize_t read_len = yrm100_command_read_response(&ctx);
+    int failures = 0;
+    failures += expect_equal_int("notice only read length", (int)read_len, (int)sizeof(response));
+    if (read_len == (ssize_t)sizeof(response) &&
+        memcmp(ctx.command_response_buf, response, sizeof(response)) != 0)
+    {
+        printf("FAIL: notice only read buffer mismatch\n");
         failures++;
     }
     return failures;
@@ -280,6 +311,43 @@ static int test_single_poll_nonmultiple_notice_response(void)
     return expect_equal_int("single poll nonmultiple notice", result, YRM100_ERROR_PARSE_ERROR);
 }
 
+static int test_single_poll_notice_only_success(void)
+{
+    int failures = 0;
+    yrm100_context_t ctx;
+    yrm100_rfid_tag_t tags[2];
+    unsigned char response[] = {
+        0xBB, 0x02, 0x22, 0x00, 0x11, 0xC8, 0x30, 0x00,
+        0xE2, 0x00, 0x00, 0x17, 0x22, 0x11, 0x44, 0x55,
+        0x66, 0x77, 0x88, 0x99, 0xAB, 0xCD, 0x00, 0x7E
+    };
+    size_t chunks[] = {7, sizeof(response) - 7};
+
+    memset(&ctx, 0, sizeof(ctx));
+    ctx.serial_port_name = "mock";
+    ctx.serial_port = (serial_port_t)1;
+    ctx.is_initialized = true;
+
+    memset(tags, 0, sizeof(tags));
+    set_poll_notice_checksum(response);
+    test_serial_set_read_data(response, sizeof(response), chunks, 2);
+
+    failures += expect_equal_int(
+        "single poll notice only result",
+        yrm100_command_single_poll(&ctx, tags, 2),
+        YRM100_STATUS_OK);
+    failures += expect_equal_int("single poll notice only rssi", tags[0].rssi, (signed char)0xC8);
+    failures += expect_equal_int("single poll notice only pc", tags[0].pc, 0x3000);
+    failures += expect_equal_int("single poll notice only crc", tags[0].crc, 0xABCD);
+    if (memcmp(tags[0].epc, &response[8], YRM100_TAG_EPC_BYTE_COUNT) != 0)
+    {
+        printf("FAIL: single poll notice only EPC mismatch\n");
+        failures++;
+    }
+
+    return failures;
+}
+
 static int test_get_tx_power_error_response(void)
 {
     yrm100_context_t ctx;
@@ -429,6 +497,7 @@ int main(void)
     int failures = 0;
     failures += test_fragmented_read();
     failures += test_payload_end_byte_at_chunk_boundary();
+    failures += test_notice_only_read();
     failures += test_overflow_read();
     failures += test_partial_read_without_end_byte();
     failures += test_invalid_end_byte_checksum_validation();
@@ -438,6 +507,7 @@ int main(void)
     failures += test_single_poll_error_response();
     failures += test_single_poll_success_response();
     failures += test_single_poll_nonmultiple_notice_response();
+    failures += test_single_poll_notice_only_success();
     failures += test_get_tx_power_error_response();
     failures += test_get_query_parameters_success();
     failures += test_set_select_parameters_writes_mask();

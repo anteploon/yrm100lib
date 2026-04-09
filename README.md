@@ -27,8 +27,8 @@ Multi poll and setting the select parameters are **not yet implemented**
 - [ ] Get and set receiver demodulator parameters
 - [ ] Test RF input blocking signal
 - [ ] Test channel RSSI
-- [ ] Lock tag
-- [ ] Kill tag
+- [x] Lock tag
+- [x] Kill tag
 - [ ] Read tag memory area
 - [ ] Write tag memory area
 - [ ] Enable automatic frequency hopping
