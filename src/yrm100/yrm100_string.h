@@ -6,16 +6,26 @@
 #include "yrm100.h"
 #include "yrm100_serial.h"
 
+/** Maximum length of the formatted module info string, including the terminator. */
 #define YRM100_MODULE_INFO_STRING_LENGTH 255
+/** Maximum length of the formatted TX power string, including the terminator. */
 #define YRM100_PARAM_TX_POWER_STRING_LENGTH 6
+/** Maximum length of the formatted tag summary string, including the terminator. */
 #define YRM100_TAG_STRING_LENGTH 66
+/** Maximum length of the formatted tag CRC string, including the terminator. */
 #define YRM100_TAG_CRC_STRING_LENGTH 5
+/** Maximum length of the formatted tag PC string, including the terminator. */
 #define YRM100_TAG_PC_STRING_LENGTH 5
+/** Maximum length of the formatted tag RSSI string, including the terminator. */
 #define YRM100_TAG_RSSI_STRING_LENGTH 8
+/** Maximum length of the formatted tag EPC string, including the terminator. */
 #define YRM100_TAG_EPC_STRING_LENGTH 25
+/** Maximum length of a formatted region string, including the terminator. */
 #define YRM100_MODULE_REGION_STRING_LENGTH 100
 
+/** Marker used by sample output to indicate failure. */
 #define EMOJI_FAIL "✗"
+/** Marker used by sample output to indicate success. */
 #define EMOJI_PASS "✓"
 
 /**

@@ -6,6 +6,7 @@
 #include "yrm100_string.h"
 
 // #define YRM100_COMM_DEBUG
+/** Default delay after sending a command before attempting a read, in microseconds. */
 #define YRM100_COMMAND_RESPONSE_DELAY_USEC 75000
 
 /**

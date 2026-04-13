@@ -9,25 +9,39 @@
  *  @{
  */
 
+/** Byte offset of the frame header. */
 #define YRM100_FRAME_BYTE_POSITION_HEADER 0
+/** Byte offset of the frame type. */
 #define YRM100_FRAME_BYTE_POSITION_TYPE 1
+/** Byte offset of the frame command identifier. */
 #define YRM100_FRAME_BYTE_POSITION_COMMAND 2
 
 /** @} */
 
+/** Byte offset of the module error code in an error response frame. */
 #define YRM100_FRAME_ERROR_RESPONSE_CODE_POSITION 5
 
+/** Fixed size of one poll notice frame. */
 #define YRM100_FRAME_POLL_NOTICE_SIZE 24
 
+/** Minimum valid command frame size in bytes. */
 #define YRM100_FRAME_MINIMUM_COMMAND_SIZE 6
+/** Minimum valid response frame size in bytes. */
 #define YRM100_FRAME_MINIMUM_RESPONSE_SIZE 7
+/** Minimum valid notice frame size in bytes. */
 #define YRM100_FRAME_MINIMUM_NOTICE_SIZE 24
 
+/** Frame header byte. */
 #define YRM100_FRAME_HEADER_BYTE 0xBB
+/** Command frame type byte. */
 #define YRM100_FRAME_TYPE_BYTE_COMMAND 0x00
+/** Response frame type byte. */
 #define YRM100_FRAME_TYPE_BYTE_RESPONSE 0x01
+/** Notice frame type byte. */
 #define YRM100_FRAME_TYPE_BYTE_NOTICE 0x02
+/** Frame terminator byte. */
 #define YRM100_FRAME_END_BYTE 0x7E
+/** Command code for read-tag-memory-area responses. */
 #define YRM100_FRAME_COMMAND_READ_TAG_MEMORY_AREA 0x39
 
 /**
