@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <stdio.h>
 #include "yrm100_command.h"
 #include "yrm100_util.h"
@@ -189,4 +190,25 @@ const char *yrm100_convert_to_q_string(uint8_t q)
     slot_count = 1U << q;
     snprintf(string_buf, sizeof(string_buf), "%u slot%s", slot_count, slot_count == 1U ? "" : "s");
     return string_buf;
+}
+
+char *yrm100_strdup(const char *src)
+{
+    size_t len;
+    char *copy;
+
+    if (src == NULL)
+    {
+        return NULL;
+    }
+
+    len = strlen(src) + 1;
+    copy = malloc(len);
+    if (copy == NULL)
+    {
+        return NULL;
+    }
+
+    memcpy(copy, src, len);
+    return copy;
 }

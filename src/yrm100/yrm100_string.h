@@ -132,4 +132,11 @@ const char *yrm100_convert_to_target_string(uint8_t target);
  */
 const char *yrm100_convert_to_q_string(uint8_t q);
 
+/**
+ * @brief Duplicates a C string using library-managed heap allocation
+ * @param src Source string to duplicate
+ * @return Newly allocated copy of src, or NULL on allocation failure
+ */
+char *yrm100_strdup(const char *src);
+
 #endif

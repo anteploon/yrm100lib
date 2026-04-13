@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "yrm100.h"
+#include "yrm100_string.h"
 #include "yrm100_error.h"
 
 yrm100_context_t *yrm100_init(const char *port_name)
@@ -14,7 +15,7 @@ yrm100_context_t *yrm100_init(const char *port_name)
             return NULL;
         }
         device_context->last_error_code = YRM100_STATUS_OK;
-        device_context->serial_port_name = strdup(port_name);
+        device_context->serial_port_name = yrm100_strdup(port_name);
         if (device_context->serial_port_name == NULL)
         {
             free(device_context);
