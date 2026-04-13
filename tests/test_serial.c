@@ -14,6 +14,32 @@ static size_t test_serial_write_len;
 static size_t test_serial_chunks[TEST_SERIAL_MAX_CHUNKS];
 static size_t test_serial_chunk_count;
 static size_t test_serial_chunk_index;
+static serial_port_t test_serial_open_result = (serial_port_t)1;
+static ssize_t test_serial_configure_result;
+
+void test_serial_reset(void)
+{
+    memset(test_serial_read_data, 0, sizeof(test_serial_read_data));
+    memset(test_serial_write_data, 0, sizeof(test_serial_write_data));
+    memset(test_serial_chunks, 0, sizeof(test_serial_chunks));
+    test_serial_read_len = 0;
+    test_serial_read_offset = 0;
+    test_serial_write_len = 0;
+    test_serial_chunk_count = 0;
+    test_serial_chunk_index = 0;
+    test_serial_open_result = (serial_port_t)1;
+    test_serial_configure_result = 0;
+}
+
+void test_serial_set_open_result(serial_port_t port)
+{
+    test_serial_open_result = port;
+}
+
+void test_serial_set_configure_result(ssize_t result)
+{
+    test_serial_configure_result = result;
+}
 
 void test_serial_set_read_data(const unsigned char *data, size_t len, const size_t *chunks, size_t chunk_count)
 {
@@ -52,13 +78,13 @@ size_t test_serial_get_last_write(unsigned char *buffer, size_t size)
 serial_port_t yrm100_serial_open(const char *port_name)
 {
     (void)port_name;
-    return (serial_port_t)1;
+    return test_serial_open_result;
 }
 
 ssize_t yrm100_serial_configure(serial_port_t port)
 {
     (void)port;
-    return 0;
+    return test_serial_configure_result;
 }
 
 ssize_t yrm100_serial_read(serial_port_t port, void *buffer, size_t size)

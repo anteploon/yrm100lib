@@ -25,6 +25,8 @@ SRCS = src/example.c \
 
 OBJS = $(SRCS:%.c=$(BUILD_DIR)/%.o)
 TEST_SRCS = tests/test_example.c \
+	tests/test_context.c \
+	tests/test_parse.c \
 	tests/test_serial.c \
 	tests/test_string.c \
 	src/yrm100/yrm100_types.c \
