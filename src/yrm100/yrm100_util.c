@@ -2,7 +2,8 @@
 #ifdef _WIN32
 #include <windows.h>
 #else
-#include <unistd.h>
+#include <time.h>
+#include <errno.h>
 #endif
 #include <stdlib.h>
 #include "yrm100_command.h"
@@ -83,6 +84,19 @@ void yrm100_sleep_usec(unsigned int usec)
     DWORD msec = (DWORD)((usec + 999U) / 1000U);
     Sleep(msec);
 #else
-    usleep(usec);
+    struct timespec req;
+    struct timespec rem;
+
+    req.tv_sec = (time_t)(usec / 1000000U);
+    req.tv_nsec = (long)((usec % 1000000U) * 1000U);
+
+    while (nanosleep(&req, &rem) != 0)
+    {
+        if (errno != EINTR)
+        {
+            break;
+        }
+        req = rem;
+    }
 #endif
 }

@@ -130,7 +130,9 @@ ssize_t yrm100_serial_configure(serial_port_t port)
     tty.c_cflag &= (tcflag_t)~CSTOPB;
     tty.c_cflag &= (tcflag_t)~CSIZE;
     tty.c_cflag |= (tcflag_t)CS8;
+#ifdef CRTSCTS
     tty.c_cflag &= (tcflag_t)~CRTSCTS;
+#endif
     tty.c_cflag |= CREAD | CLOCAL;
 
     tty.c_lflag &= (tcflag_t)~(ICANON | ECHO | ECHOE | ISIG);
