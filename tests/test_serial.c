@@ -120,6 +120,11 @@ ssize_t yrm100_serial_read(serial_port_t port, void *buffer, size_t size)
     return (ssize_t)to_read;
 }
 
+void yrm100_serial_flush_input(serial_port_t port)
+{
+    (void)port;
+}
+
 ssize_t yrm100_serial_write(serial_port_t port, const void *buffer, size_t size)
 {
     (void)port;

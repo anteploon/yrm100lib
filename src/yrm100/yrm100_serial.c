@@ -76,6 +76,11 @@ ssize_t yrm100_serial_read(serial_port_t hSerial, void *buffer, size_t size)
     return (ssize_t)bytesRead;
 }
 
+void yrm100_serial_flush_input(serial_port_t hSerial)
+{
+    (void)PurgeComm(hSerial, PURGE_RXCLEAR);
+}
+
 ssize_t yrm100_serial_write(serial_port_t hSerial, const void *buffer, size_t size)
 {
     DWORD bytesWritten = 0;
@@ -164,9 +169,13 @@ ssize_t yrm100_serial_read(serial_port_t port, void *buffer, size_t size)
     return n;
 }
 
+void yrm100_serial_flush_input(serial_port_t port)
+{
+    (void)tcflush(port, TCIFLUSH);
+}
+
 ssize_t yrm100_serial_write(serial_port_t port, const void *buffer, size_t size)
 {
-    tcflush(port, TCIOFLUSH);
     ssize_t n = write(port, buffer, size);
     if (n < 0)
         perror("Error writing serial port");

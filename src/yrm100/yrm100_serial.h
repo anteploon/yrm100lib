@@ -42,6 +42,12 @@ ssize_t yrm100_serial_configure(serial_port_t port);
 ssize_t yrm100_serial_read(serial_port_t port, void *buffer, size_t size);
 
 /**
+ * @brief Discards unread input from the serial port
+ * @param port Serial port
+ */
+void yrm100_serial_flush_input(serial_port_t port);
+
+/**
  * @brief Writes size bytes from buffer to the serial port
  * @param port Serial port
  * @param buffer Input buffer

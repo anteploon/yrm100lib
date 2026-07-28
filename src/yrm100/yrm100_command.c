@@ -41,6 +41,7 @@ static int yrm100_command_send(yrm100_context_t *device_context, uint8_t *cmd, s
     if (yrm100_frame_is_valid_command(cmd, cmd_size))
     {
         size_t total_written = 0;
+        yrm100_serial_flush_input(device_context->serial_port);
         while (total_written < cmd_size)
         {
             ssize_t n = yrm100_serial_write(device_context->serial_port, &cmd[total_written], cmd_size - total_written);
