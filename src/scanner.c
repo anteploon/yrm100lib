@@ -151,17 +151,17 @@ static void sleep_interval(unsigned long interval_ms)
     }
 }
 
-static int send_all(int client_fd, const char *data, size_t length)
+static int write_all(int output_fd, const char *data, size_t length)
 {
-    size_t sent = 0;
+    size_t written = 0;
 
-    while (sent < length)
+    while (written < length)
     {
-        ssize_t result = send(client_fd, data + sent, length - sent, 0);
+        ssize_t result = write(output_fd, data + written, length - written);
 
         if (result > 0)
         {
-            sent += (size_t)result;
+            written += (size_t)result;
         }
         else if (result < 0 && errno == EINTR)
         {
@@ -176,7 +176,7 @@ static int send_all(int client_fd, const char *data, size_t length)
 }
 
 static int scan_for_tags(
-    yrm100_context_t *device, int client_fd, yrm100_rfid_tag_t *tags)
+    yrm100_context_t *device, int output_fd, yrm100_rfid_tag_t *tags)
 {
     int result;
 
@@ -198,8 +198,8 @@ static int scan_for_tags(
             continue;
         }
         yrm100_get_tag_epc_string(&tags[i], epc);
-        if (send_all(client_fd, epc, strlen(epc)) != 0 ||
-            send_all(client_fd, "\n", 1) != 0)
+        if (write_all(output_fd, epc, strlen(epc)) != 0 ||
+            write_all(output_fd, "\n", 1) != 0)
         {
             return -1;
         }
@@ -215,16 +215,18 @@ int main(int argc, char *argv[])
     yrm100_context_t *device;
     yrm100_rfid_tag_t tags[MAX_TAG_COUNT] = {{0}};
     int server_fd;
+    int use_stdout;
 
     if (argc != 4)
     {
         fprintf(stderr,
-                "Usage: %s <unix-socket-path> <serial-device-path> "
+                "Usage: %s <unix-socket-path|-> <serial-device-path> "
                 "<interval-ms>\n",
                 argv[0]);
         return EXIT_FAILURE;
     }
     socket_path = argv[1];
+    use_stdout = strcmp(socket_path, "-") == 0;
     serial_path = argv[2];
     if (parse_interval(argv[3], &interval_ms) != 0)
     {
@@ -250,6 +252,24 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Failed to configure RFID reader\n");
         shutdown_reader(device);
         return EXIT_FAILURE;
+    }
+
+    if (use_stdout)
+    {
+        while (!should_stop)
+        {
+            if (scan_for_tags(device, STDOUT_FILENO, tags) != 0)
+            {
+                fprintf(stderr, "Failed to write EPC code to stdout: %s\n",
+                        strerror(errno));
+                break;
+            }
+            sleep_interval(interval_ms);
+        }
+
+        yrm100_free_tag_data(tags, MAX_TAG_COUNT);
+        shutdown_reader(device);
+        return should_stop ? EXIT_SUCCESS : EXIT_FAILURE;
     }
 
     server_fd = create_server_socket(socket_path);
