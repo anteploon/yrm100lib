@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
         printf("%s Failed to enable continuous wave\n", EMOJI_FAIL);
     }
 
-    unsigned char region = YRM100_PARAM_REGION_CHINA_900;
+    unsigned char region = YRM100_PARAM_REGION_EUROPE;
     if (yrm100_command_set_operating_region(device, region) == YRM100_STATUS_OK)
     {
         printf("%s Set operating region to %s\n", EMOJI_PASS, yrm100_convert_to_region_string(region));
