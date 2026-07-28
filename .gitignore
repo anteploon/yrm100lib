@@ -61,6 +61,7 @@ dkms.conf
 
 # Local Codex workspace metadata
 .codex
+issues.md
 
 # Local runtime traces
 scratchpad/strace/
