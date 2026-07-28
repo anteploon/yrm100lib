@@ -198,8 +198,6 @@ static int scan_for_tags(
             continue;
         }
         yrm100_get_tag_epc_string(&tags[i], epc);
-//        printf("%s\n", epc);
-//        fflush(stdout);
         if (send_all(client_fd, epc, strlen(epc)) != 0 ||
             send_all(client_fd, "\n", 1) != 0)
         {
