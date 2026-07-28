@@ -6,9 +6,11 @@ endif
 CFLAGS = -pedantic $(SANITIZE_FLAGS) -Wconversion -Wall -Wextra -Werror -fmax-errors=3 -O0
 INCLUDES = -Isrc
 TARGET = example
+SCANNER_TARGET = scanner
 TEST_TARGET = test_example
 BUILD_DIR = build
 TARGET_PATH = $(BUILD_DIR)/$(TARGET)
+SCANNER_TARGET_PATH = $(BUILD_DIR)/$(SCANNER_TARGET)
 TEST_TARGET_PATH = $(BUILD_DIR)/$(TEST_TARGET)
 SRCS = src/example.c \
 	src/yrm100/yrm100_types.c \
@@ -24,6 +26,8 @@ SRCS = src/example.c \
 	src/yrm100/yrm100.c
 
 OBJS = $(SRCS:%.c=$(BUILD_DIR)/%.o)
+SCANNER_SRCS = src/scanner.c $(filter-out src/example.c,$(SRCS))
+SCANNER_OBJS = $(SCANNER_SRCS:%.c=$(BUILD_DIR)/%.o)
 TEST_SRCS = tests/test_example.c \
 	tests/test_context.c \
 	tests/test_parse.c \
@@ -49,11 +53,15 @@ else
 CLEAN = $(BUILD_DIR)
 endif
 
-all: $(TARGET_PATH)
+all: $(TARGET_PATH) $(SCANNER_TARGET_PATH)
 
 $(TARGET_PATH): $(OBJS)
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(INCLUDES) -o $@ $(OBJS)
+
+$(SCANNER_TARGET_PATH): $(SCANNER_OBJS)
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) $(INCLUDES) -o $@ $(SCANNER_OBJS)
 
 $(BUILD_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
