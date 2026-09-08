@@ -218,7 +218,8 @@ static int write_all(int output_fd, const char *data, size_t length)
 }
 
 static int scan_for_tags(
-    yrm100_context_t *device, int output_fd, yrm100_rfid_tag_t *tags)
+    yrm100_context_t *device, int output_fd, int debug,
+    yrm100_rfid_tag_t *tags)
 {
     int result;
 
@@ -245,6 +246,12 @@ static int scan_for_tags(
         {
             return -1;
         }
+        if (debug && output_fd != STDOUT_FILENO &&
+            (write_all(STDOUT_FILENO, epc, strlen(epc)) != 0 ||
+             write_all(STDOUT_FILENO, "\n", 1) != 0))
+        {
+            return -1;
+        }
     }
     return 0;
 }
@@ -258,19 +265,43 @@ int main(int argc, char *argv[])
     yrm100_rfid_tag_t tags[MAX_TAG_COUNT] = {{0}};
     int server_fd;
     int use_stdout;
+    int debug = 0;
+    const char *positional_arguments[3];
+    int positional_count = 0;
 
-    if (argc != 4)
+    for (int i = 1; i < argc; i++)
+    {
+        if (strcmp(argv[i], "--debug") == 0)
+        {
+            if (debug)
+            {
+                positional_count = -1;
+                break;
+            }
+            debug = 1;
+        }
+        else if (positional_count < 3)
+        {
+            positional_arguments[positional_count++] = argv[i];
+        }
+        else
+        {
+            positional_count = -1;
+            break;
+        }
+    }
+    if (positional_count != 3)
     {
         fprintf(stderr,
-                "Usage: %s <unix-socket-path|-> <serial-device-path> "
+                "Usage: %s [--debug] <unix-socket-path|-> <serial-device-path> "
                 "<interval-ms>\n",
                 argv[0]);
         return EXIT_FAILURE;
     }
-    socket_path = argv[1];
+    socket_path = positional_arguments[0];
     use_stdout = strcmp(socket_path, "-") == 0;
-    serial_path = argv[2];
-    if (parse_interval(argv[3], &interval_ms) != 0)
+    serial_path = positional_arguments[1];
+    if (parse_interval(positional_arguments[2], &interval_ms) != 0)
     {
         fprintf(stderr, "Interval must be a positive integer in milliseconds\n");
         return EXIT_FAILURE;
@@ -300,7 +331,7 @@ int main(int argc, char *argv[])
     {
         while (!should_stop)
         {
-            if (scan_for_tags(device, STDOUT_FILENO, tags) != 0)
+            if (scan_for_tags(device, STDOUT_FILENO, debug, tags) != 0)
             {
                 fprintf(stderr, "Failed to write EPC code to stdout: %s\n",
                         strerror(errno));
@@ -338,7 +369,7 @@ int main(int argc, char *argv[])
         }
         while (!should_stop)
         {
-            if (scan_for_tags(device, client_fd, tags) != 0)
+            if (scan_for_tags(device, client_fd, debug, tags) != 0)
             {
                 break;
             }
