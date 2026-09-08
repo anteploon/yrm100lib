@@ -30,6 +30,7 @@ SCANNER_SRCS = src/scanner.c $(filter-out src/example.c,$(SRCS))
 SCANNER_OBJS = $(SCANNER_SRCS:%.c=$(BUILD_DIR)/%.o)
 TEST_SRCS = tests/test_example.c \
 	tests/test_context.c \
+	tests/test_command.c \
 	tests/test_parse.c \
 	tests/test_serial.c \
 	tests/test_string.c \
@@ -53,15 +54,21 @@ else
 CLEAN = $(BUILD_DIR)
 endif
 
-all: $(TARGET_PATH) $(SCANNER_TARGET_PATH)
+all: $(TARGET_PATH)
+ifneq ($(OS),Windows_NT)
+all: $(SCANNER_TARGET_PATH)
+endif
 
 $(TARGET_PATH): $(OBJS)
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(INCLUDES) -o $@ $(OBJS)
 
+ifneq ($(OS),Windows_NT)
 $(SCANNER_TARGET_PATH): $(SCANNER_OBJS)
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(INCLUDES) -o $@ $(SCANNER_OBJS)
+
+endif
 
 $(BUILD_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
@@ -80,6 +87,23 @@ test: $(TEST_TARGET_PATH)
 $(TEST_TARGET_PATH): $(TEST_OBJS)
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(INCLUDES) -o $@ $(TEST_OBJS)
+
+ifneq ($(OS),Windows_NT)
+test: test-scanner
+
+$(BUILD_DIR)/tests/test_scanner.o: src/scanner.c
+
+SCANNER_TEST_OBJS = $(BUILD_DIR)/tests/test_scanner.o $(BUILD_DIR)/tests/test_serial.o \
+	$(filter $(BUILD_DIR)/src/%,$(TEST_OBJS))
+
+$(BUILD_DIR)/test_scanner: $(SCANNER_TEST_OBJS)
+	$(CC) $(CFLAGS) $(INCLUDES) -o $@ $^
+
+test-scanner: $(BUILD_DIR)/test_scanner
+	@./$(BUILD_DIR)/test_scanner
+
+.PHONY: test-scanner
+endif
 
 rebuild: clean all
 

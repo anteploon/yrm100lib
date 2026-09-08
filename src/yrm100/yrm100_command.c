@@ -130,7 +130,6 @@ ssize_t yrm100_command_read_response(yrm100_context_t *device_context)
     uint8_t *buf;
     size_t buf_size = sizeof(device_context->command_response_buf);
     size_t cursor = 0;
-    size_t total_read = 0;
     size_t frame_start = 0;
     size_t expected_frame_size = 0;
     size_t expected_total = 0;
@@ -139,11 +138,6 @@ ssize_t yrm100_command_read_response(yrm100_context_t *device_context)
     while (true)
     {
         size_t read_size;
-
-        if (cursor >= buf_size)
-        {
-            return yrm100_set_last_error_code(device_context, YRM100_ERROR_SERIAL_INPUT_OVERFLOW);
-        }
 
         if (expected_total > 0)
         {
@@ -186,6 +180,14 @@ ssize_t yrm100_command_read_response(yrm100_context_t *device_context)
             continue;
         }
 
+        if (cursor >= buf_size)
+        {
+            return yrm100_set_last_error_code(device_context, YRM100_ERROR_SERIAL_INPUT_OVERFLOW);
+        }
+        if (read_size > buf_size - cursor)
+        {
+            read_size = buf_size - cursor;
+        }
         buf = &device_context->command_response_buf[cursor];
         response_len = yrm100_serial_read(device_context->serial_port, buf, read_size);
         if (response_len < 0)
@@ -194,7 +196,7 @@ ssize_t yrm100_command_read_response(yrm100_context_t *device_context)
         }
         if (response_len == 0)
         {
-            if (total_read == 0)
+            if (cursor == 0)
             {
                 return yrm100_set_last_error_code(device_context, YRM100_ERROR_READ_TIMEOUT);
             }
@@ -209,7 +211,6 @@ ssize_t yrm100_command_read_response(yrm100_context_t *device_context)
             break;
         }
         cursor += (size_t)response_len;
-        total_read += (size_t)response_len;
 
         while (frame_start < cursor &&
                device_context->command_response_buf[frame_start] != YRM100_FRAME_HEADER_BYTE)
@@ -232,7 +233,6 @@ ssize_t yrm100_command_read_response(yrm100_context_t *device_context)
             {
                 memmove(device_context->command_response_buf, &device_context->command_response_buf[frame_start], cursor - frame_start);
                 cursor -= frame_start;
-                total_read = cursor;
                 frame_start = 0;
             }
             if (device_context->command_response_buf[0] != YRM100_FRAME_HEADER_BYTE)
@@ -251,19 +251,19 @@ ssize_t yrm100_command_read_response(yrm100_context_t *device_context)
 
 #ifdef YRM100_COMM_DEBUG
     printf("RX: ");
-    for (size_t i = 0; i < total_read; i++)
+    for (size_t i = 0; i < cursor; i++)
     {
         printf("%02X ", device_context->command_response_buf[i]);
     }
     printf("\n");
 #endif
 
-    if (total_read > 0 && device_context->command_response_buf[total_read - 1] != YRM100_FRAME_END_BYTE)
+    if (cursor > 0 && device_context->command_response_buf[cursor - 1] != YRM100_FRAME_END_BYTE)
     {
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_PARSE_ERROR);
     }
     yrm100_set_last_error_code(device_context, YRM100_STATUS_OK);
-    return (ssize_t)total_read;
+    return (ssize_t)cursor;
 }
 
 uint8_t yrm100_pack_select_parameters(yrm100_select_parameters_t *data)
@@ -661,6 +661,13 @@ int yrm100_command_get_query_parameters(yrm100_context_t *device_context, yrm100
         }
         if (yrm100_frame_is_ok_response(device_context->command_response_buf, (size_t)response_len))
         {
+            if (device_context->command_response_buf[YRM100_FRAME_BYTE_POSITION_COMMAND] != 0x0D ||
+                response_len != 2 + YRM100_COMMAND_FRAME_OVERHEAD_SIZE ||
+                device_context->command_response_buf[3] != 0 ||
+                device_context->command_response_buf[4] != 2)
+            {
+                return yrm100_set_last_error_code(device_context, YRM100_ERROR_PARSE_ERROR);
+            }
             unsigned short packed_query_params = (unsigned short)(((unsigned short)device_context->command_response_buf[5] << 8) |
                                                                   ((unsigned short)device_context->command_response_buf[6]));
             unpack_query_parameters(packed_query_params, query_parameters);
@@ -769,6 +776,13 @@ int yrm100_command_get_operating_region(yrm100_context_t *device_context)
         }
         if (yrm100_frame_is_ok_response(device_context->command_response_buf, (size_t)response_len))
         {
+            if (device_context->command_response_buf[YRM100_FRAME_BYTE_POSITION_COMMAND] != 0x08 ||
+                response_len != 1 + YRM100_COMMAND_FRAME_OVERHEAD_SIZE ||
+                device_context->command_response_buf[3] != 0 ||
+                device_context->command_response_buf[4] != 1)
+            {
+                return yrm100_set_last_error_code(device_context, YRM100_ERROR_PARSE_ERROR);
+            }
             yrm100_set_last_error_code(device_context, YRM100_STATUS_OK);
             return device_context->command_response_buf[5];
         }
@@ -848,6 +862,13 @@ int yrm100_command_get_tx_power(yrm100_context_t *device_context)
         }
         if (yrm100_frame_is_ok_response(device_context->command_response_buf, (size_t)response_len))
         {
+            if (device_context->command_response_buf[YRM100_FRAME_BYTE_POSITION_COMMAND] != 0xB7 ||
+                response_len != 2 + YRM100_COMMAND_FRAME_OVERHEAD_SIZE ||
+                device_context->command_response_buf[3] != 0 ||
+                device_context->command_response_buf[4] != 2)
+            {
+                return yrm100_set_last_error_code(device_context, YRM100_ERROR_PARSE_ERROR);
+            }
             yrm100_set_last_error_code(device_context, YRM100_STATUS_OK);
             return (device_context->command_response_buf[5] << 8) | (unsigned short)device_context->command_response_buf[6];
         }

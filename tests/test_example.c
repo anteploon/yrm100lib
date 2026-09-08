@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 int test_context_functions(void);
+int test_command_functions(void);
 int test_parse_functions(void);
 int test_string_functions(void);
 
@@ -9,6 +10,7 @@ int main(void)
     int failures = 0;
 
     failures += test_context_functions();
+    failures += test_command_functions();
     failures += test_parse_functions();
     failures += test_string_functions();
 

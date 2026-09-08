@@ -1,5 +1,7 @@
 #define _POSIX_C_SOURCE 200809L
 #include <errno.h>
+#include <fcntl.h>
+#include <poll.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -155,10 +157,25 @@ static void sleep_interval(unsigned long interval_ms)
 static int write_all(int output_fd, const char *data, size_t length)
 {
     size_t written = 0;
+    int flags = fcntl(output_fd, F_GETFL);
+    int status = -1;
+    int saved_errno;
+
+    if (flags < 0 || fcntl(output_fd, F_SETFL, flags | O_NONBLOCK) < 0)
+    {
+        return -1;
+    }
 
     while (written < length)
     {
-        ssize_t result = write(output_fd, data + written, length - written);
+        ssize_t result;
+
+        if (should_stop)
+        {
+            errno = EINTR;
+            break;
+        }
+        result = write(output_fd, data + written, length - written);
 
         if (result > 0)
         {
@@ -168,12 +185,36 @@ static int write_all(int output_fd, const char *data, size_t length)
         {
             continue;
         }
+        else if (result < 0 && (errno == EAGAIN || errno == EWOULDBLOCK))
+        {
+            struct pollfd output = {output_fd, POLLOUT, 0};
+
+            /* Bound the wait even if a stop signal arrives just before poll. */
+            if (poll(&output, 1, 100) < 0 && errno != EINTR)
+            {
+                break;
+            }
+        }
         else
         {
-            return -1;
+            if (result == 0)
+            {
+                errno = EIO;
+            }
+            break;
         }
     }
-    return 0;
+    if (written == length)
+    {
+        status = 0;
+    }
+    saved_errno = errno;
+    if (fcntl(output_fd, F_SETFL, flags) < 0)
+    {
+        return -1;
+    }
+    errno = saved_errno;
+    return status;
 }
 
 static int scan_for_tags(
