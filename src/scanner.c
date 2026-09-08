@@ -367,6 +367,11 @@ int main(int argc, char *argv[])
             fprintf(stderr, "accept failed: %s\n", strerror(errno));
             break;
         }
+        if (debug)
+        {
+            printf("Socket client connected\n");
+            fflush(stdout);
+        }
         while (!should_stop)
         {
             if (scan_for_tags(device, client_fd, debug, tags) != 0)
