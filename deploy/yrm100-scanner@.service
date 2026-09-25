@@ -1,0 +1,24 @@
+[Unit]
+Description=YRM100 UHF RFID scanner (%i)
+After=dev-%i.device
+Wants=dev-%i.device
+PartOf=yrm100-scanner.target
+
+[Service]
+Type=simple
+WorkingDirectory=/usr/src/yrm100lib
+Environment=SERIAL_DEVICE=/dev/%i
+Environment=INTERVAL_MS=1000
+Environment=SOCKET_PATH=/run/yrm100-%i/scanner.sock
+EnvironmentFile=-/etc/yrm100/%i.conf
+ExecStart=/usr/src/yrm100lib/build/scanner --debug ${SOCKET_PATH} ${SERIAL_DEVICE} ${INTERVAL_MS}
+RuntimeDirectory=yrm100-%i
+RuntimeDirectoryMode=0750
+User=yrm100
+Group=dialout
+SupplementaryGroups=dialout
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=yrm100-scanner.target

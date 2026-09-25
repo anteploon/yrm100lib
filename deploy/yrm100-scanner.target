@@ -1,0 +1,5 @@
+[Unit]
+Description=YRM100 UHF RFID scanner fleet
+
+[Install]
+WantedBy=multi-user.target
