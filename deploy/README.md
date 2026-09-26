@@ -95,13 +95,36 @@ For a one-off tweak without an env file, use a drop-in:
 
 `/dev/ttyUSB0`, `/dev/ttyUSB1`, ... are assigned in enumeration order and
 change across reboots and replugs, so instance names derived from them are not
-stable. Prefer a udev rule that maps each module's serial number to a role, then
-name instances after the role and pin the path in a conf file:
+stable. Pin each module to a role instead, then name instances after the role.
+
+**Do not key on the serial number.** The CP2102 bridges on the tested hardware
+(the YRM100 series modules) all ship with the same serial, `0001`:
+
+```
+$ udevadm info -q property -n /dev/ttyUSB0 | grep ID_SERIAL_SHORT
+ID_SERIAL_SHORT=0001
+$ udevadm info -q property -n /dev/ttyUSB1 | grep ID_SERIAL_SHORT
+ID_SERIAL_SHORT=0001
+```
+
+That also means `/dev/serial/by-id/` is useless here — both modules collapse to
+the same name and only one symlink survives. A rule matching
+`ATTRS{serial}=="0001"` would match *both* devices.
+
+The two devices *are* still distinguishable — by **physical USB port**, which
+lands in `ID_PATH` (and drives `/dev/serial/by-path/`). On the reference setup:
+
+```
+/dev/ttyUSB0  ->  ID_PATH=platform-xhci-hcd.1-usb-0:2:1.0   (USB port 3-2)
+/dev/ttyUSB1  ->  ID_PATH=platform-xhci-hcd.0-usb-0:2:1.0   (USB port 1-2)
+```
+
+Map those to friendly names:
 
 ```
 # /etc/udev/rules.d/70-yrm100.rules
-SUBSYSTEM=="tty", ATTRS{serial}=="XXXXXXXX", SYMLINK+="yrm100-left"
-SUBSYSTEM=="tty", ATTRS{serial}=="YYYYYYYY", SYMLINK+="yrm100-right"
+SUBSYSTEM=="tty", ENV{ID_PATH}=="platform-xhci-hcd.1-usb-0:2:1.0", SYMLINK+="yrm100-left"
+SUBSYSTEM=="tty", ENV{ID_PATH}=="platform-xhci-hcd.0-usb-0:2:1.0", SYMLINK+="yrm100-right"
 ```
 
 ```
@@ -110,8 +133,19 @@ SERIAL_DEVICE=/dev/yrm100-left
 ```
 
 ```sh
+sudo udevadm control --reload && sudo udevadm trigger --subsystem-match=tty
 sudo systemctl enable --now yrm100-scanner@left yrm100-scanner@right
 ```
+
+Read the actual `ID_PATH` values off your own machine with
+`udevadm info -q property -n /dev/ttyUSB0 | grep ID_PATH` — they depend on the
+USB topology, not the module. This survives replugs **only into the same
+physical port**; moving a module to a different port changes its `ID_PATH`.
+
+If you want names that follow the module rather than the port, reprogram the
+CP2102 EEPROM to give each bridge a unique serial (Silicon Labs' `cp210x`
+programmer tools). After that, `ID_SERIAL_SHORT` differs and a
+`ATTRS{serial}=="..."` rule works as originally described.
 
 ## Notes
 
