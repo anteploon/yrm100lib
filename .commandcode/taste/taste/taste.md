@@ -8,3 +8,4 @@
 - Wants commit messages in imperative mood with a short descriptive subject line plus a body explaining the problem being fixed (e.g., "Fix CI to use existing make targets" followed by why the old targets didn't exist). Confidence: 0.5
 - Expects bug fixes to be accompanied by a regression test that asserts the corrected behavior (e.g., explicitly requests "add a regression test"). Confidence: 0.55
 - After a code change, expects the work to be validated by compiling the project and running the real binaries against the actual hardware devices (explicitly naming the runtime invocations to check), not just by passing unit tests. Confidence: 0.5
+- Declines proposed refactors/design changes when existing behavior is already correct — will say "don't change anything, the logic is good as it is" and take ownership of his own misunderstanding rather than asking the code to adapt. Confidence: 0.5
