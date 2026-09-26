@@ -7,6 +7,8 @@
 
 /** Operation completed successfully. */
 #define YRM100_STATUS_OK 0
+/** Poll completed but no tag was found; not an error. */
+#define YRM100_STATUS_NO_TAG 1
 /** Command execution failed. */
 #define YRM100_ERROR_COMMAND_FAILED -1
 /** Device initialization failed. */
@@ -59,6 +61,8 @@
 #define YRM100_ERROR_INVALID_DATA_LENGTH -25
 /** Memory bank value is not recognized. */
 #define YRM100_ERROR_UNKNOWN_MEMORY_BANK -26
+/** The RFID module rejected the command; see yrm100_context_t::last_module_error_code. */
+#define YRM100_ERROR_MODULE_ERROR -27
 
 /** Feature is not implemented. */
 #define YRM100_ERROR_NOT_IMPLEMENTED -98

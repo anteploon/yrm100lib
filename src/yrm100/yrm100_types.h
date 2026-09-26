@@ -66,8 +66,10 @@ typedef struct yrm100_context_t
     serial_port_t serial_port;
     /** Internal receive buffer for commands and responses. */
     uint8_t command_response_buf[YRM100_COMMAND_RESPONSE_BUFFER_SIZE];
-    /** Most recent library error code. */
+    /** Most recent library status or error code. */
     int last_error_code;
+    /** Most recent module-reported error code (0 when none). */
+    int last_module_error_code;
     /** True after successful initialization. */
     bool is_initialized;
     /** True while a multi-poll operation is active. */

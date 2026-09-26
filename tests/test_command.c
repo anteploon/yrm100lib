@@ -109,6 +109,47 @@ int test_command_functions(void)
             }
         }
     }
+    memset(bytes, 0, sizeof(bytes));
+    bytes[5] = YRM100_MODULE_ERROR_COMMAND_ERROR;
+    length = make_response(bytes, 0xFF, 1);
+    feed(bytes, length);
+    int module_error_result = yrm100_command_set_tx_power(device, 2000);
+    failures += expect_true("module error returns negative status",
+        module_error_result == YRM100_ERROR_MODULE_ERROR &&
+        device->last_error_code == YRM100_ERROR_MODULE_ERROR &&
+        device->last_module_error_code == YRM100_MODULE_ERROR_COMMAND_ERROR);
+
+    const unsigned char no_tag_codes[] = {
+        YRM100_MODULE_ERROR_INVENTORY_FAIL, YRM100_MODULE_ERROR_READ_FAIL
+    };
+    for (size_t i = 0; i < sizeof(no_tag_codes); i++)
+    {
+        memset(bytes, 0, sizeof(bytes));
+        bytes[5] = no_tag_codes[i];
+        length = make_response(bytes, 0xFF, 1);
+        feed(bytes, length);
+        module_error_result = yrm100_command_single_poll(device, NULL, 0);
+        failures += expect_true("poll no-tag is a non-error status",
+            module_error_result == YRM100_STATUS_NO_TAG &&
+            device->last_module_error_code == no_tag_codes[i]);
+    }
+
+    memset(bytes, 0, sizeof(bytes));
+    bytes[5] = YRM100_MODULE_ERROR_COMMAND_ERROR;
+    length = make_response(bytes, 0xFF, 1);
+    feed(bytes, length);
+    module_error_result = yrm100_command_single_poll(device, NULL, 0);
+    failures += expect_true("poll real module error returns negative status",
+        module_error_result == YRM100_ERROR_MODULE_ERROR &&
+        device->last_module_error_code == YRM100_MODULE_ERROR_COMMAND_ERROR);
+
+    memset(bytes, 0, sizeof(bytes));
+    length = make_response(bytes, 0xB6, 2);
+    feed(bytes, length);
+    failures += expect_true("successful command clears stored module error",
+        yrm100_command_set_tx_power(device, 2000) == YRM100_STATUS_OK &&
+        device->last_module_error_code == 0);
+
     yrm100_deinit(device);
     return failures;
 }

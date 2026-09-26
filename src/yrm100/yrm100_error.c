@@ -6,6 +6,8 @@ const char *yrm100_error_code_to_string(int error_code)
     {
     case YRM100_STATUS_OK:
         return "OK";
+    case YRM100_STATUS_NO_TAG:
+        return "No tag found";
     case YRM100_ERROR_COMMAND_FAILED:
         return "Command failed";
     case YRM100_ERROR_INITIALIZATION_FAILED:
@@ -58,6 +60,8 @@ const char *yrm100_error_code_to_string(int error_code)
         return "Invalid data length";
     case YRM100_ERROR_UNKNOWN_MEMORY_BANK:
         return "Unknown memory bank specified";
+    case YRM100_ERROR_MODULE_ERROR:
+        return "Module reported an error";
     case YRM100_ERROR_NOT_IMPLEMENTED:
         return "Function not implemented";
     default:

@@ -15,6 +15,7 @@ yrm100_context_t *yrm100_init(const char *port_name)
             return NULL;
         }
         device_context->last_error_code = YRM100_STATUS_OK;
+        device_context->last_module_error_code = 0;
         device_context->serial_port_name = yrm100_strdup(port_name);
         if (device_context->serial_port_name == NULL)
         {

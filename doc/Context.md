@@ -11,6 +11,7 @@ Holds a serial port handle to the device, some state flags and buffers.
 | char \***serial_port_name**                                             | Just a string pointing to the serial device (/dev/ttyUSB0 or COM7 for example)     |
 | serial_port_t **serial_port**                                           | Actual handle to the serial device                                                 |
 | int **last_error_code**                                                 | Last error code - call **yrm100_error_code_to_string()** to convert it to string   |
+| int **last_module_error_code**                                          | Last error code reported by the module (0 if none) - call **yrm100_module_error_code_to_string()** to convert it to string |
 | bool **is_initialized**                                                 | Set to true if the serial port is successfully opened and initialized              |
 | bool **is_multi_poll_running**                                          | Set to true if multi_poll process is running                                       |
 | yrm100_rfid_tag_t \***multi_poll_target**                               | Multi poll target buffer                                                           |

@@ -22,12 +22,36 @@ int yrm100_set_last_error_code(yrm100_context_t *device_context, ssize_t error_c
     return (int)error_code;
 }
 
+static int yrm100_command_set_module_error_code(yrm100_context_t *device_context, int module_error_code)
+{
+    if (device_context != NULL)
+    {
+        device_context->last_module_error_code = module_error_code;
+    }
+    return yrm100_set_last_error_code(device_context, YRM100_ERROR_MODULE_ERROR);
+}
+
+static int yrm100_command_poll_module_error(yrm100_context_t *device_context, int module_error_code)
+{
+    if (device_context != NULL)
+    {
+        device_context->last_module_error_code = module_error_code;
+    }
+    if (module_error_code == YRM100_MODULE_ERROR_INVENTORY_FAIL ||
+        module_error_code == YRM100_MODULE_ERROR_READ_FAIL)
+    {
+        return yrm100_set_last_error_code(device_context, YRM100_STATUS_NO_TAG);
+    }
+    return yrm100_set_last_error_code(device_context, YRM100_ERROR_MODULE_ERROR);
+}
+
 static int yrm100_command_send(yrm100_context_t *device_context, uint8_t *cmd, size_t cmd_size)
 {
     if (yrm100_is_device_context_valid(device_context) == false)
     {
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_INVALID_DEVICE_HANDLE);
     }
+    device_context->last_module_error_code = 0;
 
 #ifdef YRM100_COMM_DEBUG
     printf("TX: ");
@@ -337,7 +361,7 @@ int yrm100_command_get_module_manufacturer(yrm100_context_t *device_context, cha
         }
         if (yrm100_frame_is_error_response(device_context->command_response_buf, (size_t)response_len))
         {
-            return yrm100_set_last_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
+            return yrm100_command_set_module_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
         }
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_COMMAND_FAILED);
     }
@@ -384,7 +408,7 @@ int yrm100_command_get_module_hardware_version(yrm100_context_t *device_context,
         }
         if (yrm100_frame_is_error_response(device_context->command_response_buf, (size_t)result))
         {
-            return yrm100_set_last_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)result));
+            return yrm100_command_set_module_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)result));
         }
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_COMMAND_FAILED);
     }
@@ -431,7 +455,7 @@ int yrm100_command_get_module_software_version(yrm100_context_t *device_context,
         }
         if (yrm100_frame_is_error_response(device_context->command_response_buf, (size_t)result))
         {
-            return yrm100_set_last_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)result));
+            return yrm100_command_set_module_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)result));
         }
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_COMMAND_FAILED);
     }
@@ -472,7 +496,7 @@ int yrm100_command_single_poll(yrm100_context_t *device_context, yrm100_rfid_tag
 
             if (yrm100_frame_is_error_response(trailing_frame, trailing_len))
             {
-                return yrm100_set_last_error_code(device_context, yrm100_parse_get_error_code(trailing_frame, trailing_len));
+                return yrm100_command_poll_module_error(device_context, yrm100_parse_get_error_code(trailing_frame, trailing_len));
             }
             if (yrm100_frame_is_ok_response(trailing_frame, trailing_len) == false)
             {
@@ -481,7 +505,7 @@ int yrm100_command_single_poll(yrm100_context_t *device_context, yrm100_rfid_tag
         }
         else if (yrm100_frame_is_error_response(device_context->command_response_buf, (size_t)response_len))
         {
-            return yrm100_set_last_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
+            return yrm100_command_poll_module_error(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
         }
         if (notice_len > 0)
         {
@@ -746,7 +770,7 @@ int yrm100_command_set_operating_region(yrm100_context_t *device_context, uint8_
         }
         if (yrm100_frame_is_error_response(device_context->command_response_buf, (size_t)response_len))
         {
-            return yrm100_set_last_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
+            return yrm100_command_set_module_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
         }
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_COMMAND_FAILED);
     }
@@ -788,7 +812,7 @@ int yrm100_command_get_operating_region(yrm100_context_t *device_context)
         }
         if (yrm100_frame_is_error_response(device_context->command_response_buf, (size_t)response_len))
         {
-            return yrm100_set_last_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
+            return yrm100_command_set_module_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
         }
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_COMMAND_FAILED);
     }
@@ -832,7 +856,7 @@ int yrm100_command_set_tx_power(yrm100_context_t *device_context, unsigned short
         }
         if (yrm100_frame_is_error_response(device_context->command_response_buf, (size_t)response_len))
         {
-            return yrm100_set_last_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
+            return yrm100_command_set_module_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
         }
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_COMMAND_FAILED);
     }
@@ -874,7 +898,7 @@ int yrm100_command_get_tx_power(yrm100_context_t *device_context)
         }
         if (yrm100_frame_is_error_response(device_context->command_response_buf, (size_t)response_len))
         {
-            return yrm100_set_last_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
+            return yrm100_command_set_module_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
         }
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_COMMAND_FAILED);
     }
@@ -909,7 +933,7 @@ int yrm100_command_set_continous_wave(yrm100_context_t *device_context, uint8_t 
         }
         if (yrm100_frame_is_error_response(device_context->command_response_buf, (size_t)response_len))
         {
-            return yrm100_set_last_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
+            return yrm100_command_set_module_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
         }
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_COMMAND_FAILED);
     }
@@ -952,7 +976,7 @@ int yrm100_command_sleep(yrm100_context_t *device_context)
         }
         if (yrm100_frame_is_error_response(device_context->command_response_buf, (size_t)response_len))
         {
-            return yrm100_set_last_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
+            return yrm100_command_set_module_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
         }
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_COMMAND_FAILED);
     }
@@ -1017,7 +1041,7 @@ int yrm100_command_read_tag_memory_area(yrm100_context_t *device_context, yrm100
         }
         if (yrm100_frame_is_error_response(device_context->command_response_buf, (size_t)response_len))
         {
-            return yrm100_set_last_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
+            return yrm100_command_set_module_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
         }
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_COMMAND_FAILED);
     }
@@ -1050,7 +1074,7 @@ int yrm100_command_kill(yrm100_context_t *device_context, uint32_t password)
         }
         if (yrm100_frame_is_error_response(device_context->command_response_buf, (size_t)response_len))
         {
-            return yrm100_set_last_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
+            return yrm100_command_set_module_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
         }
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_COMMAND_FAILED);
     }
@@ -1083,7 +1107,7 @@ int yrm100_command_lock(yrm100_context_t *device_context, uint32_t password)
         }
         if (yrm100_frame_is_error_response(device_context->command_response_buf, (size_t)response_len))
         {
-            return yrm100_set_last_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
+            return yrm100_command_set_module_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
         }
         return yrm100_set_last_error_code(device_context, YRM100_ERROR_COMMAND_FAILED);
     }

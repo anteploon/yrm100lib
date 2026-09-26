@@ -41,7 +41,8 @@ int yrm100_command_get_module_software_version(yrm100_context_t *device_context,
  * @param device_context Handle to the RFID UHF device
  * @param tags Pointer where to store tags
  * @param maximum_tag_count Maximum number of tags to read
- * @return Value 0 on success, otherwise error code
+ * @return YRM100_STATUS_OK on success, YRM100_STATUS_NO_TAG if the module
+ *         reported no tag, otherwise a negative error code
  */
 int yrm100_command_single_poll(yrm100_context_t *device_context, yrm100_rfid_tag_t *tags, unsigned short maximum_tag_count);
 
