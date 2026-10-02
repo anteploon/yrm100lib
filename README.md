@@ -6,7 +6,7 @@ Tested with [Invelion](http://www.invelion.net/) products YRM1005 and YRM1001
 
 There exists a variation of the protocol, where the **end byte** and  the **cheksum byte** are swapped. The plan is that once I get my hands on one of these devices, there will be a support for them added also - should be pretty simple.
 
-Multi poll and setting the select parameters are **not yet implemented**
+Multi poll is **not yet implemented**
 
 ## Features
 
@@ -17,7 +17,7 @@ Multi poll and setting the select parameters are **not yet implemented**
 - [ ] Multi poll tags
 - [x] Set module idle sleep timer
 - [x] Sleep
-- [ ] Get and set select parameters
+- [x] Get and set select parameters
 - [x] Set select mode
 - [x] Get and set operating region (frequency)
 - [ ] Get and set operating channel
@@ -29,9 +29,9 @@ Multi poll and setting the select parameters are **not yet implemented**
 - [ ] Test channel RSSI
 - [x] Lock tag
 - [x] Kill tag
-- [ ] Read tag memory area
+- [x] Read tag memory area
 - [ ] Write tag memory area
-- [ ] Enable automatic frequency hopping
+- [x] Enable automatic frequency hopping
 
 # Example application
 

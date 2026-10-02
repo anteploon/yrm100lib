@@ -19,6 +19,9 @@
 #include "yrm100/yrm100_string.h"
 #include "yrm100/yrm100_util.h"
 
+#define MODULE_COUNT 2
+#define DEFAULT_SERIAL_DEVICE_0 "/dev/ttyUSB0"
+#define DEFAULT_SERIAL_DEVICE_1 "/dev/ttyUSB1"
 #define MAX_TAG_COUNT 30
 #define LISTEN_BACKLOG 1
 
@@ -116,7 +119,6 @@ static int create_server_socket(const char *socket_path)
 static int configure_reader(yrm100_context_t *device)
 {
     if (yrm100_command_disable_idle_sleep(device) != YRM100_STATUS_OK ||
-/*        yrm100_command_enable_continous_wave(device) != YRM100_STATUS_OK || */
         yrm100_command_enable_frequency_hopping(device) != YRM100_STATUS_OK ||
         yrm100_command_set_operating_region(
             device, YRM100_PARAM_REGION_EUROPE) != YRM100_STATUS_OK)
@@ -126,7 +128,7 @@ static int configure_reader(yrm100_context_t *device)
     return 0;
 }
 
-static void shutdown_reader(yrm100_context_t *device)
+static void shutdown_module(yrm100_context_t *device)
 {
     int result = yrm100_command_disable_continous_wave(device);
 
@@ -136,6 +138,39 @@ static void shutdown_reader(yrm100_context_t *device)
                 yrm100_error_code_to_string(result), result);
     }
     yrm100_deinit(device);
+}
+
+static void shutdown_modules(yrm100_context_t *devices[MODULE_COUNT])
+{
+    for (int i = 0; i < MODULE_COUNT; i++)
+    {
+        if (devices[i] != NULL)
+        {
+            shutdown_module(devices[i]);
+            devices[i] = NULL;
+        }
+    }
+}
+
+static int open_modules(
+    const char *serial_paths[MODULE_COUNT], yrm100_context_t *devices[MODULE_COUNT])
+{
+    for (int i = 0; i < MODULE_COUNT; i++)
+    {
+        devices[i] = yrm100_init(serial_paths[i]);
+        if (devices[i] == NULL)
+        {
+            fprintf(stderr, "yrm100_init() failed for %s\n", serial_paths[i]);
+            return -1;
+        }
+        if (configure_reader(devices[i]) != 0)
+        {
+            fprintf(stderr, "Failed to configure RFID reader on %s\n",
+                    serial_paths[i]);
+            return -1;
+        }
+    }
+    return 0;
 }
 
 static void sleep_interval(unsigned long interval_ms)
@@ -218,8 +253,16 @@ static int write_all(int output_fd, const char *data, size_t length)
     return status;
 }
 
-static int scan_for_tags(
-    yrm100_context_t *device, int output_fd, int debug,
+static int write_debug_tag(int module_index, const char *epc)
+{
+    char line[YRM100_TAG_EPC_STRING_LENGTH + 32];
+
+    snprintf(line, sizeof(line), "module %d: %s\n", module_index, epc);
+    return write_all(STDOUT_FILENO, line, strlen(line));
+}
+
+static int scan_module(
+    yrm100_context_t *device, int module_index, int output_fd, int debug,
     yrm100_rfid_tag_t *tags)
 {
     int result;
@@ -228,8 +271,8 @@ static int scan_for_tags(
     result = yrm100_command_single_poll(device, tags, MAX_TAG_COUNT);
     if (result < 0)
     {
-        fprintf(stderr, "single poll failed: %s (%d)\n",
-                yrm100_error_code_to_string(result), result);
+        fprintf(stderr, "module %d: single poll failed: %s (%d)\n",
+                module_index, yrm100_error_code_to_string(result), result);
         return 0;
     }
 
@@ -248,8 +291,23 @@ static int scan_for_tags(
             return -1;
         }
         if (debug && output_fd != STDOUT_FILENO &&
-            (write_all(STDOUT_FILENO, epc, strlen(epc)) != 0 ||
-             write_all(STDOUT_FILENO, "\n", 1) != 0))
+            write_debug_tag(module_index, epc) != 0)
+        {
+            return -1;
+        }
+    }
+    return 0;
+}
+
+static int scan_all_modules(
+    yrm100_context_t *devices[MODULE_COUNT], int output_fd, int debug,
+    yrm100_rfid_tag_t *tags)
+{
+    /* Modules are polled one after another so their RF fields never overlap,
+     * avoiding the reader-to-reader interference of two independent scanners. */
+    for (int i = 0; i < MODULE_COUNT; i++)
+    {
+        if (scan_module(devices[i], i, output_fd, debug, tags) != 0)
         {
             return -1;
         }
@@ -260,14 +318,15 @@ static int scan_for_tags(
 int main(int argc, char *argv[])
 {
     const char *socket_path;
-    const char *serial_path;
     unsigned long interval_ms;
-    yrm100_context_t *device;
+    const char *serial_paths[MODULE_COUNT] = {
+        DEFAULT_SERIAL_DEVICE_0, DEFAULT_SERIAL_DEVICE_1};
+    yrm100_context_t *devices[MODULE_COUNT] = {NULL, NULL};
     yrm100_rfid_tag_t tags[MAX_TAG_COUNT] = {{0}};
     int server_fd;
     int use_stdout;
     int debug = 0;
-    const char *positional_arguments[3];
+    const char *positional_arguments[4];
     int positional_count = 0;
 
     for (int i = 1; i < argc; i++)
@@ -281,7 +340,7 @@ int main(int argc, char *argv[])
             }
             debug = 1;
         }
-        else if (positional_count < 3)
+        else if (positional_count < 4)
         {
             positional_arguments[positional_count++] = argv[i];
         }
@@ -291,21 +350,29 @@ int main(int argc, char *argv[])
             break;
         }
     }
-    if (positional_count != 3)
+    if (positional_count < 2 || positional_count > 4)
     {
         fprintf(stderr,
-                "Usage: %s [--debug] <unix-socket-path|-> <serial-device-path> "
-                "<interval-ms>\n",
-                argv[0]);
+                "Usage: %s [--debug] <unix-socket-path|-> <interval-ms> "
+                "[serial-device-0] [serial-device-1]\n"
+                "Defaults: serial-device-0=%s serial-device-1=%s\n",
+                argv[0], DEFAULT_SERIAL_DEVICE_0, DEFAULT_SERIAL_DEVICE_1);
         return EXIT_FAILURE;
     }
     socket_path = positional_arguments[0];
     use_stdout = strcmp(socket_path, "-") == 0;
-    serial_path = positional_arguments[1];
-    if (parse_interval(positional_arguments[2], &interval_ms) != 0)
+    if (parse_interval(positional_arguments[1], &interval_ms) != 0)
     {
         fprintf(stderr, "Interval must be a positive integer in milliseconds\n");
         return EXIT_FAILURE;
+    }
+    if (positional_count >= 3)
+    {
+        serial_paths[0] = positional_arguments[2];
+    }
+    if (positional_count >= 4)
+    {
+        serial_paths[1] = positional_arguments[3];
     }
 
     if (install_signal_handlers() != 0)
@@ -315,16 +382,9 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    device = yrm100_init(serial_path);
-    if (device == NULL)
+    if (open_modules(serial_paths, devices) != 0)
     {
-        fprintf(stderr, "yrm100_init() failed for %s\n", serial_path);
-        return EXIT_FAILURE;
-    }
-    if (configure_reader(device) != 0)
-    {
-        fprintf(stderr, "Failed to configure RFID reader\n");
-        shutdown_reader(device);
+        shutdown_modules(devices);
         return EXIT_FAILURE;
     }
 
@@ -332,7 +392,7 @@ int main(int argc, char *argv[])
     {
         while (!should_stop)
         {
-            if (scan_for_tags(device, STDOUT_FILENO, debug, tags) != 0)
+            if (scan_all_modules(devices, STDOUT_FILENO, debug, tags) != 0)
             {
                 fprintf(stderr, "Failed to write EPC code to stdout: %s\n",
                         strerror(errno));
@@ -342,7 +402,7 @@ int main(int argc, char *argv[])
         }
 
         yrm100_free_tag_data(tags, MAX_TAG_COUNT);
-        shutdown_reader(device);
+        shutdown_modules(devices);
         return should_stop ? EXIT_SUCCESS : EXIT_FAILURE;
     }
 
@@ -351,7 +411,7 @@ int main(int argc, char *argv[])
     {
         fprintf(stderr, "Failed to create socket %s: %s\n",
                 socket_path, strerror(errno));
-        shutdown_reader(device);
+        shutdown_modules(devices);
         return EXIT_FAILURE;
     }
 
@@ -375,7 +435,7 @@ int main(int argc, char *argv[])
         }
         while (!should_stop)
         {
-            if (scan_for_tags(device, client_fd, debug, tags) != 0)
+            if (scan_all_modules(devices, client_fd, debug, tags) != 0)
             {
                 break;
             }
@@ -387,6 +447,6 @@ int main(int argc, char *argv[])
     yrm100_free_tag_data(tags, MAX_TAG_COUNT);
     close(server_fd);
     unlink(socket_path);
-    shutdown_reader(device);
+    shutdown_modules(devices);
     return should_stop ? EXIT_SUCCESS : EXIT_FAILURE;
 }

@@ -926,6 +926,51 @@ int yrm100_command_disable_continous_wave(yrm100_context_t *device_context)
     return yrm100_command_set_continous_wave(device_context, YRM100_PARAM_CONTINOUS_WAVE_OFF);
 }
 
+int yrm100_command_set_frequency_hopping(yrm100_context_t *device_context, uint8_t on_or_off)
+{
+    uint8_t bytes[] = {0xBB, 0x00, 0xAD, 0x00, 0x01, 0xFF, 0xAD, 0x7E};
+
+    bytes[5] = on_or_off;
+    int checksum = yrm100_frame_calculate_checksum(bytes, sizeof(bytes));
+    if (checksum < 0)
+    {
+        return yrm100_set_last_error_code(device_context, YRM100_ERROR_CHECKSUM_CALCULATION_FAILURE);
+    }
+    bytes[sizeof(bytes) - 2] = (uint8_t)checksum;
+    if (yrm100_is_device_context_valid(device_context) == false)
+    {
+        return yrm100_set_last_error_code(device_context, YRM100_ERROR_INVALID_DEVICE_HANDLE);
+    }
+    if (yrm100_command_send(device_context, bytes, sizeof(bytes)) == YRM100_STATUS_OK)
+    {
+        ssize_t response_len = yrm100_command_read_response(device_context);
+        if (response_len < 0)
+        {
+            return yrm100_set_last_error_code(device_context, response_len);
+        }
+        if (yrm100_frame_is_ok_response(device_context->command_response_buf, (size_t)response_len))
+        {
+            return yrm100_set_last_error_code(device_context, YRM100_STATUS_OK);
+        }
+        if (yrm100_frame_is_error_response(device_context->command_response_buf, (size_t)response_len))
+        {
+            return yrm100_set_last_error_code(device_context, yrm100_parse_get_error_code(device_context->command_response_buf, (size_t)response_len));
+        }
+        return yrm100_set_last_error_code(device_context, YRM100_ERROR_COMMAND_FAILED);
+    }
+    return yrm100_set_last_error_code(device_context, YRM100_ERROR_UNKNOWN_ERROR);
+}
+
+int yrm100_command_enable_frequency_hopping(yrm100_context_t *device_context)
+{
+    return yrm100_command_set_frequency_hopping(device_context, YRM100_PARAM_FREQUENCY_HOPPING_ON);
+}
+
+int yrm100_command_disable_frequency_hopping(yrm100_context_t *device_context)
+{
+    return yrm100_command_set_frequency_hopping(device_context, YRM100_PARAM_FREQUENCY_HOPPING_OFF);
+}
+
 int yrm100_command_sleep(yrm100_context_t *device_context)
 {
     uint8_t bytes[] = {0xBB, 0x00, 0x17, 0x00, 0x00, 0x17, 0x7E};

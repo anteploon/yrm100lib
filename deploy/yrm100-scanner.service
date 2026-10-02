@@ -1,0 +1,23 @@
+[Unit]
+Description=YRM100 UHF RFID scanner
+After=dev-ttyUSB0.device
+Wants=dev-ttyUSB0.device
+
+[Service]
+Type=simple
+WorkingDirectory=/usr/src/yrm100lib
+Environment=SERIAL_DEVICE=/dev/ttyUSB0
+Environment=INTERVAL_MS=1000
+Environment=SOCKET_PATH=/run/yrm100-scanner/scanner.sock
+EnvironmentFile=-/etc/yrm100/scanner.conf
+ExecStart=/usr/src/yrm100lib/build/scanner ${SOCKET_PATH} ${SERIAL_DEVICE} ${INTERVAL_MS}
+RuntimeDirectory=yrm100-scanner
+RuntimeDirectoryMode=0750
+User=yrm100
+Group=dialout
+SupplementaryGroups=dialout
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

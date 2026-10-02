@@ -7,10 +7,12 @@ CFLAGS = -pedantic $(SANITIZE_FLAGS) -Wconversion -Wall -Wextra -Werror -fmax-er
 INCLUDES = -Isrc
 TARGET = example
 SCANNER_TARGET = scanner
+DOUBLESCANNER_TARGET = doublescanner
 TEST_TARGET = test_example
 BUILD_DIR = build
 TARGET_PATH = $(BUILD_DIR)/$(TARGET)
 SCANNER_TARGET_PATH = $(BUILD_DIR)/$(SCANNER_TARGET)
+DOUBLESCANNER_TARGET_PATH = $(BUILD_DIR)/$(DOUBLESCANNER_TARGET)
 TEST_TARGET_PATH = $(BUILD_DIR)/$(TEST_TARGET)
 SRCS = src/example.c \
 	src/yrm100/yrm100_types.c \
@@ -28,6 +30,8 @@ SRCS = src/example.c \
 OBJS = $(SRCS:%.c=$(BUILD_DIR)/%.o)
 SCANNER_SRCS = src/scanner.c $(filter-out src/example.c,$(SRCS))
 SCANNER_OBJS = $(SCANNER_SRCS:%.c=$(BUILD_DIR)/%.o)
+DOUBLESCANNER_SRCS = src/doublescanner.c $(filter-out src/example.c,$(SRCS))
+DOUBLESCANNER_OBJS = $(DOUBLESCANNER_SRCS:%.c=$(BUILD_DIR)/%.o)
 TEST_SRCS = tests/test_example.c \
 	tests/test_context.c \
 	tests/test_command.c \
@@ -57,6 +61,7 @@ endif
 all: $(TARGET_PATH)
 ifneq ($(OS),Windows_NT)
 all: $(SCANNER_TARGET_PATH)
+all: $(DOUBLESCANNER_TARGET_PATH)
 endif
 
 $(TARGET_PATH): $(OBJS)
@@ -67,6 +72,10 @@ ifneq ($(OS),Windows_NT)
 $(SCANNER_TARGET_PATH): $(SCANNER_OBJS)
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(INCLUDES) -o $@ $(SCANNER_OBJS)
+
+$(DOUBLESCANNER_TARGET_PATH): $(DOUBLESCANNER_OBJS)
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) $(INCLUDES) -o $@ $(DOUBLESCANNER_OBJS)
 
 endif
 

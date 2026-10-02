@@ -109,6 +109,21 @@ int test_command_functions(void)
             }
         }
     }
+    length = make_response(bytes, 0xAD, 1);
+    feed(bytes, length);
+    failures += expect_true("set frequency hopping accepts ok response",
+        yrm100_command_set_frequency_hopping(device, YRM100_PARAM_FREQUENCY_HOPPING_ON) == YRM100_STATUS_OK);
+
+    length = make_response(bytes, 0xAD, 1);
+    feed(bytes, length);
+    failures += expect_true("enable frequency hopping helper accepts ok response",
+        yrm100_command_enable_frequency_hopping(device) == YRM100_STATUS_OK);
+
+    length = make_response(bytes, 0xAD, 1);
+    feed(bytes, length);
+    failures += expect_true("disable frequency hopping helper accepts ok response",
+        yrm100_command_disable_frequency_hopping(device) == YRM100_STATUS_OK);
+
     yrm100_deinit(device);
     return failures;
 }

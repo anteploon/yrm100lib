@@ -8,6 +8,8 @@
 #include "yrm100/yrm100_print.h"
 #include "yrm100/yrm100_error.h"
 
+#define TAG_BUF_SIZE 30
+
 int main(int argc, char *argv[])
 {
 #ifdef _WIN32
@@ -39,7 +41,7 @@ int main(int argc, char *argv[])
     {
         printf("%s Failed to disable idle sleep timer\n", EMOJI_FAIL);
     }
-
+/*
     if (yrm100_command_enable_continous_wave(device) == YRM100_STATUS_OK)
     {
         printf("%s Enabled continuous wave\n", EMOJI_PASS);
@@ -48,7 +50,7 @@ int main(int argc, char *argv[])
     {
         printf("%s Failed to enable continuous wave\n", EMOJI_FAIL);
     }
-
+*/
     unsigned char region = YRM100_PARAM_REGION_EUROPE;
     if (yrm100_command_set_operating_region(device, region) == YRM100_STATUS_OK)
     {
@@ -123,16 +125,16 @@ int main(int argc, char *argv[])
     }
 */
 
-    yrm100_rfid_tag_t tag[5] = {{0}};
-    yrm100_reset_tag_buf(tag, 5);
-    int result = yrm100_command_single_poll(device, tag, 5);
+    yrm100_rfid_tag_t tag[TAG_BUF_SIZE] = {{0}};
+    yrm100_reset_tag_buf(tag, TAG_BUF_SIZE);
+    int result = yrm100_command_single_poll(device, tag, TAG_BUF_SIZE);
     if (result < 0)
     {
         printf("single poll failed: %s (%d)\n", yrm100_error_code_to_string(result), result);
         yrm100_deinit(device);
         return 1;
     }
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < TAG_BUF_SIZE; i++)
     {
         yrm100_print_tag_info(&tag[i]);
     }

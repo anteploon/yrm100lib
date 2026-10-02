@@ -157,6 +157,28 @@ int yrm100_command_enable_continous_wave(yrm100_context_t *device_context);
 int yrm100_command_disable_continous_wave(yrm100_context_t *device_context);
 
 /**
+ * @brief Turns automatic frequency hopping on or off
+ * @param device_context Handle to the RFID UHF device
+ * @param on_or_off Use either YRM100_PARAM_FREQUENCY_HOPPING_OFF (0x00) or YRM100_PARAM_FREQUENCY_HOPPING_ON (0xFF)
+ * @return Value 0 on success, otherwise error code
+ */
+int yrm100_command_set_frequency_hopping(yrm100_context_t *device_context, uint8_t on_or_off);
+
+/**
+ * @brief Turns automatic frequency hopping on
+ * @param device_context Handle to the RFID UHF device
+ * @return Value 0 on success, otherwise error code
+ */
+int yrm100_command_enable_frequency_hopping(yrm100_context_t *device_context);
+
+/**
+ * @brief Turns automatic frequency hopping off
+ * @param device_context Handle to the RFID UHF device
+ * @return Value 0 on success, otherwise error code
+ */
+int yrm100_command_disable_frequency_hopping(yrm100_context_t *device_context);
+
+/**
  * @brief Puts the RFID module to sleep
  * @param device_context Handle to the RFID UHF device
  * @return Value 0 on success, otherwise error code

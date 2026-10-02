@@ -83,6 +83,18 @@
 
 /** @} */
 
+/** @defgroup yrm100_frequency_hopping_toggle Values to use to turn automatic frequency hopping on and off
+ *  @{
+ */
+
+/** Automatic frequency hopping off */
+#define YRM100_PARAM_FREQUENCY_HOPPING_OFF 0x00
+
+/** Automatic frequency hopping on */
+#define YRM100_PARAM_FREQUENCY_HOPPING_ON 0xFF
+
+/** @} */
+
 /**
  * @brief Checks if a value is a valid RFID tag memory bank
  * @param memory_bank Memory bank value
