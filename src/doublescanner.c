@@ -388,6 +388,9 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
+    printf("Serial devices: %s, %s\nUnix socket: %s\nPoll interval %lums\n", serial_paths[0], serial_paths[1], use_stdout ? "stdout" : socket_path, interval_ms);
+    fflush(stdout);
+
     if (use_stdout)
     {
         while (!should_stop)
